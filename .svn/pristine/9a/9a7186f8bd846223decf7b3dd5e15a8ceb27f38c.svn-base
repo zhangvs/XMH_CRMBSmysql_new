@@ -1,0 +1,721 @@
+using System;
+using System.Data;
+using System.Collections.Generic;
+using XHD.Common;
+using XHD.Model;
+namespace XHD.BLL
+{
+    /// <summary>
+    /// CRM_Customer
+    /// </summary>
+    public partial class CRM_Customer
+    {
+        private readonly XHD.DAL.CRM_Customer dal = new XHD.DAL.CRM_Customer();
+        public CRM_Customer()
+        { }
+        #region  Method
+
+        /// <summary>
+        /// 得到最大ID
+        /// </summary>
+        public int GetMaxId()
+        {
+            return dal.GetMaxId();
+        }
+
+        /// <summary>
+        /// 获取数据
+        /// </summary>
+        /// <returns></returns>
+        public int GetCount(string flag, string strWhere)
+        {
+            return dal.GetCount(flag, strWhere);
+        }
+
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int id)
+        {
+            return dal.Exists(id);
+        }
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public int Add(XHD.Model.CRM_Customer model)
+        {
+            return dal.Add(model);
+        }
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(XHD.Model.CRM_Customer model)
+        {
+            return dal.Update(model);
+        }
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Transfer(XHD.Model.CRM_Customer model, XHD.Model.ecs_admin_user adminModel, string c_tel)
+        {
+            return dal.Transfer(model, adminModel, c_tel);
+        }
+
+
+        /// <summary>
+        /// 批量转客源
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public bool Update_batch(XHD.Model.CRM_Customer model, string strWhere)
+        {
+            return dal.Update_batch(model, strWhere);
+        }
+
+        /// <summary>
+        /// 批量转客户为公客
+        /// </summary>
+        public bool TransferMass(string id, string factory_Id)
+        {
+            return dal.TransferMass(id, factory_Id);
+        }
+
+        /// <summary>
+        /// 批量转客户给某一员工
+        /// </summary>
+        public bool TransferPrivate(string id, int empId, string dep, int depId, string factory_Id)
+        {
+            return dal.TransferPrivate(id, empId, dep, depId, factory_Id);
+        }
+
+
+        /// <summary>
+        /// 修改emp_handnum的数量
+        /// </summary>
+        public bool UpdateHandNumById(int id, int emp_handnum)
+        {
+            return dal.UpdateHandNumById(id, emp_handnum);
+        }
+
+        /// <summary>
+        /// 批量转客户给某一员工
+        /// </summary>
+        public bool TransferPrivates(string id, XHD.Model.hr_employee model, XHD.Model.ecs_admin_user adminModel, string c_tel)
+        {
+            return dal.TransferPrivates(id, model, adminModel, c_tel);
+        }
+
+        /// <summary>
+        /// 预删除
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="isDelete"></param>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public bool AdvanceDelete(int id, int isDelete, string time)
+        {
+            return dal.AdvanceDelete(id, isDelete, time);
+        }
+
+        /// <summary>
+        /// 预删除
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="isDelete"></param>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public bool AdvanceDeletes(string id, int isDelete, string factory_Id, string time)
+        {
+            return dal.AdvanceDeletes(id, isDelete, factory_Id, time);
+        }
+
+        /// <summary>
+        /// 我的客户删除
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="isDelete"></param>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public bool Deletes(string id, int isDelete, string factory_Id, string time)
+        {
+            return dal.Deletes(id, isDelete, factory_Id, time);
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int id)
+        {
+
+            return dal.Delete(id);
+        }
+
+        /// <summary>
+        /// 删除多条语句
+        /// </summary>
+        /// <param name="idList"></param>
+        /// <returns></returns>
+        public bool DeleteAll(string idList, string factory_Id)
+        {
+            return dal.DeleteAll(idList, factory_Id);
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool DeleteList(string idlist)
+        {
+            return dal.DeleteList(idlist);
+        }
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.CRM_Customer GetModel(int id)
+        {
+
+            return dal.GetModel(id);
+        }
+
+        /// <summary>
+        /// 得到一个对象实体，从缓存中
+        /// </summary>
+        public XHD.Model.CRM_Customer GetModelByCache(int id)
+        {
+
+            string CacheKey = "CRM_CustomerModel-" + id;
+            object objModel = XHD.Common.DataCache.GetCache(CacheKey);
+            if (objModel == null)
+            {
+                try
+                {
+                    objModel = dal.GetModel(id);
+                    if (objModel != null)
+                    {
+                        int ModelCache = XHD.Common.ConfigHelper.GetConfigInt("ModelCache");
+                        XHD.Common.DataCache.SetCache(CacheKey, objModel, DateTime.Now.AddMinutes(ModelCache), TimeSpan.Zero);
+                    }
+                }
+                catch { }
+            }
+            return (XHD.Model.CRM_Customer)objModel;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            return dal.GetList(strWhere);
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetListLink(string strWhere)
+        {
+            return dal.GetListLink(strWhere);
+        }
+        public DataSet Dealer(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.Dealer(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+        //根据公司名称经销商
+        public DataSet Dealer(int PageSize, int PageIndex, string strWhere, string key, string filedOrder, out string Total)
+        {
+            return dal.Dealer(PageSize, PageIndex, strWhere, key, filedOrder, out Total);
+        }
+        public DataSet SearchDealer(int PageSize, int PageIndex, string strWhere, string strWhere2, string filedOrder, out string Total)
+        {
+            return dal.SearchDealer(PageSize, PageIndex, strWhere, strWhere2, filedOrder, out Total);
+        }
+        //根据联系方式进行查询
+        public DataSet DealerByPhone(int PageSize, int PageIndex, string strWhere, string key, string filedOrder, out string Total)
+        {
+            return dal.DealerByPhone(PageSize, PageIndex, strWhere, key, filedOrder, out Total);
+        }
+
+        public DataSet DealerCot(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.DealerCot(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+        public DataSet Dealer_customer(int PageSize, int PageIndex, string strWhere, string strWhere2, string filedOrder, out string Total)
+        {
+            return dal.Dealer_customer(PageSize, PageIndex, strWhere, strWhere2, filedOrder, out Total);
+        }
+
+        /// <summary>
+        /// 获得前几行数据
+        /// </summary>
+        public DataSet GetList(int Top, string strWhere, string filedOrder)
+        {
+            return dal.GetList(Top, strWhere, filedOrder);
+        }
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public List<XHD.Model.CRM_Customer> GetModelList(string strWhere)
+        {
+            DataSet ds = dal.GetList(strWhere);
+            return DataTableToList(ds.Tables[0]);
+        }
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public List<XHD.Model.CRM_Customer> DataTableToList(DataTable dt)
+        {
+            List<XHD.Model.CRM_Customer> modelList = new List<XHD.Model.CRM_Customer>();
+            int rowsCount = dt.Rows.Count;
+            if (rowsCount > 0)
+            {
+                XHD.Model.CRM_Customer model;
+                for (int n = 0; n < rowsCount; n++)
+                {
+                    model = new XHD.Model.CRM_Customer();
+                    if (dt.Rows[n]["id"] != null && dt.Rows[n]["id"].ToString() != "")
+                    {
+                        model.id = int.Parse(dt.Rows[n]["id"].ToString());
+                    }
+                    if (dt.Rows[n]["Serialnumber"] != null && dt.Rows[n]["Serialnumber"].ToString() != "")
+                    {
+                        model.Serialnumber = dt.Rows[n]["Serialnumber"].ToString();
+                    }
+                    if (dt.Rows[n]["Customer"] != null && dt.Rows[n]["Customer"].ToString() != "")
+                    {
+                        model.Customer = dt.Rows[n]["Customer"].ToString();
+                    }
+                    if (dt.Rows[n]["address"] != null && dt.Rows[n]["address"].ToString() != "")
+                    {
+                        model.address = dt.Rows[n]["address"].ToString();
+                    }
+                    if (dt.Rows[n]["tel"] != null && dt.Rows[n]["tel"].ToString() != "")
+                    {
+                        model.tel = dt.Rows[n]["tel"].ToString();
+                    }
+                    if (dt.Rows[n]["fax"] != null && dt.Rows[n]["fax"].ToString() != "")
+                    {
+                        model.fax = dt.Rows[n]["fax"].ToString();
+                    }
+                    if (dt.Rows[n]["site"] != null && dt.Rows[n]["site"].ToString() != "")
+                    {
+                        model.site = dt.Rows[n]["site"].ToString();
+                    }
+                    if (dt.Rows[n]["industry"] != null && dt.Rows[n]["industry"].ToString() != "")
+                    {
+                        model.industry = dt.Rows[n]["industry"].ToString();
+                    }
+                    if (dt.Rows[n]["Provinces_id"] != null && dt.Rows[n]["Provinces_id"].ToString() != "")
+                    {
+                        model.Provinces_id = int.Parse(dt.Rows[n]["Provinces_id"].ToString());
+                    }
+                    if (dt.Rows[n]["Provinces"] != null && dt.Rows[n]["Provinces"].ToString() != "")
+                    {
+                        model.Provinces = dt.Rows[n]["Provinces"].ToString();
+                    }
+                    if (dt.Rows[n]["City_id"] != null && dt.Rows[n]["City_id"].ToString() != "")
+                    {
+                        model.City_id = int.Parse(dt.Rows[n]["City_id"].ToString());
+                    }
+                    if (dt.Rows[n]["City"] != null && dt.Rows[n]["City"].ToString() != "")
+                    {
+                        model.City = dt.Rows[n]["City"].ToString();
+                    }
+                    if (dt.Rows[n]["CustomerType_id"] != null && dt.Rows[n]["CustomerType_id"].ToString() != "")
+                    {
+                        model.CustomerType_id = int.Parse(dt.Rows[n]["CustomerType_id"].ToString());
+                    }
+                    if (dt.Rows[n]["CustomerType"] != null && dt.Rows[n]["CustomerType"].ToString() != "")
+                    {
+                        model.CustomerType = dt.Rows[n]["CustomerType"].ToString();
+                    }
+                    if (dt.Rows[n]["CustomerLevel_id"] != null && dt.Rows[n]["CustomerLevel_id"].ToString() != "")
+                    {
+                        model.CustomerLevel_id = int.Parse(dt.Rows[n]["CustomerLevel_id"].ToString());
+                    }
+                    if (dt.Rows[n]["CustomerLevel"] != null && dt.Rows[n]["CustomerLevel"].ToString() != "")
+                    {
+                        model.CustomerLevel = dt.Rows[n]["CustomerLevel"].ToString();
+                    }
+                    if (dt.Rows[n]["CustomerSource_id"] != null && dt.Rows[n]["CustomerSource_id"].ToString() != "")
+                    {
+                        model.CustomerSource_id = int.Parse(dt.Rows[n]["CustomerSource_id"].ToString());
+                    }
+                    if (dt.Rows[n]["CustomerSource"] != null && dt.Rows[n]["CustomerSource"].ToString() != "")
+                    {
+                        model.CustomerSource = dt.Rows[n]["CustomerSource"].ToString();
+                    }
+                    if (dt.Rows[n]["DesCripe"] != null && dt.Rows[n]["DesCripe"].ToString() != "")
+                    {
+                        model.DesCripe = dt.Rows[n]["DesCripe"].ToString();
+                    }
+                    if (dt.Rows[n]["Remarks"] != null && dt.Rows[n]["Remarks"].ToString() != "")
+                    {
+                        model.Remarks = dt.Rows[n]["Remarks"].ToString();
+                    }
+                    if (dt.Rows[n]["Department_id"] != null && dt.Rows[n]["Department_id"].ToString() != "")
+                    {
+                        model.Department_id = int.Parse(dt.Rows[n]["Department_id"].ToString());
+                    }
+                    if (dt.Rows[n]["Department"] != null && dt.Rows[n]["Department"].ToString() != "")
+                    {
+                        model.Department = dt.Rows[n]["Department"].ToString();
+                    }
+                    if (dt.Rows[n]["Employee_id"] != null && dt.Rows[n]["Employee_id"].ToString() != "")
+                    {
+                        model.Employee_id = int.Parse(dt.Rows[n]["Employee_id"].ToString());
+                    }
+                    if (dt.Rows[n]["Employee"] != null && dt.Rows[n]["Employee"].ToString() != "")
+                    {
+                        model.Employee = dt.Rows[n]["Employee"].ToString();
+                    }
+                    if (dt.Rows[n]["privatecustomer"] != null && dt.Rows[n]["privatecustomer"].ToString() != "")
+                    {
+                        model.privatecustomer = dt.Rows[n]["privatecustomer"].ToString();
+                    }
+                    if (dt.Rows[n]["lastfollow"] != null && dt.Rows[n]["lastfollow"].ToString() != "")
+                    {
+                        model.lastfollow = DateTime.Parse(dt.Rows[n]["lastfollow"].ToString());
+                    }
+                    if (dt.Rows[n]["Create_id"] != null && dt.Rows[n]["Create_id"].ToString() != "")
+                    {
+                        model.Create_id = int.Parse(dt.Rows[n]["Create_id"].ToString());
+                    }
+                    if (dt.Rows[n]["Create_name"] != null && dt.Rows[n]["Create_name"].ToString() != "")
+                    {
+                        model.Create_name = dt.Rows[n]["Create_name"].ToString();
+                    }
+                    if (dt.Rows[n]["Create_date"] != null && dt.Rows[n]["Create_date"].ToString() != "")
+                    {
+                        model.Create_date = DateTime.Parse(dt.Rows[n]["Create_date"].ToString());
+                    }
+                    if (dt.Rows[n]["isDelete"] != null && dt.Rows[n]["isDelete"].ToString() != "")
+                    {
+                        model.isDelete = int.Parse(dt.Rows[n]["isDelete"].ToString());
+                    }
+                    if (dt.Rows[n]["Delete_time"] != null && dt.Rows[n]["Delete_time"].ToString() != "")
+                    {
+                        model.Delete_time = DateTime.Parse(dt.Rows[n]["Delete_time"].ToString());
+                    }
+                    modelList.Add(model);
+                }
+            }
+            return modelList;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetAllList()
+        {
+            return GetList("");
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetList(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetListBill(int PageSize, int PageIndex, string strSqlOne, string strSqlTwo, string filedOrder, out string Total)
+        {
+            return dal.GetListBill(PageSize, PageIndex, strSqlOne, strSqlTwo, filedOrder, out Total);
+        }
+            
+        /// <summary>
+        /// 加载客户往来款
+        /// </summary>
+        public DataSet GetListBills(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetListBills(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+        /// 获取导出数据
+        /// </summary>
+        public DataSet GetListExcel(string strSqlOne, string strSqlTwo)
+        {
+            return dal.GetListExcel(strSqlOne, strSqlTwo);
+        }
+
+
+        public DataSet GetList(int PageSize, int PageIndex, string strWhere, string strWhere2, string filedOrder, out string Total)
+        {
+            return dal.GetList(PageSize, PageIndex, strWhere, strWhere2, filedOrder, out Total);
+        }
+        /// <summary>
+        /// 分页获取可使用的大客户
+        /// </summary>
+        public DataSet GetListFactory(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetListFactory(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetListEmp(string strWhere)
+        {
+            return dal.GetListEmp(strWhere);
+        }
+
+        /// <summary>
+        /// 获取客户所有ID
+        /// </summary>
+        /// <param name="strWhere"></param>
+        /// <returns></returns>
+        public DataSet getCustomerIdAll(string strWhere)
+        {
+            return dal.getCustomerIdAll(strWhere);
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetListEmp(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetListEmp(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+        /// <summary>
+        /// 联系人获得数据列表
+        /// </summary>
+        public DataSet GetListContact(int PageSize, int PageIndex, string strWhere, string key, string filedOrder, out string Total)
+        {
+            return dal.GetListContact(PageSize, PageIndex, strWhere, key, filedOrder, out Total);
+        }
+
+        /// <summary>
+        ///联系人获得数据
+        /// </summary>
+        public DataSet GetAllContact(string strWhere, string key)
+        {
+            return dal.GetAllContact(strWhere, key);
+        }
+
+        /// <summary>
+        /// /跟进内容获得数据列表
+        /// </summary>
+        public DataSet GetListContactFollow(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetListContactFollow(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+
+        /// <summary>
+        /// /跟进内容获得数据列表(有效的大客户)
+        /// </summary>
+        public DataSet GetListContactFollowEnd(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetListContactFollowEnd(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+
+        /// <summary>
+        /// / 根据综合查询获取客户信息
+        /// </summary>
+        public DataSet GetListSynthesis(int PageSize, int PageIndex, string strWhere1, string strWhere2, string filedOrder, out string Total)
+        {
+            return dal.GetListSynthesis(PageSize, PageIndex, strWhere1, strWhere2, filedOrder, out Total);
+        }
+        /// <summary>
+        /// / 根据综合查询获取客户信息
+        /// </summary>
+        public DataSet GetListSynthesis(string strWhere1, string strWhere2)
+        {
+            return dal.GetListSynthesis(strWhere1, strWhere2);
+        }
+
+        /// <summary>
+        /// /跟进内容获得数据列表
+        /// </summary>
+        public DataSet GetListContactFollowEmp(string strWhere)
+        {
+            return dal.GetListContactFollowEmp(strWhere);
+        }
+
+        /// <summary>
+        /// /跟进内容获得数据列表
+        /// </summary>
+        public DataSet GetListContactFollowEmp(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetListContactFollowEmp(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+        /// <summary>
+        /// 公司电话联系电话获得数据列表
+        /// </summary>
+        public DataSet GetListByTel(int PageSize, int PageIndex, string strWhere1, string strWhere2, string filedOrder, out string Total)
+        {
+            return dal.GetListByTel(PageSize, PageIndex, strWhere1, strWhere2, filedOrder, out Total);
+        }
+
+        /// <summary>
+        /// 公司电话联系电话获得数据
+        /// </summary>
+        //public DataSet GetAllListByTel(string strWhere)
+        //{
+        //    return dal.GetAllListByTel(strWhere);
+        //}
+        public DataSet GetAllListByTel(string strWhere1, string strWhere2)
+        {
+            return dal.GetAllListByTel(strWhere1, strWhere2);
+        }
+
+        /// <summary>
+        ///跟进内容获得数据
+        /// </summary>
+        public DataSet GetAllContactFollow(string strWhere)
+        {
+            return dal.GetAllContactFollow(strWhere);
+        }
+
+        /// <summary>
+        /// 更新最后跟进
+        /// </summary>
+        public bool UpdateLastFollow(string id)
+        {
+            return dal.UpdateLastFollow(id);
+        }
+        public DataSet Reports_year(string items, int year, string where)
+        {
+            return dal.Reports_year(items, year, where);
+        }
+
+        public DataSet Reports_month(string items, int year, int month, string where)
+        {
+            return dal.Reports_month(items, year, month, where);
+        }
+
+
+        /// <summary>
+        /// 同比环比【客户新增】
+        /// </summary>
+        /// <param name="dt1"></param>
+        /// <param name="dt2"></param>
+        /// <param name="project_id"></param>
+        /// <returns></returns>
+        public DataSet Compared(string year1, string month1, string year2, string month2, string strwhere)
+        {
+            return dal.Compared(year1, month1, year2, month2, strwhere);
+        }
+
+        public DataSet Compared_type(string year1, string month1, string year2, string month2, string strwhere)
+        {
+            return dal.Compared_type(year1, month1, year2, month2, strwhere);
+        }
+
+        public DataSet Compared_level(string year1, string month1, string year2, string month2, string strwhere)
+        {
+            return dal.Compared_level(year1, month1, year2, month2, strwhere);
+        }
+
+        public DataSet Compared_source(string year1, string month1, string year2, string month2, string strwhere)
+        {
+            return dal.Compared_source(year1, month1, year2, month2, strwhere);
+        }
+
+        public DataSet Compared_empcusadd(string year1, string month1, string year2, string month2, string idlist)//, string idlist)
+        {
+            return dal.Compared_empcusadd(year1, month1, year2, month2, idlist);//, idlist);
+        }
+
+        /// <summary>
+        /// 客户新增统计
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="idlist"></param>
+        /// <returns></returns>
+        public DataSet report_empcus(int year, string idlist)
+        {
+            return dal.report_empcus(year, idlist);
+        }
+        /// <summary>
+        /// 客户新增统计月
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="idlist"></param>
+        /// <returns></returns>
+        public DataSet report_empcus(int year, int months, string idlist)
+        {
+            return dal.report_empcus(year, months, idlist);
+        }
+        /// <summary>
+        /// 导出当前页
+        /// </summary>
+        /// <param name="PageSize"></param>
+        /// <param name="PageIndex"></param>
+        /// <param name="strWhere"></param>
+        /// <param name="filedOrder"></param>
+        /// <param name="Total"></param>
+        /// <returns></returns>
+        public DataSet ToExcelOnePage(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.ToExcelOnePage(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+
+        /// <summary>
+        /// ToExcel
+        /// </summary>
+        public DataSet ToExcel(string strWhere)
+        {
+            return dal.ToExcel(strWhere);
+        }
+        /// <summary>
+        /// 导入
+        /// </summary>
+        public bool ToImport(int emp_id, string emp_name, DateTime create_time)
+        {
+            return dal.ToImport(emp_id, emp_name, create_time);
+        }
+
+        /// <summary>
+        /// 统计漏斗
+        /// </summary>
+        public DataSet Funnel(string strWhere, string year, string whereStr1)
+        {
+            return dal.Funnel(strWhere, year, whereStr1);
+        }
+        /// <summary>
+        /// 联系统计
+        /// </summary>
+        public DataSet Contact_Statistics(string idlist, string serchstr)
+        {
+            return dal.Contact_Statistics(idlist, serchstr);
+        }
+
+        /// 通过手机号或公司名称精确获取客户
+        public DataSet exactSearch(int PageSize, int PageIndex, string strWhere1, string strWhere2, string filedOrder, out string Total)
+        {
+            return dal.exactSearch(PageSize, PageIndex, strWhere1, strWhere2, filedOrder, out Total);
+        }
+
+        /// 通过手机号、公司名称、联系人精确获取客户
+        public DataSet exactGet(int PageSize, int PageIndex, string strWhere1, string strWhere2, string filedOrder, out string Total)
+        {
+            return dal.exactGet(PageSize, PageIndex, strWhere1, strWhere2, filedOrder, out Total);
+        }
+
+        /// 通过手机号、公司名称、联系人精确获取客户
+        public DataSet getCusInfo(int PageSize, int PageIndex, string strWhere1, string filedOrder, out string Total)
+        {
+            return dal.getCusInfo(PageSize, PageIndex, strWhere1, filedOrder, out Total);
+        }
+
+        //查询客户的订单数
+        public DataSet getCusOrderNum(string strWhere)
+        {
+            return dal.getCusOrderNum(strWhere);
+        }
+        #endregion  Method
+    }
+}
+

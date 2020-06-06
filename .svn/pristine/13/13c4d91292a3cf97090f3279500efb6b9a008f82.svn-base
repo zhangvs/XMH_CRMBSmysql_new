@@ -1,0 +1,659 @@
+﻿using MySql.Data.MySqlClient;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using XHD.DBUtility;
+
+namespace FMS_DAL
+{
+    /// <summary>
+    /// 数据访问类:fms_refund_bill
+    /// </summary>
+    public partial class fms_refund_bill
+    {
+        public fms_refund_bill()
+        { }
+
+        #region  BasicMethod
+        /// <summary>
+        /// 得到最大ID
+        /// </summary>
+        public int GetMaxId()
+        {
+            return FMS_DbHelperMySQL.GetMaxID("refund_id", "fms_refund_bill");
+        }
+
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int refund_id)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from fms_refund_bill");
+            strSql.Append(" where refund_id=@refund_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@refund_id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = refund_id;
+
+            return FMS_DbHelperMySQL.Exists(strSql.ToString(), parameters);
+        }
+
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public bool Add(FMS_Model.fms_refund_bill model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("insert into fms_refund_bill(");
+            strSql.Append("refund_id,refund_sn,refund_type,refund_status,emp_id,emp_code,emp_name,apply_date,user_id,customer_id,customer_name,refund_money,refund_capital_money,refund_remark,refund_bank_name,refund_bank_account,pay_method,pay_method_name,pay_id,pay_code,pay_name,pay_date,approvalOne_id,approvalOne_code,approvalOne_name,approvalOne_date,approvalTwo_id,approvalTwo_code,approvalTwo_name,approvalTwo_date,approvalThree_id,approvalThree_code,approvalThree_name,approvalThree_date,approvalFour_id,approvalFour_code,approvalFour_name,approvalFour_date,is_del,kingdee_current_account,is_send_out,kingdee_in_code,kingdee_out_code,print_num)");
+            strSql.Append(" values (");
+            strSql.Append("@refund_id,@refund_sn,@refund_type,@refund_status,@emp_id,@emp_code,@emp_name,@apply_date,@user_id,@customer_id,@customer_name,@refund_money,@refund_capital_money,@refund_remark,@refund_bank_name,@refund_bank_account,@pay_method,@pay_method_name,@pay_id,@pay_code,@pay_name,@pay_date,@approvalOne_id,@approvalOne_code,@approvalOne_name,@approvalOne_date,@approvalTwo_id,@approvalTwo_code,@approvalTwo_name,@approvalTwo_date,@approvalThree_id,@approvalThree_code,@approvalThree_name,@approvalThree_date,@approvalFour_id,@approvalFour_code,@approvalFour_name,@approvalFour_date,@is_del,@kingdee_current_account,@is_send_out,@kingdee_in_code,@kingdee_out_code,@print_num)");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@refund_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@refund_sn", MySqlDbType.VarChar,20),
+					new MySqlParameter("@refund_type", MySqlDbType.Int16,2),
+					new MySqlParameter("@refund_status", MySqlDbType.Int16,2),
+					new MySqlParameter("@emp_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@emp_code", MySqlDbType.VarChar,20),
+					new MySqlParameter("@emp_name", MySqlDbType.VarChar,50),
+					new MySqlParameter("@apply_date", MySqlDbType.DateTime),
+					new MySqlParameter("@user_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@customer_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@customer_name", MySqlDbType.VarChar,250),
+					new MySqlParameter("@refund_money", MySqlDbType.Decimal,12),
+					new MySqlParameter("@refund_capital_money", MySqlDbType.VarChar,200),
+					new MySqlParameter("@refund_remark", MySqlDbType.VarChar,500),
+					new MySqlParameter("@refund_bank_name", MySqlDbType.VarChar,200),
+					new MySqlParameter("@refund_bank_account", MySqlDbType.VarChar,200),
+					new MySqlParameter("@pay_method", MySqlDbType.VarChar,100),
+					new MySqlParameter("@pay_method_name", MySqlDbType.VarChar,200),
+					new MySqlParameter("@pay_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@pay_code", MySqlDbType.VarChar,20),
+					new MySqlParameter("@pay_name", MySqlDbType.VarChar,20),
+					new MySqlParameter("@pay_date", MySqlDbType.DateTime),
+					new MySqlParameter("@approvalOne_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@approvalOne_code", MySqlDbType.VarChar,20),
+					new MySqlParameter("@approvalOne_name", MySqlDbType.VarChar,50),
+					new MySqlParameter("@approvalOne_date", MySqlDbType.DateTime),
+					new MySqlParameter("@approvalTwo_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@approvalTwo_code", MySqlDbType.VarChar,20),
+					new MySqlParameter("@approvalTwo_name", MySqlDbType.VarChar,20),
+					new MySqlParameter("@approvalTwo_date", MySqlDbType.DateTime),
+					new MySqlParameter("@approvalThree_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@approvalThree_code", MySqlDbType.VarChar,20),
+					new MySqlParameter("@approvalThree_name", MySqlDbType.VarChar,20),
+					new MySqlParameter("@approvalThree_date", MySqlDbType.DateTime),
+					new MySqlParameter("@approvalFour_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@approvalFour_code", MySqlDbType.VarChar,20),
+					new MySqlParameter("@approvalFour_name", MySqlDbType.VarChar,20),
+					new MySqlParameter("@approvalFour_date", MySqlDbType.DateTime),
+					new MySqlParameter("@is_del", MySqlDbType.Int16,2),
+					new MySqlParameter("@kingdee_current_account", MySqlDbType.VarChar,100),
+					new MySqlParameter("@is_send_out", MySqlDbType.Int16,2),
+					new MySqlParameter("@kingdee_in_code", MySqlDbType.VarChar,32),
+					new MySqlParameter("@kingdee_out_code", MySqlDbType.VarChar,32),
+					new MySqlParameter("@print_num", MySqlDbType.Int32,11)};
+            parameters[0].Value = model.refund_id;
+            parameters[1].Value = model.refund_sn;
+            parameters[2].Value = model.refund_type;
+            parameters[3].Value = model.refund_status;
+            parameters[4].Value = model.emp_id;
+            parameters[5].Value = model.emp_code;
+            parameters[6].Value = model.emp_name;
+            parameters[7].Value = model.apply_date;
+            parameters[8].Value = model.user_id;
+            parameters[9].Value = model.customer_id;
+            parameters[10].Value = model.customer_name;
+            parameters[11].Value = model.refund_money;
+            parameters[12].Value = model.refund_capital_money;
+            parameters[13].Value = model.refund_remark;
+            parameters[14].Value = model.refund_bank_name;
+            parameters[15].Value = model.refund_bank_account;
+            parameters[16].Value = model.pay_method;
+            parameters[17].Value = model.pay_method_name;
+            parameters[18].Value = model.pay_id;
+            parameters[19].Value = model.pay_code;
+            parameters[20].Value = model.pay_name;
+            parameters[21].Value = model.pay_date;
+            parameters[22].Value = model.approvalOne_id;
+            parameters[23].Value = model.approvalOne_code;
+            parameters[24].Value = model.approvalOne_name;
+            parameters[25].Value = model.approvalOne_date;
+            parameters[26].Value = model.approvalTwo_id;
+            parameters[27].Value = model.approvalTwo_code;
+            parameters[28].Value = model.approvalTwo_name;
+            parameters[29].Value = model.approvalTwo_date;
+            parameters[30].Value = model.approvalThree_id;
+            parameters[31].Value = model.approvalThree_code;
+            parameters[32].Value = model.approvalThree_name;
+            parameters[33].Value = model.approvalThree_date;
+            parameters[34].Value = model.approvalFour_id;
+            parameters[35].Value = model.approvalFour_code;
+            parameters[36].Value = model.approvalFour_name;
+            parameters[37].Value = model.approvalFour_date;
+            parameters[38].Value = model.is_del;
+            parameters[39].Value = model.kingdee_current_account;
+            parameters[40].Value = model.is_send_out;
+            parameters[41].Value = model.kingdee_in_code;
+            parameters[42].Value = model.kingdee_out_code;
+            parameters[43].Value = model.print_num;
+
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(FMS_Model.fms_refund_bill model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update fms_refund_bill set ");
+            strSql.Append("refund_sn=@refund_sn,");
+            strSql.Append("refund_type=@refund_type,");
+            strSql.Append("refund_status=@refund_status,");
+            strSql.Append("user_id=@user_id,");
+            strSql.Append("customer_id=@customer_id,");
+            strSql.Append("customer_name=@customer_name,");
+            strSql.Append("refund_money=@refund_money,");
+            strSql.Append("refund_capital_money=@refund_capital_money,");
+            strSql.Append("refund_remark=@refund_remark,");
+            strSql.Append("refund_bank_name=@refund_bank_name,");
+            strSql.Append("refund_bank_account=@refund_bank_account,");
+            strSql.Append("pay_method=@pay_method,");
+            strSql.Append("pay_method_name=@pay_method_name,");         
+            strSql.Append("is_send_out=@is_send_out ");
+            strSql.Append(" where refund_id=@refund_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@refund_sn", MySqlDbType.VarChar,20),
+					new MySqlParameter("@refund_type", MySqlDbType.Int16,2),
+					new MySqlParameter("@refund_status", MySqlDbType.Int16,2),
+					new MySqlParameter("@user_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@customer_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@customer_name", MySqlDbType.VarChar,250),
+					new MySqlParameter("@refund_money", MySqlDbType.Decimal,12),
+					new MySqlParameter("@refund_capital_money", MySqlDbType.VarChar,200),
+					new MySqlParameter("@refund_remark", MySqlDbType.VarChar,500),
+					new MySqlParameter("@refund_bank_name", MySqlDbType.VarChar,200),
+					new MySqlParameter("@refund_bank_account", MySqlDbType.VarChar,200),
+					new MySqlParameter("@pay_method", MySqlDbType.VarChar,100),
+					new MySqlParameter("@pay_method_name", MySqlDbType.VarChar,200),
+					new MySqlParameter("@is_send_out", MySqlDbType.Int16,2),					
+					new MySqlParameter("@refund_id", MySqlDbType.Int32,11)};
+
+            parameters[0].Value = model.refund_sn;
+            parameters[1].Value = model.refund_type;
+            parameters[2].Value = model.refund_status;
+            parameters[3].Value = model.user_id;
+            parameters[4].Value = model.customer_id;
+            parameters[5].Value = model.customer_name;
+            parameters[6].Value = model.refund_money;
+            parameters[7].Value = model.refund_capital_money;
+            parameters[8].Value = model.refund_remark;
+            parameters[9].Value = model.refund_bank_name;
+            parameters[10].Value = model.refund_bank_account;
+            parameters[11].Value = model.pay_method;
+            parameters[12].Value = model.pay_method_name;           
+            parameters[13].Value = model.is_send_out;
+            parameters[14].Value = model.refund_id;
+
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 审核
+        /// </summary>
+        public bool updateStatus(FMS_Model.fms_refund_bill model, string idList)
+        {
+            List<string> strSqlList = new List<string>();
+            string strSql = string.Empty;
+
+            DataSet ds = GetList("  refund_id in (" + idList + ")");
+            if (ds != null && ds.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    switch (model.refund_status.ToString())
+                    {
+                        case "1":
+                        case "2":
+                            strSql = string.Format(@" update  fms_refund_bill set refund_status='{0}',approvalOne_id='{1}',approvalOne_code='{2}',approvalOne_name='{3}',approvalOne_date='{4}' where refund_id='{5}'",
+                                     model.refund_status, model.approvalOne_id, model.approvalOne_code, model.approvalOne_name, model.approvalOne_date, Convert.ToInt32(ds.Tables[0].Rows[i]["refund_id"].ToString()));
+                            strSqlList.Add(strSql);
+                            break;
+                        case "3":
+                        case "4":
+                            strSql = string.Format(@" update  fms_refund_bill set refund_status='{0}',approvalTwo_id='{1}',approvalTwo_code='{2}',approvalTwo_name='{3}',approvalTwo_date='{4}' where refund_id='{5}'",
+                                    model.refund_status, model.approvalTwo_id, model.approvalTwo_code, model.approvalTwo_name, model.approvalTwo_date, Convert.ToInt32(ds.Tables[0].Rows[i]["refund_id"].ToString()));
+                            strSqlList.Add(strSql);
+                            break;
+                        case "5":
+                            //判断是三级审核还是四级审核 0：三级审核；1：四级审核
+                            int state = model.refund_status;
+                            if (ds.Tables[0].Rows[i]["refund_type"].ToString() == "0") 
+                            {
+                                state = 9;
+                            }
+                            strSql = string.Format(@" update  fms_refund_bill set refund_status='{0}',approvalThree_id='{1}',approvalThree_code='{2}',approvalThree_name='{3}',approvalThree_date='{4}' where refund_id='{5}'",
+                                                   state, model.approvalThree_id, model.approvalThree_code, model.approvalThree_name, model.approvalThree_date, Convert.ToInt32(ds.Tables[0].Rows[i]["refund_id"].ToString()));
+                            strSqlList.Add(strSql);
+                            break;
+                        case "6":
+                            strSql = string.Format(@" update  fms_refund_bill set refund_status='{0}',approvalThree_id='{1}',approvalThree_code='{2}',approvalThree_name='{3}',approvalThree_date='{4}' where refund_id='{5}'",
+                                                   model.refund_status, model.approvalThree_id, model.approvalThree_code, model.approvalThree_name, model.approvalThree_date, Convert.ToInt32(ds.Tables[0].Rows[i]["refund_id"].ToString()));
+                            strSqlList.Add(strSql);
+                            break;
+                        case "8":
+                        case "9":
+                            strSql = string.Format(@" update  fms_refund_bill set refund_status='{0}',approvalFour_id='{1}',approvalFour_code='{2}',approvalFour_name='{3}',approvalFour_date='{4}' where refund_id='{5}'",
+                                    model.refund_status, model.approvalFour_id, model.approvalFour_code, model.approvalFour_name, model.approvalFour_date, Convert.ToInt32(ds.Tables[0].Rows[i]["refund_id"].ToString()));
+                            strSqlList.Add(strSql);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+
+            int rows = FMS_DbHelperMySQL.ExecuteSqlTran(strSqlList);
+            if (rows >= 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 付款
+        /// </summary>
+        public bool pay_kuan(FMS_Model.fms_refund_bill model, string idList)
+        {
+            string strSql = string.Format(@" update  fms_refund_bill set refund_status='{0}',pay_id='{1}',pay_code='{2}',pay_name='{3}',pay_date='{4}' where refund_id  in ({5})",
+                                                   10, model.pay_id, model.pay_code, model.pay_name, model.pay_date, idList);
+
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Updates(FMS_Model.fms_refund_bill model)
+        {
+            string strSql = string.Format(@" update  fms_refund_bill set kingdee_in_code='{0}',kingdee_out_code='{1}',kingdee_current_account='{2}' where refund_id='{3}'",
+                                                 model.kingdee_in_code, model.kingdee_out_code,model.kingdee_current_account, model.refund_id);
+
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int refund_id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from fms_refund_bill ");
+            strSql.Append(" where refund_id=@refund_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@refund_id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = refund_id;
+
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 批量删除数据
+        /// </summary>
+        public bool DeleteList(string refund_idlist)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from fms_refund_bill ");
+            strSql.Append(" where refund_id in (" + refund_idlist + ")  ");
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public FMS_Model.fms_refund_bill GetModel(int refund_id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select refund_id,refund_sn,refund_type,refund_status,emp_id,emp_code,emp_name,apply_date,user_id,customer_id,customer_name,refund_money,refund_capital_money,refund_remark,refund_bank_name,refund_bank_account,pay_method,pay_method_name,pay_id,pay_code,pay_name,pay_date,approvalOne_id,approvalOne_code,approvalOne_name,approvalOne_date,approvalTwo_id,approvalTwo_code,approvalTwo_name,approvalTwo_date,approvalThree_id,approvalThree_code,approvalThree_name,approvalThree_date,approvalFour_id,approvalFour_code,approvalFour_name,approvalFour_date,is_del,kingdee_current_account,is_send_out,kingdee_in_code,kingdee_out_code,print_num from fms_refund_bill ");
+            strSql.Append(" where refund_id=@refund_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@refund_id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = refund_id;
+
+            FMS_Model.fms_refund_bill model = new FMS_Model.fms_refund_bill();
+            DataSet ds = FMS_DbHelperMySQL.Query(strSql.ToString(), parameters);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                return DataRowToModel(ds.Tables[0].Rows[0]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public FMS_Model.fms_refund_bill DataRowToModel(DataRow row)
+        {
+            FMS_Model.fms_refund_bill model = new FMS_Model.fms_refund_bill();
+            if (row != null)
+            {
+                if (row["refund_id"] != null && row["refund_id"].ToString() != "")
+                {
+                    model.refund_id = int.Parse(row["refund_id"].ToString());
+                }
+                if (row["refund_sn"] != null)
+                {
+                    model.refund_sn = row["refund_sn"].ToString();
+                }
+                if (row["refund_type"] != null && row["refund_type"].ToString() != "")
+                {
+                    model.refund_type = int.Parse(row["refund_type"].ToString());
+                }
+                if (row["refund_status"] != null && row["refund_status"].ToString() != "")
+                {
+                    model.refund_status = int.Parse(row["refund_status"].ToString());
+                }
+                if (row["emp_id"] != null && row["emp_id"].ToString() != "")
+                {
+                    model.emp_id = int.Parse(row["emp_id"].ToString());
+                }
+                if (row["emp_code"] != null)
+                {
+                    model.emp_code = row["emp_code"].ToString();
+                }
+                if (row["emp_name"] != null)
+                {
+                    model.emp_name = row["emp_name"].ToString();
+                }
+                if (row["apply_date"] != null && row["apply_date"].ToString() != "")
+                {
+                    model.apply_date = DateTime.Parse(row["apply_date"].ToString());
+                }
+                if (row["user_id"] != null && row["user_id"].ToString() != "")
+                {
+                    model.user_id = int.Parse(row["user_id"].ToString());
+                }
+                if (row["customer_id"] != null && row["customer_id"].ToString() != "")
+                {
+                    model.customer_id = int.Parse(row["customer_id"].ToString());
+                }
+                if (row["customer_name"] != null)
+                {
+                    model.customer_name = row["customer_name"].ToString();
+                }
+                if (row["refund_money"] != null && row["refund_money"].ToString() != "")
+                {
+                    model.refund_money = decimal.Parse(row["refund_money"].ToString());
+                }
+                if (row["refund_capital_money"] != null)
+                {
+                    model.refund_capital_money = row["refund_capital_money"].ToString();
+                }
+                if (row["refund_remark"] != null)
+                {
+                    model.refund_remark = row["refund_remark"].ToString();
+                }
+                if (row["refund_bank_name"] != null)
+                {
+                    model.refund_bank_name = row["refund_bank_name"].ToString();
+                }
+                if (row["refund_bank_account"] != null)
+                {
+                    model.refund_bank_account = row["refund_bank_account"].ToString();
+                }
+                if (row["pay_method"] != null)
+                {
+                    model.pay_method = row["pay_method"].ToString();
+                }
+                if (row["pay_method_name"] != null)
+                {
+                    model.pay_method_name = row["pay_method_name"].ToString();
+                }
+                if (row["pay_id"] != null && row["pay_id"].ToString() != "")
+                {
+                    model.pay_id = int.Parse(row["pay_id"].ToString());
+                }
+                if (row["pay_code"] != null)
+                {
+                    model.pay_code = row["pay_code"].ToString();
+                }
+                if (row["pay_name"] != null)
+                {
+                    model.pay_name = row["pay_name"].ToString();
+                }
+                if (row["pay_date"] != null && row["pay_date"].ToString() != "")
+                {
+                    model.pay_date = DateTime.Parse(row["pay_date"].ToString());
+                }
+                if (row["approvalOne_id"] != null && row["approvalOne_id"].ToString() != "")
+                {
+                    model.approvalOne_id = int.Parse(row["approvalOne_id"].ToString());
+                }
+                if (row["approvalOne_code"] != null)
+                {
+                    model.approvalOne_code = row["approvalOne_code"].ToString();
+                }
+                if (row["approvalOne_name"] != null)
+                {
+                    model.approvalOne_name = row["approvalOne_name"].ToString();
+                }
+                if (row["approvalOne_date"] != null && row["approvalOne_date"].ToString() != "")
+                {
+                    model.approvalOne_date = DateTime.Parse(row["approvalOne_date"].ToString());
+                }
+                if (row["approvalTwo_id"] != null && row["approvalTwo_id"].ToString() != "")
+                {
+                    model.approvalTwo_id = int.Parse(row["approvalTwo_id"].ToString());
+                }
+                if (row["approvalTwo_code"] != null)
+                {
+                    model.approvalTwo_code = row["approvalTwo_code"].ToString();
+                }
+                if (row["approvalTwo_name"] != null)
+                {
+                    model.approvalTwo_name = row["approvalTwo_name"].ToString();
+                }
+                if (row["approvalTwo_date"] != null && row["approvalTwo_date"].ToString() != "")
+                {
+                    model.approvalTwo_date = DateTime.Parse(row["approvalTwo_date"].ToString());
+                }
+                if (row["approvalThree_id"] != null && row["approvalThree_id"].ToString() != "")
+                {
+                    model.approvalThree_id = int.Parse(row["approvalThree_id"].ToString());
+                }
+                if (row["approvalThree_code"] != null)
+                {
+                    model.approvalThree_code = row["approvalThree_code"].ToString();
+                }
+                if (row["approvalThree_name"] != null)
+                {
+                    model.approvalThree_name = row["approvalThree_name"].ToString();
+                }
+                if (row["approvalThree_date"] != null && row["approvalThree_date"].ToString() != "")
+                {
+                    model.approvalThree_date = DateTime.Parse(row["approvalThree_date"].ToString());
+                }
+                if (row["approvalFour_id"] != null && row["approvalFour_id"].ToString() != "")
+                {
+                    model.approvalFour_id = int.Parse(row["approvalFour_id"].ToString());
+                }
+                if (row["approvalFour_code"] != null)
+                {
+                    model.approvalFour_code = row["approvalFour_code"].ToString();
+                }
+                if (row["approvalFour_name"] != null)
+                {
+                    model.approvalFour_name = row["approvalFour_name"].ToString();
+                }
+                if (row["approvalFour_date"] != null && row["approvalFour_date"].ToString() != "")
+                {
+                    model.approvalFour_date = DateTime.Parse(row["approvalFour_date"].ToString());
+                }
+                if (row["is_del"] != null && row["is_del"].ToString() != "")
+                {
+                    model.is_del = int.Parse(row["is_del"].ToString());
+                }
+                if (row["kingdee_current_account"] != null)
+                {
+                    model.kingdee_current_account = row["kingdee_current_account"].ToString();
+                }
+                if (row["is_send_out"] != null && row["is_send_out"].ToString() != "")
+                {
+                    model.is_send_out = int.Parse(row["is_send_out"].ToString());
+                }
+                if (row["kingdee_in_code"] != null)
+                {
+                    model.kingdee_in_code = row["kingdee_in_code"].ToString();
+                }
+                if (row["kingdee_out_code"] != null)
+                {
+                    model.kingdee_out_code = row["kingdee_out_code"].ToString();
+                }
+                if (row["print_num"] != null && row["print_num"].ToString() != "")
+                {
+                    model.print_num = int.Parse(row["print_num"].ToString());
+                }
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select refund_id,refund_sn,refund_type,refund_status,emp_id,emp_code,emp_name,apply_date,customer_id,customer_name,refund_money,refund_capital_money,refund_remark,refund_bank_name,refund_bank_account,pay_method,pay_id,pay_code,pay_name,pay_date,approvalOne_id,approvalOne_code,approvalOne_name,approvalOne_date,approvalTwo_id,approvalTwo_code,approvalTwo_name,approvalTwo_date,approvalThree_id,approvalThree_code,approvalThree_name,approvalThree_date,approvalFour_id,approvalFour_code,approvalFour_name,approvalFour_date,is_del,is_send_out,kingdee_in_code,kingdee_out_code,user_id,pay_method_name,print_num ");
+            strSql.Append(" FROM fms_refund_bill ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return FMS_DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+        /// <summary>
+        /// model_list获取数据集
+        /// </summary>
+        /// <param name="strWhere"></param>
+        /// <returns></returns>
+        public List<FMS_Model.fms_refund_bill> NewGetList(string strWhere)
+        {
+            List<FMS_Model.fms_refund_bill> list = new List<FMS_Model.fms_refund_bill>();
+            DataSet ds = GetList(strWhere);
+            if (ds != null && ds.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    DataRow dr = ds.Tables[0].Rows[i];
+                    FMS_Model.fms_refund_bill tempbill = new FMS_Model.fms_refund_bill();
+                    tempbill = DataRowToModel(dr);
+                    list.Add(tempbill);
+                }
+                return list;
+            }
+            else
+                return null;
+
+        }
+
+
+        /// <summary>
+        /// 加载所有退款单
+        /// </summary>
+        public DataSet GetList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append("select r.*,e.collection_bank_name  FROM  xmh_fms.fms_refund_bill r ");
+            strSql.Append(" left join xmh_fms.fms_bank_list_excel e on r.pay_method=e.collection_bank_code ");
+            strSql.Append(" inner join  crm_customer u on r.customer_id=u.id ");
+
+            strSql1.Append(" select count(r.refund_id) FROM xmh_fms.fms_refund_bill r");
+            strSql1.Append(" left join xmh_fms.fms_bank_list_excel e on r.pay_method=e.collection_bank_code ");
+            strSql1.Append(" inner join  crm_customer u on r.customer_id=u.id ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+        #endregion  BasicMethod
+
+
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}
+

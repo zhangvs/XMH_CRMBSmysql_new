@@ -1,0 +1,161 @@
+﻿using System;
+namespace XHD.Model
+{
+    /// <summary>
+    /// dms_team_bonus:实体类(属性说明自动提取数据库字段的描述信息)
+    /// </summary>
+    [Serializable]
+    public partial class dms_team_bonus
+    {
+        public dms_team_bonus()
+        { }
+        #region Model
+        private int _id;
+        private string _year;
+        private string _monthnode;
+        private string _d_pid;
+        private string _d_pname;
+        private decimal? _salemoney_team;
+        private decimal? _backmoney_team;
+        private decimal? _realmoney_team;
+        private decimal? _plan_team;
+        private decimal? _base_team;
+        private decimal? _cha_team;
+        private decimal? _wcl_team;
+        private decimal? _team_bonus;
+        private decimal? _team_champion;
+        private DateTime? _create_time;
+        private string _create_name;
+        /// <summary>
+        /// auto_increment
+        /// </summary>
+        public int id
+        {
+            set { _id = value; }
+            get { return _id; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string year
+        {
+            set { _year = value; }
+            get { return _year; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string monthnode
+        {
+            set { _monthnode = value; }
+            get { return _monthnode; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string d_pid
+        {
+            set { _d_pid = value; }
+            get { return _d_pid; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string d_pname
+        {
+            set { _d_pname = value; }
+            get { return _d_pname; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal? salemoney_team
+        {
+            set { _salemoney_team = value; }
+            get { return _salemoney_team; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal? backmoney_team
+        {
+            set { _backmoney_team = value; }
+            get { return _backmoney_team; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal? realmoney_team
+        {
+            set { _realmoney_team = value; }
+            get { return _realmoney_team; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal? plan_team
+        {
+            set { _plan_team = value; }
+            get { return _plan_team; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal? base_team
+        {
+            set { _base_team = value; }
+            get { return _base_team; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal? cha_team
+        {
+            set { _cha_team = value; }
+            get { return _cha_team; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal? wcl_team
+        {
+            set { _wcl_team = value; }
+            get { return _wcl_team; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal? team_bonus
+        {
+            set { _team_bonus = value; }
+            get { return _team_bonus; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal? team_champion
+        {
+            set { _team_champion = value; }
+            get { return _team_champion; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateTime? create_time
+        {
+            set { _create_time = value; }
+            get { return _create_time; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string create_name
+        {
+            set { _create_name = value; }
+            get { return _create_name; }
+        }
+        #endregion Model
+
+    }
+}
+

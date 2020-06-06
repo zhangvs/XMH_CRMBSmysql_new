@@ -1,0 +1,1203 @@
+﻿var mains = new Array();//画图main数组
+var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight; //height:812
+
+var subtext = '';//副标题
+var axisDatas = new Array(); //x轴
+var groupColors = ['#ffb6c1', '#20b2aa', '#ffa07a', '#87cefa'];//节点颜色
+var baseColor = '#00ff00';
+var planColor = '#ff1493';
+
+var monthUnits = ['日', '节点', '月'];
+var monthLegendDatas = ['日销售额', '日退货额', '日实际销售额', '日差额', '日完成率', '节点销售额', '节点差额', '节点完成率', '月销售额', '月差额', '月完成率'];
+var monthLegendBools = { '日销售额': false, '日退货额': false, '日实际销售额': false, '日差额': false, '日完成率': false, '节点销售额': true, '节点差额': false, '节点完成率': false, '月销售额': false, '月差额': false, '月完成率': false };
+
+var yearUnits = ['月', '季', '年'];
+var yearLegendDatas = ['月销售额', '月退货额', '月实际销售额', '月差额', '月完成率', '季销售额', '季差额', '季完成率', '年销售额', '年差额', '年完成率'];
+var yearLegendBools = { '月销售额': false, '月退货额': false, '月实际销售额': false, '月差额': false, '月完成率': false, '季销售额': true, '季差额': false, '季完成率': false, '年销售额': false, '年差额': false, '年完成率': false };
+
+var sideMonthLegendDatas = ['月销售额', '月退货额', '月实际销售额', '月基数', '月计划', '月完成率'];
+var sideMonthLegendBools = { '月销售额': false, '月退货额': false, '月实际销售额': true, '月基数': false, '月计划': false, '月完成率': false };
+
+var sideYearLegendDatas = ['年销售额', '年退货额', '年实际销售额', '年基数', '年计划', '年完成率'];
+var sideYearLegendBools = { '年销售额': false, '年退货额': false, '年实际销售额': true, '年基数': false, '年计划': false, '年完成率': false };
+var sideBrandEmp = '客服';
+
+var cycles = ['年', '第一季度', '第二季度', '第三季度', '第四季度']//周期，根据周期循环展示各部门对比的图像
+
+var singlecount = 0; //月份天数
+var group_one1 = 1; //第一节点起
+var group_two1, group_three1, group_four1; //第二节点起
+
+var single_base = 0; //日基数
+var group_base = 0; //节点基数
+var whole_base = 0; //月基数
+
+var single_plan = 0; //日计划
+var group_plan = 0; //节点计划
+var whole_plan = 0; //月计划
+
+
+var single_bases = new Array(); //日基数
+var group_bases = new Array(); //节点基数
+var whole_bases = new Array(); //月基数
+
+var single_plans = new Array(); //日计划
+var group_plans = new Array(); //节点计划
+var whole_plans = new Array(); //月计划
+
+var single_lines = new Array(); //日基数线
+var group_lines = new Array(); //节点计划线
+var group_Points = new Array(); //节点奖
+var whole_lines = new Array(); //月计划线
+
+var singleSales = new Array(); //日销售数据
+var singleBacks = new Array(); //日退货数据
+var singleReals = new Array(); //日实际数据
+var singleWcls = new Array();
+var singleChas = new Array();
+
+var singleSalesSum = 0; //日销售累加
+var singleBacksSum = 0;//日退货累加
+var singleRealsSum = 0;//日实际累加
+
+var singleSalesSums = new Array(); //日销售数据和
+var singleBacksSums = new Array(); //日退货数据和
+var singleRealsSums = new Array(); //日实际数据和
+
+var groupAdds = new Array(); //节点销售额
+var groupChas = new Array(); //节点差额
+var groupWcls = new Array(); //节点完成率
+
+var wholeAdds = new Array();//月累计数组
+var wholeChas = new Array();
+var wholeWcls = new Array();
+
+var cycleCompareAdds = new Array();//周期内累加和对比
+var cycleCompareChas = new Array();//周期内差对比
+var cycleCompareWcls = new Array();//周期内完成率对比
+
+
+function clearData() {
+    mains = [];
+    $("#form1").html("");
+    //基数
+    single_base = 0;
+    group_base = 0;
+    whole_base = 0;
+    //计划
+    single_plan = 0;
+    group_plan = 0;
+    whole_plan = 0;
+    //基数
+    single_bases = [];
+    group_bases = [];
+    whole_bases = [];
+    //计划
+    single_plans = [];
+    group_plans = [];
+    whole_plans = [];
+
+    //线,点
+    single_lines = [];
+    group_lines = [];
+    group_Points = [];
+    whole_lines = [];
+
+    //日
+    singleSales = [];
+    singleBacks = [];
+    singleReals = [];
+    singleWcls = [];
+    singleChas = [];
+    //日和
+    singleSalesSum = 0;
+    singleBacksSum = 0;
+    singleRealsSum = 0;
+    //节点
+    groupAdds = [];
+    groupChas = [];
+    groupWcls = [];
+    //月
+    wholeAdds = [];
+    wholeChas = [];
+    wholeWcls = [];
+
+}
+var syear, smonth;
+//日期天数
+function getDateCount(syear, smonth) {
+    //月
+    if (smonth.length == 1) {
+        smonth = '0' + smonth;
+    }
+    //天数
+    var day = new Date(syear, smonth, 0);//构造一个日期对象
+    return day.getDate();//获取天数
+}
+
+ 
+//x轴
+function showAxis(a, b, c, d) {
+    group_two1 = a; //第二节点起
+    group_three1 = b; //第三节点起
+    group_four1 = c; //第四节点起
+    singlecount = d;
+
+    axisDatas = [];
+    for (var j = 0; j < a; j++) {
+        getAxisDatas(j + 1, groupColors[0], axisDatas);
+    }
+    for (var j = group_two1; j < b; j++) {
+        getAxisDatas(j + 1, groupColors[1], axisDatas);
+    }
+    for (var j = group_three1; j < c; j++) {
+        getAxisDatas(j + 1, groupColors[2], axisDatas);
+    }
+    for (var j = group_four1; j < d; j++) {
+        getAxisDatas(j + 1, groupColors[3], axisDatas);
+    }
+}
+
+//渲染数据区间颜色
+function getAxisDatas(single, color, array) {
+    var val = {
+        value: single,
+        textStyle: {
+            color: color
+        }
+    };
+    array.push(val);
+
+}
+
+//画线
+function getLines(lineName, lineValue, lineColor, xAxisEnd, lineArray) {
+    var qd = {
+        name: lineName,
+        value: lineValue,
+        xAxis: -1,
+        yAxis: lineValue,
+        itemStyle: {
+            normal: {
+                color: lineColor,
+                label: {
+                    formatter: function (params, ticket, callback) {
+                        return '                 ' + params.name
+                    }
+                }
+            }
+        }
+    };
+    var zd = {
+        xAxis: xAxisEnd,
+        yAxis: lineValue
+    };
+    lineArray.push(qd);
+    lineArray.push(zd);
+}
+
+//渲染节点,哪个节点数组，地标，数据，颜色
+function getColorAndValue(array, value, color) {
+    var val = {
+        value: value,
+        itemStyle: {
+            normal: {
+                color: color
+            }
+        }
+    };
+    array.push(val);
+}
+
+//渲染季度奖点
+function getPoint(array, name, xAxis, value) {
+    var dian = {
+        name: name,
+        value: value,
+        xAxis: xAxis,
+        yAxis: value,
+        itemStyle: {
+            normal: {
+                color: '#FFFF00',
+                label: {
+                    show: true,
+                    formatter: function (params, ticket, callback) {
+                        return params.name
+                    },
+                    textStyle: {
+                        color: '#FF1493',
+                        fontFamily: 'Verdana, sans-serif',
+                        fontSize: 10,
+                        fontStyle: 'italic',
+                        fontWeight: 'bold'
+                    },
+                }
+            }
+        }
+    };
+    array.push(dian);
+}
+
+
+function ie_forEach() {
+    //IE不支持forEach，兼容
+    if (!Array.prototype.forEach) {
+
+        Array.prototype.forEach = function forEach(callback, thisArg) {
+
+            var T, k;
+
+            if (this == null) {
+                throw new TypeError("this is null or not defined");
+            }
+            var O = Object(this);
+            var len = O.length >>> 0;
+            if (typeof callback !== "function") {
+                throw new TypeError(callback + " is not a function");
+            }
+            if (arguments.length > 1) {
+                T = thisArg;
+            }
+            k = 0;
+
+            while (k < len) {
+
+                var kValue;
+                if (k in O) {
+
+                    kValue = O[k];
+                    callback.call(T, kValue, k, O);
+                }
+                k++;
+            }
+        };
+    }
+}
+
+//-------------------------------------------------------------------------处理月内的日，节点数据
+
+//基数，计划，线
+function getBasePlanLine(_id, whole_base, whole_plan) {
+    //初始化时间段内的基数计划
+    whole_bases[_id] = new Array();//当前品牌的月基数
+    group_plans[_id] = new Array();//当前品牌的节点计划
+    whole_plans[_id] = new Array();//当前品牌的月计划
+    single_bases[_id] = new Array();//当前品牌的日基数
+    group_plans[_id] = new Array();//当前品牌的节点计划
+    single_plans[_id] = new Array();//当前品牌的日计划
+    //初始化线
+    single_lines[_id] = new Array(); //当前品牌的基线二维数组
+    group_lines[_id] = new Array(); //当前品牌的基线二维数组
+    whole_lines[_id] = new Array();//当前品牌的计划线二维数组
+
+    //计算节点，日
+    group_base = parseFloat((whole_base / 4).toFixed()); //取前月份的计划除以4
+    single_base = parseFloat((whole_base / singlecount).toFixed());
+    group_plan = parseFloat((whole_plan / 4).toFixed()); //取前月份的计划除以4
+    single_plan = parseFloat((whole_plan / singlecount).toFixed());
+    //赋值
+    whole_bases[_id] = whole_base;
+    group_bases[_id] = group_base;
+    single_bases[_id] = single_base;
+    whole_plans[_id] = whole_plan;
+    group_plans[_id] = group_plan;
+    single_plans[_id] = single_plan;
+
+    //给当前品牌画线
+    getLines('基线', single_base, baseColor, singlecount - 1, single_lines[_id]);
+    getLines('基线', group_base, baseColor, singlecount - 1, group_lines[_id]);
+    getLines('基线', whole_base, baseColor, singlecount - 1, whole_lines[_id]);
+    getLines('计划线', single_plan, planColor, singlecount - 1, single_lines[_id]);
+    getLines('计划线', group_plan, planColor, singlecount - 1, group_lines[_id]);
+    getLines('计划线', whole_plan, planColor, singlecount - 1, whole_lines[_id]);
+}
+
+
+function initSingleData(_id) {
+    singleReals[_id] = new Array();//当前品牌的实际销售额二维数组
+    singleSales[_id] = new Array();//当前品牌的销售额二维数组
+    singleBacks[_id] = new Array();//当前品牌的退货额二维数组
+    singleChas[_id] = new Array();//当前品牌的任务差额
+    singleWcls[_id] = new Array();//当前品牌的完成率
+
+    //初始化当前坐标轴内每一天的数据为0
+    for (var i = 0; i < singlecount; i++) {
+        singleSales[_id][i] = 0;
+        singleBacks[_id][i] = 0;
+        singleReals[_id][i] = 0;
+        singleChas[_id][i] = 0;
+        singleWcls[_id][i] = 0;
+    }
+    //合计
+    singleRealsSums[_id] = 0;
+    singleSalesSums[_id] = 0;
+    singleBacksSums[_id] = 0;
+}
+function getSingleDataValue(_id, rowData) {
+    var d = parseInt(rowData.datetime) - 1; //获取日期字段，从1日开始，-1到角标0
+    singleSales[_id][d] = parseFloat(rowData.salemoney.toFixed());//日销售额
+    singleBacks[_id][d] = parseFloat(rowData.backmoney.toFixed());//日退货额
+    singleReals[_id][d] = parseFloat(rowData.realmoney.toFixed());//日实际销售额
+    singleChas[_id][d] = parseFloat((singleReals[_id][d] - single_plans[_id]).toFixed());//日差额
+    singleWcls[_id][d] = parseFloat((singleReals[_id][d] / single_plans[_id] * 100).toFixed());//日完成率
+    //日合计
+    singleSalesSums[_id] += parseFloat(rowData.salemoney.toFixed());
+    singleBacksSums[_id] += parseFloat(rowData.backmoney.toFixed());
+    singleRealsSums[_id] += parseFloat(rowData.realmoney.toFixed());
+}
+
+
+
+//初始化节点数据，颜色
+function initGroupData(array) {
+    for (var _id = 0; _id < array.length; _id++) {
+        groupAdds[_id] = new Array();
+        groupChas[_id] = new Array();
+        groupWcls[_id] = new Array();
+        group_Points[_id] = new Array();
+        getGroupData(_id, 0, group_two1, groupColors[0]);
+        getGroupData(_id, group_two1, group_three1, groupColors[1]);
+        getGroupData(_id, group_three1, group_four1, groupColors[2]);
+        getGroupData(_id, group_four1, singlecount, groupColors[3]);
+    }
+}
+function getGroupData(_id, begin, end, color) {
+    var groupAdd = 0; 
+    var groupCha = 0; 
+    var groupWcl = 0;
+
+    for (var j = begin; j < end; j++) {
+        groupAdd += parseFloat(singleReals[_id][j]);
+        groupCha = groupAdd - group_plans[_id];
+        groupWcl = parseFloat((groupAdd / group_plans[_id] * 100).toFixed());
+
+        getColorAndValue(groupAdds[_id], groupAdd, color);
+        getColorAndValue(groupChas[_id], groupCha, color);
+        getColorAndValue(groupWcls[_id], groupWcl, color);
+
+    }
+    if (groupCha > 0) {
+        getPoint(group_Points[_id], '达标奖', end - 1, groupAdd);
+    }
+}
+
+
+//初始化节点数据，颜色
+function initWholeData(array) {
+    var wholeSum = 0;
+    for (var _id = 0; _id < array.length; _id++) {
+        wholeSum = 0;
+        wholeAdds[_id] = new Array();
+        wholeChas[_id] = new Array();
+        wholeWcls[_id] = new Array();
+        for (var j = 0; j < singlecount; j++) {
+            wholeSum += parseFloat(singleReals[_id][j]);
+            wholeAdds[_id][j] = wholeSum;
+            wholeChas[_id][j] = wholeSum - whole_plans[_id];
+            wholeWcls[_id][j] = parseFloat((wholeSum / whole_plans[_id] * 100).toFixed());
+        }
+    }
+}
+
+
+//画图
+function dataDraw(data, units, legendDatas, legendBools) {
+    data.forEach(function DrawEChart(v, e) {
+    var option = {
+        title: {
+            text: data[e],
+            subtext:
+                '' + units[2] + '完成率：' + parseFloat((singleRealsSums[e] / whole_plans[e] * 100).toFixed()) + '%' +
+                '\n' + units[2] + '差额：' + parseFloat((singleRealsSums[e] - whole_plans[e]).toFixed()) +
+                '\n' + units[2] + '提成：' + parseFloat(((singleRealsSums[e] - whole_plans[e]) * bp_percentages[e] * 0.01).toFixed()) +
+                '\n\n' + units[2] + '销量：' + singleSalesSums[e] + '\n' + units[2] + '退货：' + singleBacksSums[e] + '\n' + units[2] + '实际：' + singleRealsSums[e] +
+                '\n\n' + units[2] + '基数：' + whole_bases[e] + '\n' + units[2] + '计划：' + whole_plans[e] +
+                '\n' + units[1] + '基数：' + group_bases[e] + '\n' + units[1] + '计划：' + group_plans[e] +
+                '\n' + units[0] + '基数：' + single_bases[e] + '\n' + units[0] + '计划：' + single_plans[e]
+        },
+        grid: {
+            x: 230,//靠左200像素
+        },
+        tooltip: {
+            trigger: 'axis',
+            showDelay: 0,
+            formatter: function (params, ticket, callback) {
+                var res = v + params[0].name + units[0];
+                for (var i = 0, l = params.length; i < l; i++) {
+                    res += '<br/>' + params[i].seriesName + ' : ' + params[i].value;
+                }
+                return res
+            }
+        },
+        legend: {
+            data: legendDatas,
+            selected: legendBools
+        },
+        toolbox: {
+            show: true,
+            orient: 'vertical',
+            feature: {
+                mark: {
+                    show: true
+                },
+                dataView: {
+                    show: true,
+                    readOnly: false,
+                    optionToContent: function (opt) {
+                        $("#main" + e).css("height", 680);
+                        var series = opt.series;
+                        var table = '<table class="dataView" style="width:100%;text-align:center;border:1px solid"><tbody><tr>' + '<td>' + units[0] + '</td>';
+                        for (var i = 0, l = series.length; i < l; i++) {
+                            table += '<td>' + series[i].name + '</td>'
+                        };
+
+                        table += '</tr>';
+                        for (var m = 0, g = axisDatas.length; m < g; m++) {
+                            table += '<tr><td>' + axisDatas[m].value + '</td>';
+                            for (var n = 0, l = series.length; n < l; n++) {
+                                var val = 0;
+                                if (n == 5 || n == 6 || n == 7) {
+                                    val = series[n].data[m].value;
+                                } else {
+                                    val = series[n].data[m];
+                                }
+                                if (n == 4 || n == 7 || n == 10) val += '%';
+                                table += '<td>' + val + '</td>'
+                            }
+                            table += '</tr>';
+                        };
+                        table += '</tbody></table>';
+                        return table;
+                    }
+                },
+                magicType: {
+                    show: true,
+                    type: ['line', 'bar']
+                },
+                restore: {
+                    show: true
+                },
+                saveAsImage: {
+                    show: true
+                }
+            }
+        },
+        calculable: true,
+        xAxis: [{
+            type: 'category',
+            data: axisDatas,
+            axisLabel: {
+                formatter: function (v) {
+                    return v + units[0]
+                }
+            },
+        }],
+        yAxis: [{
+            type: 'value',
+            scale: true,
+            axisLabel: {
+                formatter: function (v) {
+                    return v
+                }
+            },
+            splitArea: {
+                show: true
+            }
+        }],
+        series: [{
+            name: legendDatas[0],
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            },
+            data: singleSales[e]
+        }, {
+            name: legendDatas[1],
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'bottom'
+                    }
+                }
+            },
+            data: singleBacks[e]
+        }, {
+            name: legendDatas[2],
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            },
+            data: singleReals[e],
+            markLine: {
+                data: single_lines[e]
+            }
+        }, {
+            name: legendDatas[3],
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'bottom'
+                    }
+                }
+            },
+            data: singleChas[e]
+        }, {
+            name: legendDatas[4],
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function (params, ticket, callback) {
+                            return params.data + '%'
+                        },
+                    }
+                }
+            },
+            data: singleWcls[e]
+        }, {
+            name: legendDatas[5],
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            },
+            data: groupAdds[e],
+            markLine: {
+                data: group_lines[e]
+            },
+            markPoint: {
+                data: group_Points[e]
+            }
+        }, {
+            name: legendDatas[6],
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'bottom'
+                    }
+                }
+            },
+            data: groupChas[e]
+        }, {
+            name: legendDatas[7],
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function (params, ticket, callback) {
+                            return params.data.value + '%'
+                        },
+                    }
+                }
+            },
+            data: groupWcls[e]
+        }, {
+            name: legendDatas[8],
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            },
+            data: wholeAdds[e],
+            markLine: {
+                data: whole_lines[e]
+            }
+        }, {
+            name: legendDatas[9],
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'bottom'
+                    }
+                }
+            },
+            data: wholeChas[e]
+        }, {
+            name: legendDatas[10],
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function (params, ticket, callback) {
+                            return params.data + '%'
+                        },
+                    }
+                } 
+            },
+            data: wholeWcls[e]
+        }]
+    };
+
+    var myChart = echarts.init(document.getElementById('main' + e), 'macarons');
+    myChart.setOption(option);
+    mains.push(myChart);
+}
+
+);
+
+
+
+}
+
+
+//-------------------------------------------------------------------------处理品牌下的客服数据
+
+//客服
+var sideCodes = new Array();//当前品牌当前客服
+var sidenames = new Array();//当前品牌当前客服name
+var sideReals = new Array();//当前品牌当前客服的实际销售额二维数组
+var sideSales = new Array();//当前品牌当前客服的销售额二维数组
+var sideBacks = new Array();//当前品牌当前客服的退货额二维数组
+var sideBases = new Array();//当前品牌当前客服的计划
+var sidePlans = new Array();//当前品牌当前客服的基数
+var sideWcls = new Array();//当前品牌当前客服的完成率
+//当前品牌所有客服合计
+var sideRealsSums = new Array();
+var sideSalesSums = new Array();
+var sideBacksSums = new Array();
+
+function clearSideData() {
+    //客服销售
+    sideCodes = [];
+    sidenames = [];
+    sideReals = [];
+    sideSales = [];
+    sideBacks = [];
+    sidebases = [];
+    sidePlans = [];
+    sideWcls = [];
+    //客服销售合计
+    sideRealsSums = 0;
+    sideSalesSums = 0;
+    sideBacksSums = 0;
+}
+
+function initSideData(_id) {
+    sideCodes[_id] = new Array();//当前品牌当前客服
+    sidenames[_id] = new Array();//当前品牌当前客服
+    sideReals[_id] = new Array();//当前品牌当前客服的实际销售额二维数组
+    sideSales[_id] = new Array();//当前品牌当前客服的销售额二维数组
+    sideBacks[_id] = new Array();//当前品牌当前客服的退货额二维数组
+    sideBases[_id] = new Array();//客服品牌基数
+    sidePlans[_id] = new Array();//客服品牌计划
+    sideWcls[_id] = new Array();//客服品牌完成率
+    //当前品牌所有客服合计
+    sideRealsSums[_id] = 0;
+    sideSalesSums[_id] = 0;
+    sideBacksSums[_id] = 0;
+}
+
+function getSideDataValue(_id, d, rowData) {
+    sideCodes[_id][d] = rowData.code;//客服编号
+    sidenames[_id][d] = rowData.name;//客服名称
+    sideSales[_id][d] = parseFloat(rowData.salemoney).toFixed();//日销售额
+    sideBacks[_id][d] = parseFloat(rowData.backmoney).toFixed();//日退货额
+    sideReals[_id][d] = parseFloat(rowData.realmoney).toFixed();//日实际销售额
+    sideBases[_id][d] = parseFloat(rowData.base).toFixed();//日销售额
+    sidePlans[_id][d] = parseFloat(rowData.plan).toFixed();//日退货额
+    sideWcls[_id][d] = parseFloat(rowData.wcl).toFixed();//日实际销售额
+    //当前品牌所有客服合计
+    sideSalesSums[_id] += parseFloat(rowData.salemoney).toFixed();
+    sideBacksSums[_id] += parseFloat(rowData.backmoney).toFixed();
+    sideRealsSums[_id] += parseFloat(rowData.realmoney).toFixed();
+}
+
+
+function sideDraw(data,sideName, legendDatas, legendBools) {
+
+    //画图
+    bp_brand_names.forEach(function DrawEChart(v, e) {
+        var optionSide = {
+            title: {
+                text: v +sideName+ '销售情况',
+            },
+            grid: {
+                x: 180,//靠左200像素
+                x2: 180,//靠右200像素
+                y2: 100
+
+            },
+            visualMap: {
+                top: 20,
+                right: 40,
+                min: 0,
+                max: 100000,
+                pieces: [
+                { min: 100000 }, // 不指定 max，表示 max 为无限大（Infinity）。
+                { min: 50000, max: 100000 },
+                { min: 10000, max: 50000 },
+                { min: 1000, max: 10000, },
+                //{value: 123, label: '123（自定义特殊颜色）', color: 'grey'}, // 表示 value 等于 123 的情况。
+                { max: 1000 }     // 不指定 min，表示 min 为无限大（-Infinity）。
+                ],
+                color: ['#d94e5d', '#eac736', '#50a3ba'],
+            },
+            tooltip: {
+                trigger: 'axis',
+                showDelay: 0,
+                formatter: function (params, ticket, callback) {
+                    var res = params[0].name;
+                    for (var i = 0, l = params.length; i < l; i++) {
+                        res += '<br/>' + params[i].seriesName + ' : ' + params[i].value;
+                    }
+                    return res
+                }
+            },
+            toolbox: {
+                show: true,
+                orient: 'vertical',
+                feature: {
+                    mark: {
+                        show: true
+                    },
+                    dataView: {
+                        show: true,
+                        readOnly: false,
+                        optionToContent: function (opt) {
+                            var series = opt.series;
+                            var axisData = opt.xAxis[0].data;
+
+                            var hh = (axisData.length + 2) * 21 + 80;
+                            if (hh < h / 2) {
+                                $("#mainSide" + e).css("height", h / 2);
+                            }
+                            else {
+                                $("#mainSide" + e).css("height", hh);
+                            }
+
+                            var table = '<table><tbody><tr>' + '<td>' + sideName + '</td>';
+                            for (var i = 0, l = series.length; i < l; i++) {
+                                table += '<td>' + series[i].name + '</td>'
+                            };
+
+                            table += '</tr>';
+                            for (var m = 0, g = axisData.length; m < g; m++) {
+                                table += '<tr><td>' + axisData[m] + '</td>';
+                                for (var n = 0, l = series.length; n < l; n++) {
+                                    var val = series[n].data[m];
+                                    table += '<td>' + val + '</td>'
+                                }
+                                table += '</tr>';
+                            };
+                            table += '</tbody></table>';
+                            return table;
+                        }
+                    },
+                    magicType: {
+                        show: true,
+                        type: ['line', 'bar']
+                    },
+                    restore: {
+                        show: true
+                    },
+                    saveAsImage: {
+                        show: true
+                    }
+                }
+            },
+            calculable: true,
+            xAxis: [{
+                type: 'category',
+                axisLabel: {
+                    interval: 0,
+                    rotate: 45,//倾斜度 -90 至 90 默认为0  
+                    //margin: 2,
+                    textStyle: {
+                        fontWeight: "bolder",
+                        color: "#000000"
+                    }
+                },
+                data: sidenames[e]
+            }],
+            yAxis: [{
+                type: 'value',
+                scale: true,
+                axisLabel: {
+                    formatter: function (v) {
+                        return v
+                    }
+                },
+                splitArea: {
+                    show: true
+                }
+            }],
+            legend: {
+                data: legendDatas,
+                selected: legendBools
+            },
+            series: [{
+                name: legendDatas[0],
+                type: 'bar',
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: true,
+                            position: 'top'
+                        }
+                    }
+                },
+                data: sideSales[e]
+            }, {
+                name: legendDatas[1],
+                type: 'bar',
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: true,
+                            position: 'bottom'
+                        }
+                    }
+                },
+                data: sideBacks[e]
+            }, {
+                name: legendDatas[2],
+                type: 'bar',
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: true,
+                            position: 'top'
+                        }
+                    }
+                },
+                data: sideReals[e]
+            }, {
+                name: legendDatas[3],
+                type: 'bar',
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: true,
+                            position: 'top'
+                        }
+                    }
+                },
+                data: sideBases[e]
+            }, {
+                name: legendDatas[4],
+                type: 'bar',
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: true,
+                            position: 'top'
+                        }
+                    }
+                },
+                data: sidePlans[e]
+            }, {
+                name: legendDatas[5],
+                type: 'bar',
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: function (params, ticket, callback) {
+                                return params.data + '%'
+                            },
+                        }
+                    }
+                },
+                data: sideWcls[e]
+            }]
+        };
+
+        var myChartSide = echarts.init(document.getElementById('mainSide' + e), 'macarons');
+        myChartSide.setOption(optionSide);
+        mains.push(myChartSide);
+
+    }
+
+    );
+}
+function DrawEChartBrandData_j1() {
+    quarterBrandWcl_j1 = [];
+    quarterBrandSaleBackDatas_j1 = [];
+    quarterBrandSaleBackChaDatas_j1 = [];
+    ticheng_j1 = [];
+    tichengSum_j1 = 0;
+
+    for (var i = 0; i < bp_brand_names.length; i++) {
+        if (isFinite(quarterWcl[i][quarter_two1 - 1].value)) {
+            quarterBrandWcl_j1[i] = parseFloat((quarterWcl[i][quarter_two1 - 1].value).toFixed()); //年完成率
+        }
+        else {
+            quarterBrandWcl_j1[i] = 0;
+        }
+        quarterBrandSaleBackDatas_j1[i] = parseFloat((quarterData[i][quarter_two1 - 1].value).toFixed());
+        quarterBrandSaleBackChaDatas_j1[i] = parseFloat((quarterChaData[i][quarter_two1 - 1].value).toFixed());
+        ticheng_j1[i] = parseFloat(((quarterData[i][quarter_two1 - 1].value - quarterLine[i][0].value) * bp_percentages[i] * 0.01).toFixed());
+        tichengSum_j1 += ticheng_j1[i];
+
+    }
+}
+
+function initYearDepData(cycles, obj) {
+    for (var c = 0; c < cycles.length; c++) {
+        $("#main0").before("<div id='cycles" + c + "' ></div>");
+        $("#cycles" + c).css("height", 300);
+        yearDepDatas[c] = new Array();
+        yearDepChaDatas[c] = new Array();
+        yearDepWcls[c] = new Array();
+        yearDepWclLines[c] = new Array();
+
+        for (var i = 0; i < obj.length; i++) {
+            //月，循环加入每一个部门
+            getDepData(0, obj[i], parseFloat(yearDatas[i][monthcount - 1].toFixed()), parseFloat(yearChaDatas[i][monthcount - 1].toFixed()), parseFloat(yearWcls[i][monthcount - 1].toFixed()));//月
+        }
+    }
+
+}
+
+
+function initYearDepData(cycles,data) {
+    for (var c = 0; c < cycles.length; c++) {
+        $("#main0").before("<div id='cycles" + c + "' ></div>");
+        $("#cycles" + c).css("height", 300);
+        yearDepDatas[c] = new Array();
+        yearDepChaDatas[c] = new Array();
+        yearDepWcls[c] = new Array();
+        yearDepWclLines[c] = new Array();
+
+        for (var i = 0; i < bp_brand_names.length; i++) {
+            //月，循环加入每一个部门
+            getDepData(0, bp_brand_names[i], parseFloat(yearDatas[i][monthcount - 1].toFixed()), parseFloat(yearChaDatas[i][monthcount - 1].toFixed()), parseFloat(yearWcls[i][monthcount - 1].toFixed()));//月
+            getDepData(1, bp_brand_names[i], parseFloat(quarterData[i][quarter_two1 - 1].value.toFixed()), parseFloat(quarterChaData[i][quarter_two1 - 1].value.toFixed()), parseFloat(quarterWcl[i][quarter_two1 - 1].value.toFixed()));//节点1
+            getDepData(2, bp_brand_names[i], parseFloat(quarterData[i][quarter_three1 - 1].value.toFixed()), parseFloat(quarterChaData[i][quarter_three1 - 1].value.toFixed()), parseFloat(quarterWcl[i][quarter_three1 - 1].value.toFixed()));//节点2
+            getDepData(3, bp_brand_names[i], parseFloat(quarterData[i][quarter_four1 - 1].value.toFixed()), parseFloat(quarterChaData[i][quarter_four1 - 1].value.toFixed()), parseFloat(quarterWcl[i][quarter_four1 - 1].value.toFixed()));//节点3
+            getDepData(4, bp_brand_names[i], parseFloat(quarterData[i][monthcount - 1].value.toFixed()), parseFloat(quarterChaData[i][monthcount - 1].value.toFixed()), parseFloat(quarterWcl[i][monthcount - 1].value.toFixed()));//节点4
+        }
+    }
+
+}
+
+
+//月，节点，分部门综合展示
+function getDepData(c, d_pid, sale, cha, wcl) {
+    var color_c;
+    if (c == 0) {
+        color_c = yearColor;
+    }
+    else {
+        color_c = quarterColors[c - 1];
+    }
+
+    if (!isFinite(wcl)) {
+        wcl = 0;
+    }
+
+    //销售数据，差额数据,完成率数据
+    if (d_pid == 0) {
+        yearDepDatas[c].push({ value: sale, itemStyle: { normal: { color: d_pidColor } } });
+        yearDepChaDatas[c].push({ value: cha, itemStyle: { normal: { color: d_pidColor } } });
+        yearDepWcls[c].push({ value: wcl, itemStyle: { normal: { color: d_pidColor } } });
+        getLines('均线', wcl, d_pidColor, d_pnames[length - 1], yearDepWclLines[c]);
+    }
+    else {
+        yearDepDatas[c].push({ value: sale, itemStyle: { normal: { color: color_c } } });
+        yearDepChaDatas[c].push({ value: cha, itemStyle: { normal: { color: color_c } } });
+        yearDepWcls[c].push({ value: wcl, itemStyle: { normal: { color: color_c } } });
+    }
+}
+//画图
+function DrawEChartBrand_j1() {
+    DrawEChartBrandData_j1();
+    $("#main0").before("<div id='main_j1' ></div>");
+    //var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight; //height
+    $("#main_j1").css("height", 300);
+    var option = {
+        title: {
+            text: '第一季度部门销售汇总',
+            subtext: '第一季提成合计：' + tichengSum_j1
+        },
+        grid: {
+            x: 230,//靠左200像素
+            y2: 100
+        },
+        tooltip: {
+            trigger: 'axis',
+            showDelay: 0,
+            // 显示延迟，添加显示延迟可以避免频繁切换，单位ms
+        },
+        legend: {
+            data: ['第一季完成率', '第一季提成', '第一季销售额', '第一季差额'],
+            selected: {
+                '第一季完成率': true,
+                '第一季提成': false,
+                '第一季销售额': false,
+                '第一季差额': false
+            }
+        },
+        toolbox: {
+            show: true,
+            orient: 'vertical',
+            feature: {
+                mark: {
+                    show: true
+                },
+                dataView: {
+                    show: true,
+                    readOnly: false,
+                    optionToContent: function (opt) {
+                        var series = opt.series;
+                        var table = '<table class="dataView" style="width:100%;text-align:center;border:1px solid"><tbody><tr>' + '<td>部门</td>';
+                        for (var i = 0, l = series.length; i < l; i++) {
+                            table += '<td>' + series[i].name + '</td>'
+                        };
+
+                        table += '</tr>';
+                        for (var m = 0, g = bp_brand_names.length; m < g; m++) {
+                            table += '<tr><td>' + bp_brand_names[m] + '</td>';
+                            for (var n = 0, l = series.length; n < l; n++) {
+                                var val = series[n].data[m];
+                                if (n == 0) val += '%';
+                                table += '<td>' + val + '</td>'
+                            }
+                            table += '</tr>';
+                        };
+                        table += '</tbody></table>';
+                        return table;
+                    },
+                },
+                magicType: {
+                    show: true,
+                    type: ['line', 'bar']
+                },
+                restore: {
+                    show: true
+                },
+                saveAsImage: {
+                    show: true
+                }
+            }
+        },
+        calculable: true,
+        xAxis: [{
+            type: 'category',
+            axisLabel: {
+                interval: 0,
+                rotate: 45,//倾斜度 -90 至 90 默认为0  
+                //margin: 2,
+                textStyle: {
+                    fontWeight: "bolder",
+                    color: "#000000"
+                }
+            },
+            data: bp_brand_names
+        }],
+        yAxis: [{
+            type: 'value',
+            scale: true,
+            axisLabel: {
+                formatter: function (v) {
+                    return v
+                }
+            },
+            splitArea: {
+                show: true
+            }
+        }],
+        series: [{
+            name: '第一季完成率',
+            stack: '第一季',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function (params, ticket, callback) {
+                            return params.data + '%'
+                        },
+                    }
+                }
+            },
+            data: quarterBrandWcl_j1
+        }, {
+            name: '第一季提成',
+            stack: '第一季',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            },
+            data: ticheng_j1
+        }, {
+            name: '第一季销售额',
+            stack: '第一季',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            },
+            data: quarterBrandSaleBackDatas_j1
+        }, {
+            name: '第一季差额',
+            stack: '第一季',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            },
+            data: quarterBrandSaleBackChaDatas_j1
+        }]
+    };
+
+    var myChartBrand_j1 = echarts.init(document.getElementById('main_j1'), 'macarons');
+    myChartBrand_j1.setOption(option);
+    window.onresize = myChartBrand_j1.resize;//随屏幕的大小改变自适应
+
+}
+
+//随屏幕的大小改变自适应
+$(window).resize(function () {
+    mains.forEach(function echartsHight(v, e) {
+        v.resize();
+
+    })
+});

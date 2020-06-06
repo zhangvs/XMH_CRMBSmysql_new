@@ -1,0 +1,350 @@
+﻿using System;
+using System.Data;
+using System.Text;
+using MySql.Data.MySqlClient;
+using XHD.DBUtility;//Please add references
+
+namespace FMS_DAL
+{
+    /// <summary>
+    /// 数据访问类:shop_invoices2
+    /// </summary>
+    public partial class shop_invoices2
+    {
+        public shop_invoices2()
+        { }
+        #region  BasicMethod
+
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int invoice_id)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from shop_invoices2");
+            strSql.Append(" where invoice_id=@invoice_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@invoice_id", MySqlDbType.Int16,8)			};
+            parameters[0].Value = invoice_id;
+
+            return Shop_DbHelperMySQL.Exists(strSql.ToString(), parameters);
+        }
+
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public int Add(FMS_Model.shop_invoices2 model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("insert into shop_invoices2(");
+            strSql.Append("invoice_id,invoice_type,tax_rate,admin_id,invoice_no,user_id,total_count,total_money,total_tax,invoice_create_time,tax_account,add_time,note,invoice1_id,update_time)");
+            strSql.Append(" values (");
+            strSql.Append("@invoice_id,@invoice_type,@tax_rate,@admin_id,@invoice_no,@user_id,@total_count,@total_money,@total_tax,@invoice_create_time,@tax_account,@add_time,@note,@invoice1_id,@update_time)");
+            strSql.Append(";select @@IDENTITY");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@invoice_id", MySqlDbType.Int16,8),
+					new MySqlParameter("@invoice_type", MySqlDbType.VarChar,10),
+					new MySqlParameter("@tax_rate", MySqlDbType.Int16,2),
+					new MySqlParameter("@admin_id", MySqlDbType.Int16,8),
+					new MySqlParameter("@invoice_no", MySqlDbType.VarChar,30),
+					new MySqlParameter("@user_id", MySqlDbType.Int16,8),
+					new MySqlParameter("@total_count", MySqlDbType.Int32,11),
+					new MySqlParameter("@total_money", MySqlDbType.Decimal,10),
+					new MySqlParameter("@total_tax", MySqlDbType.Decimal,10),
+					new MySqlParameter("@invoice_create_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@tax_account", MySqlDbType.VarChar,30),
+					new MySqlParameter("@add_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@note", MySqlDbType.VarChar,60),
+					new MySqlParameter("@invoice1_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@update_time", MySqlDbType.Int32,11)};
+            parameters[0].Value = model.invoice_id;
+            parameters[1].Value = model.invoice_type;
+            parameters[2].Value = model.tax_rate;
+            parameters[3].Value = model.admin_id;
+            parameters[4].Value = model.invoice_no;
+            parameters[5].Value = model.user_id;
+            parameters[6].Value = model.total_count;
+            parameters[7].Value = model.total_money;
+            parameters[8].Value = model.total_tax;
+            parameters[9].Value = model.invoice_create_time;
+            parameters[10].Value = model.tax_account;
+            parameters[11].Value = model.add_time;
+            parameters[12].Value = model.note;
+            parameters[13].Value = model.invoice1_id;
+            parameters[14].Value = model.update_time;
+
+            object obj = Shop_DbHelperMySQL.GetSingle(strSql.ToString(), parameters);
+
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return Convert.ToInt32(obj);
+            }
+        }
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(FMS_Model.shop_invoices2 model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update shop_invoices2 set ");
+            strSql.Append("invoice_type=@invoice_type,");
+            strSql.Append("tax_rate=@tax_rate,");
+            strSql.Append("admin_id=@admin_id,");
+            strSql.Append("invoice_no=@invoice_no,");
+            strSql.Append("user_id=@user_id,");
+            strSql.Append("total_count=@total_count,");
+            strSql.Append("total_money=@total_money,");
+            strSql.Append("total_tax=@total_tax,");
+            strSql.Append("invoice_create_time=@invoice_create_time,");
+            strSql.Append("tax_account=@tax_account,");
+            strSql.Append("add_time=@add_time,");
+            strSql.Append("note=@note,");
+            strSql.Append("invoice1_id=@invoice1_id,");
+            strSql.Append("update_time=@update_time");
+            strSql.Append(" where invoice_id=@invoice_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@invoice_type", MySqlDbType.VarChar,10),
+					new MySqlParameter("@tax_rate", MySqlDbType.Int16,2),
+					new MySqlParameter("@admin_id", MySqlDbType.Int16,8),
+					new MySqlParameter("@invoice_no", MySqlDbType.VarChar,30),
+					new MySqlParameter("@user_id", MySqlDbType.Int16,8),
+					new MySqlParameter("@total_count", MySqlDbType.Int32,11),
+					new MySqlParameter("@total_money", MySqlDbType.Decimal,10),
+					new MySqlParameter("@total_tax", MySqlDbType.Decimal,10),
+					new MySqlParameter("@invoice_create_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@tax_account", MySqlDbType.VarChar,30),
+					new MySqlParameter("@add_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@note", MySqlDbType.VarChar,60),
+					new MySqlParameter("@invoice1_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@update_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@invoice_id", MySqlDbType.Int16,8)};
+            parameters[0].Value = model.invoice_type;
+            parameters[1].Value = model.tax_rate;
+            parameters[2].Value = model.admin_id;
+            parameters[3].Value = model.invoice_no;
+            parameters[4].Value = model.user_id;
+            parameters[5].Value = model.total_count;
+            parameters[6].Value = model.total_money;
+            parameters[7].Value = model.total_tax;
+            parameters[8].Value = model.invoice_create_time;
+            parameters[9].Value = model.tax_account;
+            parameters[10].Value = model.add_time;
+            parameters[11].Value = model.note;
+            parameters[12].Value = model.invoice1_id;
+            parameters[13].Value = model.update_time;
+            parameters[14].Value = model.invoice_id;
+
+            int rows = Shop_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool UpdateRe(FMS_Model.shop_invoices2 model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(" update shop_invoices2 set user_id='" + model.user_id + "',invoice1_id='" + model.invoice1_id + "',update_time='" + model.update_time + "' where invoice_id='" + model.invoice_id + "'");
+
+            int rows = Shop_DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int invoice_id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from shop_invoices2 ");
+            strSql.Append(" where invoice_id=@invoice_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@invoice_id", MySqlDbType.Int16,8)			};
+            parameters[0].Value = invoice_id;
+
+            int rows = Shop_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 批量删除数据
+        /// </summary>
+        public bool DeleteList(string invoice_idlist)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from shop_invoices2 ");
+            strSql.Append(" where invoice_id in (" + invoice_idlist + ")  ");
+            int rows = Shop_DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public FMS_Model.shop_invoices2 GetModel(int invoice_id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select invoice_id,invoice_type,tax_rate,admin_id,invoice_no,user_id,total_count,total_money,total_tax,invoice_create_time,tax_account,add_time,note,invoice1_id,update_time from shop_invoices2 ");
+            strSql.Append(" where invoice_id=@invoice_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@invoice_id", MySqlDbType.Int16,8)			};
+            parameters[0].Value = invoice_id;
+
+            FMS_Model.shop_invoices2 model = new FMS_Model.shop_invoices2();
+            DataSet ds = Shop_DbHelperMySQL.Query(strSql.ToString(), parameters);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                return DataRowToModel(ds.Tables[0].Rows[0]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public FMS_Model.shop_invoices2 DataRowToModel(DataRow row)
+        {
+            FMS_Model.shop_invoices2 model = new FMS_Model.shop_invoices2();
+            if (row != null)
+            {
+                //model.invoice_id=row["invoice_id"].ToString();
+                if (row["invoice_type"] != null)
+                {
+                    model.invoice_type = row["invoice_type"].ToString();
+                }
+                if (row["tax_rate"] != null && row["tax_rate"].ToString() != "")
+                {
+                    model.tax_rate = int.Parse(row["tax_rate"].ToString());
+                }
+                //model.admin_id=row["admin_id"].ToString();
+                if (row["invoice_no"] != null)
+                {
+                    model.invoice_no = row["invoice_no"].ToString();
+                }
+                //model.user_id=row["user_id"].ToString();
+                if (row["total_count"] != null && row["total_count"].ToString() != "")
+                {
+                    model.total_count = int.Parse(row["total_count"].ToString());
+                }
+                if (row["total_money"] != null && row["total_money"].ToString() != "")
+                {
+                    model.total_money = decimal.Parse(row["total_money"].ToString());
+                }
+                if (row["total_tax"] != null && row["total_tax"].ToString() != "")
+                {
+                    model.total_tax = decimal.Parse(row["total_tax"].ToString());
+                }
+                if (row["invoice_create_time"] != null && row["invoice_create_time"].ToString() != "")
+                {
+                    model.invoice_create_time = int.Parse(row["invoice_create_time"].ToString());
+                }
+                if (row["tax_account"] != null)
+                {
+                    model.tax_account = row["tax_account"].ToString();
+                }
+                if (row["add_time"] != null && row["add_time"].ToString() != "")
+                {
+                    model.add_time = int.Parse(row["add_time"].ToString());
+                }
+                if (row["note"] != null)
+                {
+                    model.note = row["note"].ToString();
+                }
+                if (row["invoice1_id"] != null && row["invoice1_id"].ToString() != "")
+                {
+                    model.invoice1_id = int.Parse(row["invoice1_id"].ToString());
+                }
+                if (row["update_time"] != null && row["update_time"].ToString() != "")
+                {
+                    model.update_time = int.Parse(row["update_time"].ToString());
+                }
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select invoice_id,invoice_type,tax_rate,admin_id,invoice_no,user_id,total_count,total_money,total_tax,invoice_create_time,tax_account,add_time,note,invoice1_id,update_time ");
+            strSql.Append(" FROM shop_invoices2 ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return Shop_DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 加载已开发票信息信息 
+        /// </summary>
+        public DataSet GetList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append(" select iv.company_name,iv.tel,e.name, io.invoice_id,io.invoice_type,io.tax_rate,io.admin_id,io.invoice_no,io.user_id,io.total_count,io.total_money,io.total_tax,io.invoice_create_time,io.tax_account,io.add_time,io.note,io.invoice1_id,io.update_time ");
+            strSql.Append(" FROM xmh_shop.shop_invoices2 io ");
+            strSql.Append(" left join xmh_shop.shop_invoices iv on io.invoice1_id =iv.invoice_id ");
+            strSql.Append(" left join hr_employee e on e.ID= iv.admin_id ");
+
+            strSql1.Append(" select count(io.invoice_id) FROM xmh_shop.shop_invoices2 io ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+        #endregion  BasicMethod
+
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}

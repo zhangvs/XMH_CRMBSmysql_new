@@ -1,0 +1,584 @@
+﻿using System;
+using System.Data;
+using System.Text;
+using MySql.Data.MySqlClient;
+using XHD.DBUtility;
+using XHD.DBUtility;//Please add references
+
+namespace XHD.DAL
+{
+    /// <summary>
+    /// 数据访问类:scm_stock
+    /// </summary>
+    public partial class scm_stock
+    {
+        public scm_stock()
+        { }
+        #region  BasicMethod
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int Id)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from scm_stock");
+            strSql.Append(" where Id=@Id");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@Id", MySqlDbType.Int32)
+			};
+            parameters[0].Value = Id;
+
+            return DbHelperMySQL.Exists(strSql.ToString(), parameters);
+        }
+
+        public bool Exists1(int goods_id, int suppliers_id)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from scm_stock");
+            strSql.Append(" where goods_id=" + goods_id);
+            strSql.Append(" and suppliers_id=" + suppliers_id);
+
+            return DbHelperMySQL.Exists(strSql.ToString());
+        }
+
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public bool Add(XHD.Model.scm_stock model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("insert into scm_stock(");
+            strSql.Append("factory_Id,suppliers_id,goods_id,goods_sn,goods_name,brand_id,cat_id,goods_unit,create_id,create_name,create_date,goods_oldname)");
+            strSql.Append(" values (");
+            strSql.Append("@factory_Id,@suppliers_id,@goods_id,@goods_sn,@goods_name,@brand_id,@cat_id,@goods_unit,@create_id,@create_name,@create_date,@goods_oldname)");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@factory_Id", MySqlDbType.VarChar,60),
+					new MySqlParameter("@suppliers_id", MySqlDbType.Int16,5),
+					new MySqlParameter("@goods_id", MySqlDbType.Int16,8),
+					new MySqlParameter("@goods_sn", MySqlDbType.VarChar,60),
+					new MySqlParameter("@goods_name", MySqlDbType.VarChar,120),
+					new MySqlParameter("@brand_id", MySqlDbType.Int16,5),
+					new MySqlParameter("@cat_id", MySqlDbType.Int16,5),
+					//new MySqlParameter("@stockQry", MySqlDbType.Int32,11),
+                    //new MySqlParameter("@price", MySqlDbType.Decimal,12),
+                    new MySqlParameter("@goods_unit", MySqlDbType.VarChar,20),
+					new MySqlParameter("@create_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@create_name", MySqlDbType.VarChar,250),
+					new MySqlParameter("@create_date", MySqlDbType.DateTime),
+                    new MySqlParameter("@goods_oldname", MySqlDbType.VarChar,120)
+					};
+            parameters[0].Value = model.factory_Id;
+            parameters[1].Value = model.suppliers_id;
+            parameters[2].Value = model.goods_id;
+            parameters[3].Value = model.goods_sn;
+            parameters[4].Value = model.goods_name;
+            parameters[5].Value = model.brand_id;
+            parameters[6].Value = model.cat_id;
+            //parameters[7].Value = model.stockQry;
+            //parameters[8].Value = model.price;
+            parameters[7].Value = model.goods_unit;
+            parameters[8].Value = model.create_id;
+            parameters[9].Value = model.create_name;
+            parameters[10].Value = model.create_date;
+            parameters[11].Value = model.goods_oldname;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(XHD.Model.scm_stock model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update scm_stock set ");
+            strSql.Append("factory_Id=@factory_Id,");
+            strSql.Append("suppliers_id=@suppliers_id,");
+            strSql.Append("goods_id=@goods_id,");
+            strSql.Append("goods_sn=@goods_sn,");
+            strSql.Append("goods_name=@goods_name,");
+            strSql.Append("brand_id=@brand_id,");
+            strSql.Append("cat_id=@cat_id,");
+            //strSql.Append("stockQry=@stockQry,");
+            //strSql.Append("price=@price,");
+            strSql.Append("goods_unit=@goods_unit,");
+            strSql.Append("update_id=@update_id,");
+            strSql.Append("update_name=@update_name,");
+            strSql.Append("update_date=@update_date,");
+            strSql.Append("goods_oldname=@goods_oldname");
+            strSql.Append(" where suppliers_id=@suppliers_Oid");
+            strSql.Append(" and goods_id=@goods_Oid");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@factory_Id", MySqlDbType.VarChar,60),
+					new MySqlParameter("@suppliers_id", MySqlDbType.Int16,5),
+					new MySqlParameter("@goods_id", MySqlDbType.Int16,8),
+					new MySqlParameter("@goods_sn", MySqlDbType.VarChar,60),
+					new MySqlParameter("@goods_name", MySqlDbType.VarChar,120),
+					new MySqlParameter("@brand_id", MySqlDbType.Int16,5),
+					new MySqlParameter("@cat_id", MySqlDbType.Int16,5),
+                    //new MySqlParameter("@stockQry", MySqlDbType.Int32,11),
+                    //new MySqlParameter("@price", MySqlDbType.Decimal,12),
+					new MySqlParameter("@goods_unit", MySqlDbType.VarChar,20),
+					new MySqlParameter("@update_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@update_name", MySqlDbType.VarChar,250),
+					new MySqlParameter("@update_date", MySqlDbType.DateTime),
+					new MySqlParameter("@suppliers_Oid", MySqlDbType.Int16,8),
+                    new MySqlParameter("@goods_Oid", MySqlDbType.Int16,8),
+					new MySqlParameter("@goods_oldname", MySqlDbType.VarChar,120)};
+            parameters[0].Value = model.factory_Id;
+            parameters[1].Value = model.suppliers_id;
+            parameters[2].Value = model.goods_id;
+            parameters[3].Value = model.goods_sn;
+            parameters[4].Value = model.goods_name;
+            parameters[5].Value = model.brand_id;
+            parameters[6].Value = model.cat_id;
+            //parameters[7].Value = model.stockQry;
+            //parameters[8].Value = model.price;
+            parameters[7].Value = model.goods_unit;
+            parameters[8].Value = model.update_id;
+            parameters[9].Value = model.update_name;
+            parameters[10].Value = model.update_date;
+            parameters[11].Value = model.suppliers_id;
+            parameters[12].Value = model.Id;
+            parameters[13].Value = model.goods_oldname;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int Id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from scm_stock ");
+            strSql.Append(" where Id=@Id");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@Id", MySqlDbType.Int32)
+			};
+            parameters[0].Value = Id;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 批量删除数据
+        /// </summary>
+        public bool DeleteList(string Idlist)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from scm_stock ");
+            strSql.Append(" where Id in (" + Idlist + ")  ");
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.scm_stock GetModel(int Id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select Id,factory_Id,suppliers_id,goods_id,goods_sn,goods_name,brand_id,cat_id,stockQry,price,goods_unit,create_id,create_name,create_date,update_id,update_name,update_date from scm_stock ");
+            strSql.Append(" where Id=@Id");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@Id", MySqlDbType.Int32)
+			};
+            parameters[0].Value = Id;
+
+            XHD.Model.scm_stock model = new XHD.Model.scm_stock();
+            DataSet ds = DbHelperMySQL.Query(strSql.ToString(), parameters);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                return DataRowToModel(ds.Tables[0].Rows[0]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.scm_stock DataRowToModel(DataRow row)
+        {
+            XHD.Model.scm_stock model = new XHD.Model.scm_stock();
+            if (row != null)
+            {
+                if (row["Id"] != null && row["Id"].ToString() != "")
+                {
+                    model.Id = int.Parse(row["Id"].ToString());
+                }
+                if (row["factory_Id"] != null)
+                {
+                    model.factory_Id = row["factory_Id"].ToString();
+                }
+                if (row["suppliers_id"] != null && row["suppliers_id"].ToString() != "")
+                {
+                    model.suppliers_id = int.Parse(row["suppliers_id"].ToString());
+                }
+                //model.goods_id=row["goods_id"].ToString();
+                if (row["goods_sn"] != null)
+                {
+                    model.goods_sn = row["goods_sn"].ToString();
+                }
+                if (row["goods_name"] != null)
+                {
+                    model.goods_name = row["goods_name"].ToString();
+                }
+                if (row["brand_id"] != null && row["brand_id"].ToString() != "")
+                {
+                    model.brand_id = int.Parse(row["brand_id"].ToString());
+                }
+                if (row["cat_id"] != null && row["cat_id"].ToString() != "")
+                {
+                    model.cat_id = int.Parse(row["cat_id"].ToString());
+                }
+                if (row["stockQry"] != null && row["stockQry"].ToString() != "")
+                {
+                    model.stockQry = int.Parse(row["stockQry"].ToString());
+                }
+                if (row["price"] != null && row["price"].ToString() != "")
+                {
+                    model.price = decimal.Parse(row["price"].ToString());
+                }
+                if (row["goods_unit"] != null)
+                {
+                    model.goods_unit = row["goods_unit"].ToString();
+                }
+                if (row["create_id"] != null && row["create_id"].ToString() != "")
+                {
+                    model.create_id = int.Parse(row["create_id"].ToString());
+                }
+                if (row["create_name"] != null)
+                {
+                    model.create_name = row["create_name"].ToString();
+                }
+                if (row["create_date"] != null && row["create_date"].ToString() != "")
+                {
+                    model.create_date = DateTime.Parse(row["create_date"].ToString());
+                }
+                if (row["update_id"] != null && row["update_id"].ToString() != "")
+                {
+                    model.update_id = int.Parse(row["update_id"].ToString());
+                }
+                if (row["update_name"] != null)
+                {
+                    model.update_name = row["update_name"].ToString();
+                }
+                if (row["update_date"] != null && row["update_date"].ToString() != "")
+                {
+                    model.update_date = DateTime.Parse(row["update_date"].ToString());
+                }
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select Id,factory_Id,suppliers_id,goods_id,goods_sn,goods_name,brand_id,cat_id,stockQry,price,goods_unit,create_id,create_name,create_date,update_id,update_name,update_date ");
+            strSql.Append(" FROM scm_stock ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 获取记录总数
+        /// </summary>
+        public int GetRecordCount(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) FROM scm_stock ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            object obj = DbHelperMySQL.GetSingle(strSql.ToString());
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return Convert.ToInt32(obj);
+            }
+        }
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetListByPage(string strWhere, string orderby, int startIndex, int endIndex)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("SELECT * FROM ( ");
+            strSql.Append(" SELECT ROW_NUMBER() OVER (");
+            if (!string.IsNullOrEmpty(orderby.Trim()))
+            {
+                strSql.Append("order by T." + orderby);
+            }
+            else
+            {
+                strSql.Append("order by T.Id desc");
+            }
+            strSql.Append(")AS Row, T.*  from scm_stock T ");
+            if (!string.IsNullOrEmpty(strWhere.Trim()))
+            {
+                strSql.Append(" WHERE " + strWhere);
+            }
+            strSql.Append(" ) TT");
+            strSql.AppendFormat(" WHERE TT.Row between {0} and {1}", startIndex, endIndex);
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 由产品ID查该产品由哪些供应商提供
+        /// </summary>
+        public DataSet GetSupplyList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append(" select t.Id,t.factory_Id,t.suppliers_id,s.suppliers_name,s.wms_suppliers_id as suppliers_erp_code,t.goods_id,t.goods_name,t.goods_sn,t.stockQry,t.price,b.bzdw from scm_stock t ");
+            strSql.Append(" inner join  ecs_suppliers s  on t.suppliers_id = s.suppliers_id ");
+            strSql.Append(" left join bzsldygx b on b.bm=t.goods_id and b.bzsm='1' ");
+            strSql1.Append(" select count(*) from scm_stock t inner join  ecs_suppliers s  on t.suppliers_id = s.suppliers_id");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 由产品ID查该产品由哪些供应商提供
+        /// </summary>
+        public DataSet GetSupplys(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append(" select  0 as Id, t.factory_Id,t.suppliers_id,s.suppliers_name,s.wms_suppliers_id as suppliers_erp_code,t.goods_id,t.goods_name,t.goods_sn,0 as stockQry,0 as price,t.goods_unit as bzdw from ecs_goods t");
+            strSql.Append(" inner join  ecs_suppliers s  on t.suppliers_id = s.suppliers_id  ");
+            strSql1.Append("  select count(1) from ecs_goods t inner join  ecs_suppliers s  on t.suppliers_id = s.suppliers_id");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 更新已经存在合并的产品的子产品
+        /// </summary>
+        public bool updateChikdren(int cid, int newid, string newname)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update  scm_stock ");
+            strSql.Append(" set goods_id=" + newid);
+            strSql.Append(" ,goods_name='" + newname + "'");
+            strSql.Append(" where goods_id=" + cid);
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        /// <summary>
+        /// 获取被合并的产品
+        /// </summary>
+        public DataSet GetList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append(" select s.id,s.goods_id,s.goods_name,s.goods_oldname,s.suppliers_id,es.suppliers_name ");
+            strSql.Append(" from scm_stock as s left join ecs_suppliers as es on  s.suppliers_id=es.suppliers_id");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            strSql1.Append(" select count(1) FROM scm_stock as s ");
+            if (strWhere.Trim() != "")
+            {
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+
+        //供应商库存统计及商城库存统计
+        public DataSet GetListCheckStock(string strWhereOne, string strWhereTwo)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(" select sum(c.WMSQne) as wsmStock,sum(dq.stockQry) as stock,sum(q.SL) as SL, sum(o.ordernum) as ordernum,sum( (dk.DJ*c.WMSQne)) as stockTotal ,sum(dk.DJ*q.SL) as saleTotal from ecs_goods as g ");
+            strSql.Append(" inner join( ");
+            strSql.Append(" select goods_id from ecs_goods  where is_delete=0 and is_on_sale=1  and " + strWhereOne + "");  //and is_on_sale=1
+            strSql.Append(" UNION ");
+            strSql.Append(" select goods_id  from scm_stock  where " + strWhereOne + " )as dd  on g.goods_id=dd.goods_id");
+            strSql.Append(" left join( select  st.goods_id,st.stockQry  from scm_stock st   where " + strWhereTwo + " ) as dq on dq.goods_id=g.goods_id   ");
+
+            strSql.Append(" left join ( select  ss.BM, ss.SL as WMSQne from  (select d.BM,sum(d.SL) as SL  from dqkcyl  d     group by d.BM) as ss ) as c on c.BM=g.goods_id ");
+            strSql.Append(" left join (  select BM,sum(SL) as SL,DW from djkck  where SL>0  group by BM ) as q on g.goods_id=q.bm ");
+            strSql.Append(" left join (  select  r.goods_id,count(r.order_id) as ordernum  from ecs_order_goods r  inner join  ecs_order_info i on r.order_id= i.order_id and i.order_status !=9 and i.erp_time is not null   group by goods_id  )as o on o.goods_id =g.goods_id  ");
+            strSql.Append(" left join (select k.BM,k.RQ,k.DJ from djk  k inner join (select max(ID)  as id from djk where dj!=0  group by BM) as d on  k.ID=d.id) as dk on dk.BM=g.goods_id ");
+            
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        //供应商商城销售数量及销售订单数量统计
+        public DataSet GetSaleSL(string strWhereOne)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(" select sum(q.SL) as SL, sum(o.ordernum) as ordernum from ecs_goods  as g ");
+            strSql.Append(" inner join( ");
+            strSql.Append(" select goods_id from ecs_goods  where " + strWhereOne + " and  is_delete=0   and is_on_sale=1 ");
+            strSql.Append(" UNION ");
+            strSql.Append(" select goods_id  from scm_stock  where " + strWhereOne + " )as dd  on g.goods_id=dd.goods_id ");
+            strSql.Append(" left join ( ");
+            strSql.Append(" select BM,sum(SL) as SL,DW from djkck  where SL>0  group by BM ) as q on g.goods_id=q.bm ");
+            strSql.Append(" left join ( ");
+            strSql.Append(" select  r.goods_id,count(r.order_id) as ordernum  from ecs_order_goods r ");
+            strSql.Append(" inner join  ecs_order_info i on r.order_id= i.order_id and i.order_status !=9 and i.erp_time is not null   group by goods_id ");
+            strSql.Append(" )as o on o.goods_id =g.goods_id  ");
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+        //查某一供应商的库存、商城库存、销售数量及订单数量
+        public DataSet GetStockSaleSL(int PageSize, int startIndex, string strWhere, string strSqlOne, string strSqlTwo, string strSqlThree, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append(" select g.goods_id,g.suppliers_id,g.factory_id,g.goods_sn,g.goods_name,g.goods_sn2,b.stockQry,b.goods_oldname,b.stockQne,b.stockTwo,b.stockThree,c.WMSQne,c.WMSTwo,c.WMSThree,");
+            strSql.Append(" g.goods_unit,g.brand_id,b.brand_name,g.cat_id,g.click_count, c.cat_name,g.is_delete,q.SL,q.DW,o.ordernum,dk.DJ, (dk.DJ*c.WMSQne) as stockTotal,(dk.DJ*q.SL) as saleTotal  from ecs_goods as g ");
+            strSql.Append(" inner join ( ");
+            strSql.Append(" select goods_id from ecs_goods  where " + strSqlOne + " ");
+            strSql.Append(" UNION ");
+            strSql.Append(" select goods_id  from scm_stock  where " + strSqlTwo + "");
+            strSql.Append(" )  as dd  on g.goods_id=dd.goods_id ");
+            strSql.Append(" left join ecs_brand as b on g.brand_id=b.brand_id");
+            strSql.Append(" left join ecs_category as c on g.cat_id=c.cat_id");
+            strSql.Append(" left join ( select  tt.goods_id, tt.stockQry,tt.price,tt.goods_oldname,");
+            strSql.Append(" MAX(CASE tt.BZSM WHEN '1' THEN  tt.stockQry/tt.GX  ELSE 0  END  ) stockQne, ");
+            strSql.Append(" MAX(CASE tt.BZSM WHEN '2' THEN  tt.stockQry/tt.GX  ELSE 0  END  ) stockTwo,");
+            strSql.Append(" MAX(CASE tt.BZSM WHEN '3' THEN  tt.stockQry/tt.GX  ELSE 0  END  ) stockThree ");
+            strSql.Append(" from (");
+            strSql.Append(" select  st.goods_id ,st.stockQry,st.goods_oldname,st.price,bz.BM,bz.GX,bz.BZDW,bz.BZSM from scm_stock st ");
+            strSql.Append(" left  join  bzsldygx  as bz on st.goods_id = bz.BM   " + strSqlThree + "");
+            strSql.Append(" ) as tt group by tt.goods_id ");
+            strSql.Append(" ) as b on b.goods_id=g.goods_id ");
+            strSql.Append(" left join ");
+            strSql.Append("( select ss.BM,");
+            strSql.Append(" MAX(CASE ss.BZSM WHEN '1' THEN  ss.SL/ss.GX  ELSE 0  END  ) WMSQne,");
+            strSql.Append(" MAX(CASE ss.BZSM WHEN '2' THEN  ss.SL/ss.GX  ELSE 0  END  ) WMSTwo, ");
+            strSql.Append(" MAX(CASE ss.BZSM WHEN '3' THEN  ss.SL/ss.GX  ELSE 0  END  ) WMSThree");
+            strSql.Append(" from (");
+            strSql.Append(" select bz.BM,bz.GX,bz.BZDW,bz.BZSM ,dq.SL from (select d.BM,sum(d.SL) as SL  from dqkcyl  d  group by d.BM) as dq ");
+            strSql.Append(" left  join bzsldygx  as bz  on dq.BM=bz.BM ");
+            strSql.Append(" ) as ss  group by ss.BM ");
+            strSql.Append(" ) as c on c.BM=g.goods_id");
+            strSql.Append(" left join ( ");
+            strSql.Append(" select BM,sum(SL) as SL,DW from djkck  where SL>0  group by BM ");
+            strSql.Append(" )as q on g.goods_id=q.bm ");
+            strSql.Append(" left join ( ");
+            strSql.Append(" select  r.goods_id,count(r.order_id) as ordernum  from ecs_order_goods r ");
+            strSql.Append(" inner join  ecs_order_info i on r.order_id= i.order_id and i.order_status !=9 and i.erp_time is not null   group by goods_id ");
+            strSql.Append(" )as o on o.goods_id =g.goods_id  ");
+            strSql.Append(" left join (select k.BM,k.RQ,k.DJ from djk  k inner join (select max(ID)  as id from djk where dj!=0  group by BM) as d on  k.ID=d.id) as dk on dk.BM=g.goods_id ");
+           
+
+            strSql1.Append(" select count(1) from ecs_goods as g ");
+            strSql1.Append(" inner join ( ");
+            strSql1.Append(" select goods_id from ecs_goods  where " + strSqlOne + "");
+            strSql1.Append(" UNION ");
+            strSql1.Append(" select goods_id  from scm_stock  where " + strSqlTwo + "");
+            strSql1.Append(" )as dd  on g.goods_id=dd.goods_id");
+            strSql1.Append(" left join ( select  st.goods_id,st.goods_oldname ");
+            strSql1.Append(" from scm_stock st  " + strSqlThree + ")  as b on dd.goods_id= b.goods_id");
+
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+
+            strSql.Append(" order by " + filedOrder + " limit " + (startIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        #endregion  BasicMethod
+
+
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

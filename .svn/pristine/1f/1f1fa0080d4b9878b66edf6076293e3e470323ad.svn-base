@@ -1,0 +1,499 @@
+﻿var subtext = '';//副标题
+var axisDatas = new Array(); //x轴
+var nodeColors = ['#ffb6c1', '#20b2aa', '#ffa07a', '#87cefa'];//节点颜色
+var baseColor = '#00ff00';
+var planColor = '#ff1493'
+
+var admin_user_name;
+var name;
+
+var group_nodes = new Array();
+var group_quarters = [3, 6, 9, 12];//季度默认节点
+
+var daycount = 0; //月份天数
+var node_one; //第一节点起
+var node_two; //第二节点起
+var node_three; //第三节点起
+var node_four; //第四节点起
+
+var date_base = 0; //日基数
+var node_base = 0; //节点基数
+var month_base = 0; //月基数
+
+var date_plan = 0; //日计划
+var node_plan = 0; //节点计划
+var month_plan = 0; //月计划
+
+var date_lines = new Array(); //日基数线
+var node_lines = new Array(); //节点计划线
+var node_Point = new Array(); //节点奖
+var month_lines = new Array(); //月计划线
+
+
+var saleData = new Array(); //日销售数据
+var backData = new Array(); //日退货数据
+var saleBackData = new Array(); //日实际数据
+var dayWcl = new Array();
+var dayCha = new Array();
+
+var saleDataSum = 0; //日销售累加
+var backDataSum = 0;//日退货累加
+var saleBackDataSum = 0;//日实际累加
+
+var nodeDataColor = new Array();//节点累计数据和，颜色，二维数组
+var nodeData = new Array(); //节点销售额
+var nodeChaData = new Array(); //节点差额
+var nodeWclData = new Array(); //节点完成率
+
+var monthDatas = new Array();//月累计数组
+var monthChaDatas = new Array();
+var monthWcls = new Array();
+
+
+
+
+function clearData() {
+    getDateCount();
+    //基数
+    date_base = 0; 
+    node_base = 0; 
+    month_base = 0; 
+    //计划
+    date_plan = 0; 
+    node_plan = 0; 
+    month_plan = 0; 
+    //线
+    date_lines = []; 
+    node_lines = []; 
+    month_lines = []; 
+
+    //日
+    saleData = [];
+    backData = [];
+    saleBackData = [];
+    dayCha = [];
+    dayWc = [];
+    //日和
+    saleBackDataSum = 0;
+    saleDataSum = 0;
+    backDataSum = 0;
+    //节点
+    nodeData = [];
+    nodeChaData = [];
+    nodeWclData = [];
+    //月
+    monthDatas = [];
+    monthChaDatas = [];
+    monthWcls = [];
+
+}
+
+//个人每日销售退货量
+function getMonthSaleBackData(GridData) {
+    //赋值
+    for (var j = 0; j < GridData.Rows.length; j++) {
+        if (j == 0) {
+            admin_user_name = GridData.Rows[j].admin_user_name;
+            name = GridData.Rows[j].name;
+            //初始化
+            for (var i = 0; i < daycount; i++) {
+                saleData[i] = 0;
+                backData[i] = 0;
+                saleBackData[i] = 0;
+            }
+
+            month_base = parseFloat(parseFloat(GridData.Rows[j].month_base).toFixed());
+            node_base = parseFloat((month_base / 4).toFixed()); //取前月份的计划除以4
+            date_base = parseFloat((month_base / daycount).toFixed());
+
+            getLines('日基线', date_base, baseColor, axisDatas[length - 1], date_lines);
+            getLines('节点基线', node_base, baseColor, axisDatas[length - 1], node_lines);
+            getLines('月基线', month_base, baseColor, axisDatas[length - 1], month_lines);
+
+
+            month_plan = parseFloat(parseFloat(GridData.Rows[j].month_plan).toFixed());
+            node_plan = parseFloat((month_plan / 4).toFixed()); //取前月份的计划除以4
+            date_plan = parseFloat((month_plan / daycount).toFixed());
+
+            getLines('日计划线', date_plan, planColor, axisDatas[length - 1], date_lines);
+            getLines('节点计划线', node_plan, planColor, axisDatas[length - 1], node_lines);
+            getLines('月计划线', month_plan, planColor, axisDatas[length - 1], month_lines);
+
+        }
+        var orderDate = parseInt(GridData.Rows[j].orderdate) - 1; //从1日开始，-1到角标0
+        saleBackData[orderDate] = parseFloat(GridData.Rows[j].realmoney.toFixed());
+        saleBackDataSum += parseFloat(GridData.Rows[j].realmoney.toFixed());
+
+        saleData[orderDate] = parseFloat(GridData.Rows[j].salemoney.toFixed());
+        saleDataSum += parseFloat(GridData.Rows[j].salemoney.toFixed());
+
+        backData[orderDate] = parseFloat(GridData.Rows[j].backmoney.toFixed());
+        backDataSum += parseFloat(GridData.Rows[j].backmoney.toFixed());
+    }
+}
+
+
+//初始化节点数据，颜色
+function initNodeData() {
+    var nodeSum1 = 0; //节点sum1
+    var nodeSum2 = 0; //节点sum2
+    var nodeSum3 = 0; //节点sum3
+    var nodeSum4 = 0; //节点sum4
+    for (var j = 0; j < node_one; j++) {
+        nodeSum1 += parseFloat(saleBackData[j].toFixed());
+        nodeDataColor[j] = new Array();
+        nodeDataColor[j][0] = nodeSum1;
+        nodeDataColor[j][1] = nodeColors[0];
+    }
+    for (var j = node_one; j < node_two; j++) {
+        nodeSum2 += parseFloat(saleBackData[j].toFixed());
+        nodeDataColor[j] = new Array();
+        nodeDataColor[j][0] = nodeSum2;
+        nodeDataColor[j][1] = nodeColors[1];
+    }
+    for (var j = node_two; j < node_three; j++) {
+        nodeSum3 += parseFloat(saleBackData[j].toFixed());
+        nodeDataColor[j] = new Array();
+        nodeDataColor[j][0] = nodeSum3;
+        nodeDataColor[j][1] = nodeColors[2];
+    }
+    for (var j = node_three; j < node_four; j++) {
+        nodeSum4 += parseFloat(saleBackData[j].toFixed());
+        nodeDataColor[j] = new Array();
+        nodeDataColor[j][0] = nodeSum4;
+        nodeDataColor[j][1] = nodeColors[3];
+    }
+    showMonthNodeData();
+}
+
+
+
+//根据初始化出来的节点数据，去渲染每一个节点数据，四个节点的和
+function showMonthNodeData() {
+    for (var j = 0; j < daycount; j++) {
+        getColorAndValue(nodeData, nodeDataColor[j][0], nodeDataColor[j][1]);
+        getColorAndValue(nodeChaData, nodeDataColor[j][0] - node_plan, nodeDataColor[j][1]);
+        getColorAndValue(nodeWclData, parseFloat((nodeDataColor[j][0] / node_plan * 100).toFixed()), nodeDataColor[j][1]);
+    }
+
+    //画点
+    node_Point = [];
+    if (nodeChaData[node_one - 1].value > 0) {
+        getPoint(node_Point, '1节点奖', node_one - 1, nodeDataColor[node_one - 1][0]);
+    }
+    if (nodeChaData[node_two - 1].value > 0) {
+        getPoint(node_Point, '2节点奖', node_two - 1, nodeDataColor[node_two - 1][0]);
+    }
+    if (nodeChaData[node_three - 1].value > 0) {
+        getPoint(node_Point, '3节点奖', node_three - 1, nodeDataColor[node_three - 1][0]);
+    }
+    if (nodeChaData[node_four - 1].value > 0) {
+        getPoint(node_Point, '4节点奖', node_four - 1, nodeDataColor[node_four - 1][0]);
+    }
+}
+
+
+
+//初始化月份数据
+function initMonthData() {
+    var monthSum = 0;
+    for (var j = 0; j < daycount; j++) {
+        monthSum += parseFloat(saleBackData[j].toFixed());
+        monthDatas[j] = monthSum;
+        monthChaDatas[j] = parseFloat((monthDatas[j] - month_plan).toFixed());
+        monthWcls[j] = parseFloat((monthDatas[j] / month_plan * 100).toFixed()); //月完成率累计
+
+        dayCha[j] = parseFloat((saleBackData[j] - date_plan).toFixed());
+        dayWcl[j] = parseFloat((saleBackData[j] / date_plan * 100).toFixed());
+    }
+} 
+
+//副标题
+function getSubText() {
+    if (date_lines.length > 0 && node_lines.length > 0 && month_lines.length > 0) {
+        subtext = '日基数：' + date_lines[0].value + '\n日计划：' + date_lines[2].value +
+        '\n\n节点基数：' + node_lines[0].value + '\n节点计划：' + node_lines[2].value +
+        '\n\n月基数：' + month_lines[0].value + '\n月计划：' + month_lines[2].value +
+        '\n\n月销量：' + saleDataSum + '\n月退货：' + backDataSum + '\n月实际：' + saleBackDataSum+'\n月完成率：' + parseFloat((saleBackDataSum / month_lines[2].value * 100).toFixed()) + '%'
+    }
+    else {
+        subtext = '\n\n月销量：' + saleDataSum + '\n月退货：' + backDataSum + '\n月实际：' + saleBackDataSum
+    }
+}
+
+//画图
+function DrawEChart() {
+    //var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight; //height
+    $("#main").css("height", 680);
+    var option = {
+        title: {
+            text: admin_user_name + '_' + name + '_' + smonth + '月份销售月报',
+            subtext: subtext
+
+        },
+        grid: {
+            x: 180,//靠左200像素
+        },
+        tooltip: {
+            trigger: 'axis',
+            showDelay: 0,
+            // 显示延迟，添加显示延迟可以避免频繁切换，单位ms
+        },
+        legend: {
+            data: ['日销售额', '日退货额', '日实际销售额', '日差额', '日完成率', '节点销售额', '节点差额', '节点完成率', '月销售额', '月差额', '月完成率'],
+            selected: {
+                '日销售额': false,
+                '日退货额': false,
+                '日实际销售额': false,
+                '日差额': false,
+                '日完成率': false,
+                '节点销售额': true,
+                '节点差额': false,
+                '节点完成率': false,
+                '月销售额': false,
+                '月差额': false,
+                '月完成率': false
+            }
+        },
+        toolbox: {
+            show: true,
+            orient: 'vertical',
+            feature: {
+                mark: {
+                    show: true
+                },
+                dataView: {
+                    show: true,
+                    readOnly: false,
+                    optionToContent: function (opt) {
+                        var series = opt.series;
+                        var table = '<table class="dataView" style="width:100%;text-align:center;border:1px solid"><tbody><tr>' + '<td>日期</td>';
+                        for (var i = 0, l = series.length; i < l; i++) {
+                            table += '<td>' + series[i].name + '</td>'
+                        };
+
+                        table += '</tr>';
+                        for (var m = 0, g = axisDatas.length; m < g; m++) {
+                            table += '<tr><td>' + axisDatas[m].value + '</td>';
+                            for (var n = 0, l = series.length; n < l; n++) {
+                                var val = 0;
+                                if (n == 5 || n == 6 || n == 7) {
+                                    val = series[n].data[m].value;
+                                } else {
+                                    val = series[n].data[m];
+                                }
+                                if (n == 4 || n == 7 || n == 10) val += '%';
+                                table += '<td>' + val + '</td>'
+                            }
+                            table += '</tr>';
+                        };
+                        table += '</tbody></table>';
+                        return table;
+                    },
+                },
+                magicType: {
+                    show: true,
+                    type: ['line', 'bar']
+                },
+                restore: {
+                    show: true
+                },
+                saveAsImage: {
+                    show: true
+                }
+            }
+        },
+        calculable: true,
+        xAxis: [{
+            type: 'category',
+            axisLabel: {
+                formatter: function (v) {
+                    return v+'日'
+                }
+            },
+            data: axisDatas
+        }],
+        yAxis: [{
+            type: 'value',
+            scale: true,
+            axisLabel: {
+                formatter: function (v) {
+                    return v
+                }
+            },
+            splitArea: {
+                show: true
+            }
+        }],
+        series: [{
+            name: '日销售额',
+            stack: '日期',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            },
+            data: saleData
+        }, {
+            name: '日退货额',
+            stack: '日期',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'bottom'
+                    }
+                }
+            },
+            data: backData
+        }, {
+            name: '日实际销售额',
+            stack: '日期',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            },
+            data: saleBackData,
+            markLine: {
+                data: date_lines
+            }
+        }, {
+            name: '日差额',
+            stack: '日期',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'bottom'
+                    }
+                }
+            },
+            data: dayCha
+        }, {
+            name: '日完成率',
+            stack: '日期',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function (params, ticket, callback) {
+                            return params.data + '%'
+                        },
+                    }
+                }
+            },
+            data: dayWcl
+        }, {
+            name: '节点销售额',
+            stack: '节点',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            },
+            data: nodeData,
+            markLine: {
+                data: node_lines
+            },
+            markPoint: {
+                data: node_Point
+            }
+        }, {
+            name: '节点差额',
+            stack: '节点',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'bottom'
+                    }
+                }
+            },
+            data: nodeChaData
+        }, {
+            name: '节点完成率',
+            stack: '节点',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function (params, ticket, callback) {
+                            return params.data.value + '%'
+                        },
+                    }
+                }
+            },
+            data: nodeWclData
+        }, {
+            name: '月销售额',
+            stack: '月份',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            },
+            data: monthDatas,
+            markLine: {
+                data: month_lines
+            }
+        }, {
+            name: '月差额',
+            stack: '月份',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'bottom'
+                    }
+                }
+            },
+            data: monthChaDatas
+        }, {
+            name: '月完成率',
+            stack: '月份',
+            type: 'bar',
+            itemStyle: {
+                normal: {
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function (params, ticket, callback) {
+                            return params.data + '%'
+                        },
+                    }
+                }
+            },
+            data: monthWcls
+        }]
+    };
+
+    var myChart = echarts.init(document.getElementById('main'), 'macarons');
+    myChart.setOption(option);
+    window.onresize = myChart.resize;//随屏幕的大小改变自适应
+
+}

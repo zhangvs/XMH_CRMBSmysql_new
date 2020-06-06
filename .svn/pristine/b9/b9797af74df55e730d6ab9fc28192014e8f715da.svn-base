@@ -1,0 +1,589 @@
+﻿using System;
+using System.Data;
+using System.Text;
+using MySql.Data.MySqlClient;
+using XHD.DBUtility;//Please add references
+
+namespace XHD.DAL.ims
+{
+    /// <summary>
+    /// 数据访问类:ims_emp_score
+    /// </summary>
+    public partial class ims_emp_score
+    {
+        public ims_emp_score()
+        { }
+
+        #region  BasicMethod
+
+        /// <summary>
+        /// 得到最大ID
+        /// </summary>
+        public int GetMaxId()
+        {
+            return DbHelperMySQL.GetMaxID("id", "ims_emp_score");
+        }
+
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int id)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from ims_emp_score");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = id;
+
+            return DbHelperMySQL.Exists(strSql.ToString(), parameters);
+        }
+
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public int Add(XHD.Model.ims.ims_emp_score model)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("insert into ims_emp_score(");
+            strSql.Append("id,Factory_Id,d_id,d_name,emp_id,emp_name,rule_id,rule_name,isPlus,score,check_empId,check_empName,check_date,check_remark,score_source,complaint_id)");
+            strSql.Append(" values (");
+            strSql.Append("@id,@Factory_Id,@d_id,@d_name,@emp_id,@emp_name,@rule_id,@rule_name,@isPlus,@score,@check_empId,@check_empName,@check_date,@check_remark,@score_source,@complaint_id)");
+            strSql.Append(";select @@IDENTITY");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11),
+					new MySqlParameter("@Factory_Id", MySqlDbType.VarChar,60),
+					new MySqlParameter("@d_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@d_name", MySqlDbType.VarChar,60),
+					new MySqlParameter("@emp_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@emp_name", MySqlDbType.VarChar,60),
+					new MySqlParameter("@rule_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@rule_name", MySqlDbType.VarChar,100),
+					new MySqlParameter("@isPlus", MySqlDbType.VarChar,1),
+					new MySqlParameter("@score", MySqlDbType.Decimal,16),
+					new MySqlParameter("@check_empId", MySqlDbType.Int32,11),
+					new MySqlParameter("@check_empName", MySqlDbType.VarChar,60),
+					new MySqlParameter("@check_date", MySqlDbType.VarChar,50),
+					new MySqlParameter("@check_remark", MySqlDbType.Text),
+                    new MySqlParameter("@score_source", MySqlDbType.VarChar,1),
+                    new MySqlParameter("@complaint_id",MySqlDbType.Int32,11)};
+            parameters[0].Value = model.id;
+            parameters[1].Value = model.Factory_Id;
+            parameters[2].Value = model.d_id;
+            parameters[3].Value = model.d_name;
+            parameters[4].Value = model.emp_id;
+            parameters[5].Value = model.emp_name;
+            parameters[6].Value = model.rule_id;
+            parameters[7].Value = model.rule_name;
+            parameters[8].Value = model.isPlus;
+            parameters[9].Value = model.score;
+            parameters[10].Value = model.check_empId;
+            parameters[11].Value = model.check_empName;
+            parameters[12].Value = model.check_date;
+            parameters[13].Value = model.check_remark;
+            parameters[14].Value = model.score_source;
+            parameters[15].Value = model.complaint_id;
+
+            object obj = DbHelperMySQL.GetSingle(strSql.ToString(), parameters);
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return Convert.ToInt32(obj);
+            }
+        }
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(XHD.Model.ims.ims_emp_score model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update ims_emp_score set ");
+            strSql.Append("Factory_Id=@Factory_Id,");
+            strSql.Append("d_id=@d_id,");
+            strSql.Append("d_name=@d_name,");
+            strSql.Append("emp_id=@emp_id,");
+            strSql.Append("emp_name=@emp_name,");
+            strSql.Append("rule_id=@rule_id,");
+            strSql.Append("isPlus=@isPlus,");
+            strSql.Append("score=@score,");
+            strSql.Append("check_empId=@check_empId,");
+            strSql.Append("check_empName=@check_empName,");
+            strSql.Append("check_date=@check_date,");
+            strSql.Append("check_remark=@check_remark");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@Factory_Id", MySqlDbType.VarChar,60),
+					new MySqlParameter("@d_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@d_name", MySqlDbType.VarChar,60),
+					new MySqlParameter("@emp_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@emp_name", MySqlDbType.VarChar,60),
+					new MySqlParameter("@rule_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@isPlus", MySqlDbType.VarChar,1),
+					new MySqlParameter("@score", MySqlDbType.Decimal,16),
+					new MySqlParameter("@check_empId", MySqlDbType.Int32,11),
+					new MySqlParameter("@check_empName", MySqlDbType.VarChar,60),
+					new MySqlParameter("@check_date", MySqlDbType.VarChar,50),
+					new MySqlParameter("@check_remark", MySqlDbType.Text),
+					new MySqlParameter("@id", MySqlDbType.Int32,11)};
+            parameters[0].Value = model.Factory_Id;
+            parameters[1].Value = model.d_id;
+            parameters[2].Value = model.d_name;
+            parameters[3].Value = model.emp_id;
+            parameters[4].Value = model.emp_name;
+            parameters[5].Value = model.rule_id;
+            parameters[6].Value = model.isPlus;
+            parameters[7].Value = model.score;
+            parameters[8].Value = model.check_empId;
+            parameters[9].Value = model.check_empName;
+            parameters[10].Value = model.check_date;
+            parameters[11].Value = model.check_remark;
+            parameters[12].Value = model.id;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 修改积分
+        /// </summary>
+        public bool UpdateScore(int id, decimal score)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update ims_emp_score  set score=" + score + " ");
+            strSql.Append(" where id = " + id + "  ");
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from ims_emp_score ");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = id;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 批量删除数据
+        /// </summary>
+        public bool DeleteList(string idlist)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from ims_emp_score ");
+            strSql.Append(" where id in (" + idlist + ")  ");
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.ims.ims_emp_score GetModel(int id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select id,Factory_Id,d_id,d_name,emp_id,emp_name,rule_id,isPlus,score,check_empId,check_empName,check_date,check_remark,score_source,complaint_id from ims_emp_score ");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = id;
+
+            XHD.Model.ims.ims_emp_score model = new XHD.Model.ims.ims_emp_score();
+            DataSet ds = DbHelperMySQL.Query(strSql.ToString(), parameters);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                return DataRowToModel(ds.Tables[0].Rows[0]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.ims.ims_emp_score DataRowToModel(DataRow row)
+        {
+            XHD.Model.ims.ims_emp_score model = new XHD.Model.ims.ims_emp_score();
+            if (row != null)
+            {
+                if (row["id"] != null && row["id"].ToString() != "")
+                {
+                    model.id = int.Parse(row["id"].ToString());
+                }
+                if (row["Factory_Id"] != null)
+                {
+                    model.Factory_Id = row["Factory_Id"].ToString();
+                }
+                if (row["d_id"] != null && row["d_id"].ToString() != "")
+                {
+                    model.d_id = int.Parse(row["d_id"].ToString());
+                }
+                if (row["d_name"] != null)
+                {
+                    model.d_name = row["d_name"].ToString();
+                }
+                if (row["emp_id"] != null && row["emp_id"].ToString() != "")
+                {
+                    model.emp_id = int.Parse(row["emp_id"].ToString());
+                }
+                if (row["emp_name"] != null)
+                {
+                    model.emp_name = row["emp_name"].ToString();
+                }
+                if (row["rule_id"] != null && row["rule_id"].ToString() != "")
+                {
+                    model.rule_id = int.Parse(row["rule_id"].ToString());
+                }
+                if (row["rule_name"] != null)
+                {
+                    model.rule_name = row["rule_name"].ToString();
+                }
+                if (row["isPlus"] != null)
+                {
+                    model.isPlus = row["isPlus"].ToString();
+                }
+                if (row["score"] != null && row["score"].ToString() != "")
+                {
+                    model.score = decimal.Parse(row["score"].ToString());
+                }
+                if (row["check_empId"] != null && row["check_empId"].ToString() != "")
+                {
+                    model.check_empId = int.Parse(row["check_empId"].ToString());
+                }
+                if (row["check_empName"] != null)
+                {
+                    model.check_empName = row["check_empName"].ToString();
+                }
+                if (row["check_date"] != null)
+                {
+                    model.check_date = row["check_date"].ToString();
+                }
+                if (row["check_remark"] != null)
+                {
+                    model.check_remark = row["check_remark"].ToString();
+                }
+                if (row["score_source"] != null)
+                {
+                    model.score_source = row["score_source"].ToString();
+                }
+                if (row["complaint_id"] != null && row["complaint_id"].ToString() != "")
+                {
+                    model.d_id = int.Parse(row["complaint_id"].ToString());
+                }
+            }
+            return model;
+        }
+
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select id,Factory_Id,d_id,d_name,emp_id,emp_name,rule_id,rule_name,isPlus,score,check_empId,check_empName,check_date,check_remark,score_source,complaint_id ");
+            strSql.Append(" FROM ims_emp_score ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 查询积分
+        /// </summary>
+        /// <param name="strWhere"></param>
+        /// <returns></returns>
+        public string GetScore(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select score from ims_emp_score");
+            strSql.Append(" where " + strWhere);
+
+            return DbHelperMySQL.GetSingles(strSql.ToString()).ToString();
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetListNew(int PageSize, int PageIndex, string strWhere, string strWhereOne, string strWhereTwo, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+
+            strSql.Append(" select * from (");
+            strSql.Append(" select s.Id as pId, s.UserId, s.UserName,s.DtypeId,s.DtypeName,s.CreateDate,t.Id as ItemId,t.ItemName,s.Score,p.id,p.params_name FROM Personal_Score s ");
+            strSql.Append(" left join sys_task t on s.ItemId = t.Id ");
+            strSql.Append(" left join param_sysparam p on t.taskItme_Id = p.id ");
+            strSql.Append(" where " + strWhere + " ");
+            strSql.Append(" union all ");
+            strSql.Append(" select  s.id as pId,s.emp_id as UserId, s.emp_name as UserName,s.d_id as DtypeId,s.d_name as DtypeName,s.check_date as CreateDate, r.id as ItemId, r.rule_name as ItemName,s.score as Score,p.id,p.params_name from ims_emp_score s ");
+            strSql.Append(" left join ims_check_rule r on s.rule_id=r.id ");
+            strSql.Append(" left join param_sysparam p on r.rule_categoryId = p.id ");
+            strSql.Append(" where  " + strWhereOne + "");
+            strSql.Append(" union all ");
+            strSql.Append(" select s.id as pId, s.emp_id as UserId, s.emp_name as UserName,s.d_id as DtypeId,s.d_name as DtypeName,s.check_date as CreateDate, s.rule_id as ItemId,r.rule_name as ItemName, s.score_average as Score,'' as id, '' as params_name  ");
+            strSql.Append(" from ims_lead_score_average s ");
+            strSql.Append(" left join ims_check_rule r on s.rule_id=r.id  ");
+            strSql.Append(" where  " + strWhereTwo + " ");
+
+            strSql.Append(" ) as vs");
+
+            strSql1.Append(" select count(*) from (");
+            strSql1.Append(" select s.UserName,s.DtypeId,s.CreateDate,t.ItemName,s.Score,p.id,p.params_name FROM Personal_Score s ");
+            strSql1.Append(" left join sys_task t on s.ItemId = t.Id ");
+            strSql1.Append(" left join param_sysparam p on t.taskItme_Id = p.id ");
+            strSql1.Append(" where " + strWhere + " ");
+            strSql1.Append(" union all ");
+            strSql1.Append(" select s.emp_name as UserName,s.d_id as DtypeId,s.check_date as CreateDate, r.rule_name as ItemName,s.score as Score,p.id,p.params_name from ims_emp_score s ");
+            strSql1.Append(" left join ims_check_rule r on s.rule_id=r.id ");
+            strSql1.Append(" left join param_sysparam p on r.rule_categoryId = p.id ");
+            strSql1.Append(" where " + strWhereOne + " ");
+            strSql1.Append(" union all ");
+            strSql1.Append(" select s.emp_name as UserName,s.d_id as DtypeId,s.check_date as CreateDate,r.rule_name as ItemName, s.score_average as Score,'' as id, '' as params_name  ");
+            strSql1.Append(" from ims_lead_score_average s ");
+            strSql1.Append(" left join ims_check_rule r on s.rule_id=r.id  ");
+            strSql1.Append(" where  " + strWhereTwo + " ");
+            strSql1.Append(" ) as vs");
+
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+
+        /// <summary>
+        /// 统计积分列表
+        /// </summary>
+        public DataSet GetStatistics(int PageSize, int PageIndex, string strWhere, string strWhereOne, string strWhereTwo, string strWhereThree, string strWhereFoure, string strWhereFive, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+
+            strSql.Append(" select  h.ID,h.name,h.d_id,h.dname,h.Factory_id,sum(ifNUll(oldSum,0)+ifNUll(summ,0)+ifNUll(sumAvg,0)) as num,attendSum ,qSum,sum(ifNUll(oldSum,0)+ifNUll(summ,0) + ifNUll(attendSum,0)+ ifNUll(qSum,0)+ifNUll(sumAvg,0) ) as countNum from ( ");
+            strSql.Append(" ( select  ID,name,d_id,dname,Factory_Id  from hr_employee ) as h  ");
+            strSql.Append(" left join   ( select DtypeName,DtypeId,sum(score)as oldSum, UserName,UserId,CreateDate  from personal_score where  " + strWhereFoure + "  group by  UserId ) as p on h.ID=p.UserId  ");
+            strSql.Append(" left join   ( select d_name,d_id,sum(score)as summ, emp_name,emp_id,check_date  from ims_emp_score where  " + strWhereOne + "  group by  emp_id ) as s on h.ID=s.emp_id  ");
+            strSql.Append(" left join ( select d_id,sum(score_average)as sumAvg, emp_name,emp_id from ims_lead_score_average  where   " + strWhereFive + "  group by  emp_id ) as av on h.ID=av.emp_id ");
+            strSql.Append(" left join (select  emp_id,sum(attend_alldays) as attendSum  from oa_attend  where   " + strWhereTwo + "   group by emp_id )  a  on  h.ID=a.emp_id  ");
+            strSql.Append(" left join (select  answer_id,sum(score) as qSum,answer_time from ssn_qa_answer  where  " + strWhereThree + " group by answer_id) as q on h.ID=q.answer_id ");
+            strSql.Append(" )  ");
+
+            strSql1.Append(" select  count(distinct ID) from ( ");
+            strSql1.Append(" ( select  ID,name,d_id,dname,Factory_Id  from hr_employee ) as h  ");
+            strSql1.Append(" left join   ( select DtypeName,DtypeId,sum(score)as oldSum, UserName,UserId,CreateDate  from personal_score where  " + strWhereFoure + "  group by  UserId ) as p on h.ID=p.UserId  ");
+            strSql1.Append(" left join   (  select d_name,d_id,sum(score)as summ, emp_name,emp_id,check_date  from ims_emp_score where  " + strWhereOne + "  group by  emp_id ) as s on h.ID=s.emp_id  ");
+            strSql1.Append("  left join ( select d_id,sum(score_average)as sumAvg, emp_name,emp_id from ims_lead_score_average  where   " + strWhereFive + " group by  emp_id ) as av on h.ID=av.emp_id ");
+            strSql1.Append(" left join (select  emp_id,sum(attend_alldays) as attendSum  from oa_attend  where   " + strWhereTwo + "  group by emp_id )  a  on  h.ID=a.emp_id  ");
+            strSql1.Append(" left join (select  answer_id,sum(score) as qSum,answer_time from ssn_qa_answer  where   " + strWhereThree + " group by answer_id) as q on h.ID=q.answer_id ");
+            strSql1.Append(" )  ");
+
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" group by h.ID");
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetSearch(int PageSize, int PageIndex, string strWhere, string strWhereOne, string strWhereTwo, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append(" select sum(sumScore) as score,s.UserName,s.UserId,s.Factory_id,DATE_FORMAT(s.CreateDate,'%Y')as yearCreate,DATE_FORMAT(s.CreateDate,'%m' )as mouthCreate from hr_employee as e ");
+            strSql.Append(" right join ( ");
+
+            strSql.Append(" select sum(score)as sumScore, userName,Userid,Factory_id,CreateDate from personal_score  where " + strWhere + " ");
+            strSql.Append(" group by userName,Userid,Factory_id,DATE_FORMAT(CreateDate,'%Y' ),DATE_FORMAT(CreateDate,'%m' )");
+            strSql.Append(" union all ");
+            strSql.Append(" select sum(score) as sumScore,emp_name as userName,emp_id as Userid,Factory_Id,check_date  as CreateDate  from ims_emp_score   where " + strWhereOne + "  ");
+            strSql.Append(" group by emp_name,emp_id,Factory_id,DATE_FORMAT(check_date,'%Y' ),DATE_FORMAT(check_date,'%m' ) ");
+            strSql.Append(" union all ");
+            strSql.Append(" select sum(score_average) as sumScore,emp_name as userName,emp_id as Userid,Factory_Id,check_date  as CreateDate  from ims_lead_score_average   where " + strWhereTwo + "  ");
+            strSql.Append(" group by emp_name,emp_id,Factory_id,DATE_FORMAT(check_date,'%Y' ),DATE_FORMAT(check_date,'%m' ) ");
+            strSql.Append(" ) as s on  e.id=s.userid  group by userName,Userid,Factory_id,DATE_FORMAT(CreateDate,'%Y' ),DATE_FORMAT(CreateDate,'%m' )");
+
+            strSql1.Append(" select count(*) FROM (");
+            strSql1.Append(" select sum(sumScore) as score,s.UserName,s.UserId,s.Factory_id,DATE_FORMAT(s.CreateDate,'%Y')as yearCreate,DATE_FORMAT(s.CreateDate,'%m' )as mouthCreate from hr_employee as e ");
+            strSql1.Append(" right join ( ");
+            strSql1.Append(" select sum(score)as sumScore, userName,Userid,Factory_id,CreateDate from personal_score  where " + strWhere + " ");
+            strSql1.Append(" group by userName,Userid,Factory_id,DATE_FORMAT(CreateDate,'%Y' ),DATE_FORMAT(CreateDate,'%m' )");
+            strSql1.Append(" union all ");
+            strSql1.Append(" select sum(score) as sumScore,emp_name as userName,emp_id as Userid,Factory_Id,check_date  as CreateDate  from ims_emp_score   where " + strWhereOne + "  ");
+            strSql1.Append(" group by emp_name,emp_id,Factory_id,DATE_FORMAT(check_date,'%Y' ),DATE_FORMAT(check_date,'%m' ) ");
+            strSql1.Append(" union all ");
+            strSql1.Append(" select sum(score_average) as sumScore,emp_name as userName,emp_id as Userid,Factory_Id,check_date  as CreateDate  from ims_lead_score_average   where " + strWhereTwo + "  ");
+            strSql1.Append(" group by emp_name,emp_id,Factory_id,DATE_FORMAT(check_date,'%Y' ),DATE_FORMAT(check_date,'%m' ) ");
+            strSql1.Append(" ) as s on  e.id=s.userid  group by userName,Userid,Factory_id,DATE_FORMAT(CreateDate,'%Y' ),DATE_FORMAT(CreateDate,'%m' )");
+            strSql1.Append(" ) as d ");
+
+
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 获取出勤数据列表 GetAttend
+        /// </summary>
+        public DataSet GetAttend(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+
+            strSql.Append(" select a.*,e.name,e.d_id,e.dname from oa_attend a  left join hr_employee e on a.emp_id = e.ID  ");
+            strSql1.Append(" select count(a.id) from oa_attend a  left join hr_employee e on a.emp_id = e.ID  ");
+
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 获取SSN数据列表 GetSSN
+        /// </summary>
+        public DataSet GetSSN(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+
+            strSql.Append(" select q.id,q.handle_status,q.content,q.answer_id,q.answer_name,q.answer_time,q.depId,q.score,d.d_name from ssn_qa_answer q left join hr_department d on q.depId=d.id ");
+            strSql1.Append(" select count(q.id) from ssn_qa_answer q left join hr_department d on q.depId=d.id ");
+
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetSSNDetail(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append("select s.sumScore,s.answer_name,s.answer_id,DATE_FORMAT(s.answer_time,'%Y')as yearCreate,DATE_FORMAT(s.answer_time,'%m' )as mouthCreate from hr_employee as e right join ");
+            strSql.Append(" (select sum(score)as sumScore,answer_id,answer_name,answer_time ");
+            strSql.Append(" from ssn_qa_answer  ");
+
+            strSql1.Append(" select count(distinct answer_id) FROM ssn_qa_answer  ");
+
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" group by answer_name,answer_id,DATE_FORMAT(answer_time,'%Y' ),DATE_FORMAT(answer_time,'%m' )");
+            strSql.Append(" ) as s on  e.id=s.answer_id");
+
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet gridCheckInfo(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append("select id,Factory_Id,d_id,d_name,emp_id,emp_name,rule_id,rule_name,isPlus,score,check_empId,check_empName,check_date,check_remark,score_source,complaint_id ");
+            strSql.Append(" FROM ims_emp_score  ");
+
+            strSql1.Append(" select count(id) FROM ims_emp_score   ");
+
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+        #endregion  BasicMethod
+
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}
+

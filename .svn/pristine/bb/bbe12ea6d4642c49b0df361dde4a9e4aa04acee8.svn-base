@@ -1,0 +1,450 @@
+﻿using System;
+using System.Data;
+using System.Text;
+using MySql.Data.MySqlClient;
+using XHD.DBUtility;//Please add references
+namespace XHD.DAL
+{
+    /// <summary>
+    /// 数据访问类:shop_cart
+    /// </summary>
+    public partial class shop_cart
+    {
+        public shop_cart()
+        { }
+        #region  BasicMethod
+
+        /// <summary>
+        /// 得到最大ID
+        /// </summary>
+        public int GetMaxId()
+        {
+            return Shop_DbHelperMySQL.GetMaxID("cart_id", "shop_cart");
+        }
+
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int cart_id)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from shop_cart");
+            strSql.Append(" where cart_id=@cart_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@cart_id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = cart_id;
+
+            return Shop_DbHelperMySQL.Exists(strSql.ToString(), parameters);
+        }
+
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public bool Add(XHD.Model.shop_cart model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("insert into shop_cart(");
+            strSql.Append("cart_id,user_id,goods_id,goods_name,goods_img,goods_num,goods_price,is_shipping,goods_sn,shipping_fee_price,goods_unit,goods_weight,goods_attr)");
+            strSql.Append(" values (");
+            strSql.Append("@cart_id,@user_id,@goods_id,@goods_name,@goods_img,@goods_num,@goods_price,@is_shipping,@goods_sn,@shipping_fee_price,@goods_unit,@goods_weight,@goods_attr)");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@cart_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@user_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@goods_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@goods_name", MySqlDbType.VarChar,120),
+					new MySqlParameter("@goods_img", MySqlDbType.VarChar,255),
+					new MySqlParameter("@goods_num", MySqlDbType.Int32,11),
+					new MySqlParameter("@goods_price", MySqlDbType.Decimal,12),
+					new MySqlParameter("@is_shipping", MySqlDbType.Int32,4),
+					new MySqlParameter("@goods_sn", MySqlDbType.VarChar,55),
+					new MySqlParameter("@shipping_fee_price", MySqlDbType.Decimal,10),
+					new MySqlParameter("@goods_unit", MySqlDbType.VarChar,20),
+					new MySqlParameter("@goods_weight", MySqlDbType.Double),
+					new MySqlParameter("@goods_attr", MySqlDbType.Text)};
+            parameters[0].Value = model.cart_id;
+            parameters[1].Value = model.user_id;
+            parameters[2].Value = model.goods_id;
+            parameters[3].Value = model.goods_name;
+            parameters[4].Value = model.goods_img;
+            parameters[5].Value = model.goods_num;
+            parameters[6].Value = model.goods_price;
+            parameters[7].Value = model.is_shipping;
+            parameters[8].Value = model.goods_sn;
+            parameters[9].Value = model.shipping_fee_price;
+            parameters[10].Value = model.goods_unit;
+            parameters[11].Value = model.goods_weight;
+            parameters[12].Value = model.goods_attr;
+
+            int rows = Shop_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(XHD.Model.shop_cart model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update shop_cart set ");
+            strSql.Append("user_id=@user_id,");
+            strSql.Append("goods_id=@goods_id,");
+            strSql.Append("goods_name=@goods_name,");
+            strSql.Append("goods_img=@goods_img,");
+            strSql.Append("goods_num=@goods_num,");
+            strSql.Append("goods_price=@goods_price,");
+            strSql.Append("is_shipping=@is_shipping,");
+            strSql.Append("goods_sn=@goods_sn,");
+            strSql.Append("shipping_fee_price=@shipping_fee_price,");
+            strSql.Append("goods_unit=@goods_unit,");
+            strSql.Append("goods_weight=@goods_weight,");
+            strSql.Append("goods_attr=@goods_attr");
+            strSql.Append(" where cart_id=@cart_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@user_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@goods_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@goods_name", MySqlDbType.VarChar,120),
+					new MySqlParameter("@goods_img", MySqlDbType.VarChar,255),
+					new MySqlParameter("@goods_num", MySqlDbType.Int32,11),
+					new MySqlParameter("@goods_price", MySqlDbType.Decimal,12),
+					new MySqlParameter("@is_shipping", MySqlDbType.Int32,4),
+					new MySqlParameter("@goods_sn", MySqlDbType.VarChar,55),
+					new MySqlParameter("@shipping_fee_price", MySqlDbType.Decimal,10),
+					new MySqlParameter("@goods_unit", MySqlDbType.VarChar,20),
+					new MySqlParameter("@goods_weight", MySqlDbType.Double),
+					new MySqlParameter("@goods_attr", MySqlDbType.Text),
+					new MySqlParameter("@cart_id", MySqlDbType.Int32,11)};
+            parameters[0].Value = model.user_id;
+            parameters[1].Value = model.goods_id;
+            parameters[2].Value = model.goods_name;
+            parameters[3].Value = model.goods_img;
+            parameters[4].Value = model.goods_num;
+            parameters[5].Value = model.goods_price;
+            parameters[6].Value = model.is_shipping;
+            parameters[7].Value = model.goods_sn;
+            parameters[8].Value = model.shipping_fee_price;
+            parameters[9].Value = model.goods_unit;
+            parameters[10].Value = model.goods_weight;
+            parameters[11].Value = model.goods_attr;
+            parameters[12].Value = model.cart_id;
+
+            int rows = Shop_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int cart_id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from shop_cart ");
+            strSql.Append(" where cart_id=@cart_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@cart_id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = cart_id;
+
+            int rows = Shop_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 删除多条数据
+        /// </summary>
+        public int Delete(string where)
+        {
+            string sqlStr = String.Format("delete from shop_cart where {0}", where);
+            int rows = Shop_DbHelperMySQL.ExecuteSql(sqlStr);
+            return rows;
+
+        }
+
+        /// <summary>
+        /// 更新一列数据
+        /// </summary>
+        public bool UpdateColumn(int cart_id, string colums, string value)
+        {
+            string strSql = string.Format("update shop_cart set {0} = '{1}' where cart_id={2}", colums, value, cart_id);
+            int rows = Shop_DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 获取购物车产品重量
+        /// </summary>
+        public DataSet GetCartweight(string strWhere)
+        {
+
+            string strSql1 = "select sum(ifnull(goods_num,0)*ifnull(goods_weight,9)) as sumWeight from shop_cart ";
+            if (strWhere.Trim() != "")
+            {
+                strSql1 += " where " + strWhere;
+            }
+            return Shop_DbHelperMySQL.Query(strSql1.ToString());
+        }
+
+        /// <summary>
+        /// 批量删除数据
+        /// </summary>
+        public bool DeleteList(string cart_idlist)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from shop_cart ");
+            strSql.Append(" where cart_id in (" + cart_idlist + ")  ");
+            int rows = Shop_DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.shop_cart GetModel(int cart_id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select cart_id,user_id,goods_id,goods_name,goods_img,goods_num,goods_price,is_shipping,goods_sn,shipping_fee_price,goods_unit,goods_weight,goods_attr from shop_cart ");
+            strSql.Append(" where cart_id=@cart_id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@cart_id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = cart_id;
+
+            XHD.Model.shop_cart model = new XHD.Model.shop_cart();
+            DataSet ds = Shop_DbHelperMySQL.Query(strSql.ToString(), parameters);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                return DataRowToModel(ds.Tables[0].Rows[0]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.shop_cart DataRowToModel(DataRow row)
+        {
+            XHD.Model.shop_cart model = new XHD.Model.shop_cart();
+            if (row != null)
+            {
+                if (row["cart_id"] != null && row["cart_id"].ToString() != "")
+                {
+                    model.cart_id = int.Parse(row["cart_id"].ToString());
+                }
+                if (row["user_id"] != null && row["user_id"].ToString() != "")
+                {
+                    model.user_id = int.Parse(row["user_id"].ToString());
+                }
+                if (row["goods_id"] != null && row["goods_id"].ToString() != "")
+                {
+                    model.goods_id = int.Parse(row["goods_id"].ToString());
+                }
+                if (row["goods_name"] != null)
+                {
+                    model.goods_name = row["goods_name"].ToString();
+                }
+                if (row["goods_img"] != null)
+                {
+                    model.goods_img = row["goods_img"].ToString();
+                }
+                if (row["goods_num"] != null && row["goods_num"].ToString() != "")
+                {
+                    model.goods_num = int.Parse(row["goods_num"].ToString());
+                }
+                if (row["goods_price"] != null && row["goods_price"].ToString() != "")
+                {
+                    model.goods_price = decimal.Parse(row["goods_price"].ToString());
+                }
+                if (row["is_shipping"] != null && row["is_shipping"].ToString() != "")
+                {
+                    model.is_shipping = int.Parse(row["is_shipping"].ToString());
+                }
+                if (row["goods_sn"] != null)
+                {
+                    model.goods_sn = row["goods_sn"].ToString();
+                }
+                if (row["shipping_fee_price"] != null && row["shipping_fee_price"].ToString() != "")
+                {
+                    model.shipping_fee_price = decimal.Parse(row["shipping_fee_price"].ToString());
+                }
+                if (row["goods_unit"] != null)
+                {
+                    model.goods_unit = row["goods_unit"].ToString();
+                }
+                if (row["goods_weight"] != null && row["goods_weight"].ToString() != "")
+                {
+                    model.goods_weight = double.Parse(row["goods_weight"].ToString());
+                }
+
+                if (row["goods_attr"] != null)
+                {
+                    model.goods_attr = row["goods_attr"].ToString();
+                }
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select cart_id,user_id,goods_id,goods_name,goods_img,goods_num,goods_price,is_shipping,goods_sn,shipping_fee_price,goods_unit,goods_weight,goods_attr ");
+            strSql.Append(" FROM shop_cart ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+
+            return Shop_DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 获得数据列表和总金额
+        /// </summary>
+        public DataSet GetListAndSummeony(string strWhere, out string sumMoney)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select cart_id,user_id,goods_id,goods_name,goods_img,goods_num,goods_price,is_shipping,goods_sn,shipping_fee_price,goods_unit,goods_weight,goods_attr ");
+            strSql.Append(" FROM shop_cart ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            string strSql1 = "select sum(ifnull(goods_num,0)*(ifnull(goods_price,0)+ifnull(shipping_fee_price,0))) as sumMoney from shop_cart ";
+            if (strWhere.Trim() != "")
+            {
+                strSql1 += " where " + strWhere;
+            }
+
+            DataSet ds = Shop_DbHelperMySQL.Query(strSql1.ToString());
+
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                sumMoney = ds.Tables[0].Rows[0]["sumMoney"].ToString();
+            }
+            else
+            {
+                sumMoney = "0";
+            }
+            return Shop_DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 获取记录总数
+        /// </summary>
+        public int GetRecordCount(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) FROM shop_cart ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            object obj = Shop_DbHelperMySQL.GetSingle(strSql.ToString());
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return Convert.ToInt32(obj);
+            }
+        }
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetListByPage(string strWhere, string orderby, int startIndex, int endIndex)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("SELECT * FROM ( ");
+            strSql.Append(" SELECT ROW_NUMBER() OVER (");
+            if (!string.IsNullOrEmpty(orderby.Trim()))
+            {
+                strSql.Append("order by T." + orderby);
+            }
+            else
+            {
+                strSql.Append("order by T.cart_id desc");
+            }
+            strSql.Append(")AS Row, T.*  from shop_cart T ");
+            if (!string.IsNullOrEmpty(strWhere.Trim()))
+            {
+                strSql.Append(" WHERE " + strWhere);
+            }
+            strSql.Append(" ) TT");
+            strSql.AppendFormat(" WHERE TT.Row between {0} and {1}", startIndex, endIndex);
+            return Shop_DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /*
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetList(int PageSize,int PageIndex,string strWhere)
+        {
+            MySqlParameter[] parameters = {
+                    new MySqlParameter("@tblName", MySqlDbType.VarChar, 255),
+                    new MySqlParameter("@fldName", MySqlDbType.VarChar, 255),
+                    new MySqlParameter("@PageSize", MySqlDbType.Int32),
+                    new MySqlParameter("@PageIndex", MySqlDbType.Int32),
+                    new MySqlParameter("@IsReCount", MySqlDbType.Bit),
+                    new MySqlParameter("@OrderType", MySqlDbType.Bit),
+                    new MySqlParameter("@strWhere", MySqlDbType.VarChar,1000),
+                    };
+            parameters[0].Value = "shop_cart";
+            parameters[1].Value = "cart_id";
+            parameters[2].Value = PageSize;
+            parameters[3].Value = PageIndex;
+            parameters[4].Value = 0;
+            parameters[5].Value = 0;
+            parameters[6].Value = strWhere;	
+            return Shop_DbHelperMySQL.RunProcedure("UP_GetRecordByPage",parameters,"ds");
+        }*/
+
+        #endregion  BasicMethod
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}
+

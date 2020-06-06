@@ -1,0 +1,523 @@
+﻿/**  版本信息模板在安装目录下，可自行修改。
+* shop_purchase_goods.cs
+*
+* 功 能： N/A
+* 类 名： shop_purchase_goods
+*
+* Ver    变更日期             负责人  变更内容
+* ───────────────────────────────────
+* V0.01  2016/11/2 14:54:59   N/A    初版
+*
+* Copyright (c) 2012 Maticsoft Corporation. All rights reserved.
+*┌──────────────────────────────────┐
+*│　此技术信息为本公司机密信息，未经本公司书面同意禁止向第三方披露．　│
+*│　版权所有：动软卓越（北京）科技有限公司　　　　　　　　　　　　　　│
+*└──────────────────────────────────┘
+*/
+using System;
+using System.Data;
+using System.Text;
+using MySql.Data.MySqlClient;
+using XHD.DBUtility;//Please add references
+namespace XHD.DAL
+{
+	/// <summary>
+	/// 数据访问类:shop_purchase_goods
+	/// </summary>
+	public partial class shop_purchase_goods
+	{
+		public shop_purchase_goods()
+		{}
+		#region  BasicMethod
+
+		/// <summary>
+		/// 是否存在该记录
+		/// </summary>
+		public bool Exists(int gid)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("select count(1) from shop_purchase_goods");
+			strSql.Append(" where gid=@gid ");
+			MySqlParameter[] parameters = {
+					new MySqlParameter("@gid", MySqlDbType.Int32,8)			};
+			parameters[0].Value = gid;
+
+			return Shop_DbHelperMySQL.Exists(strSql.ToString(),parameters);
+		}
+
+
+		/// <summary>
+		/// 增加一条数据
+		/// </summary>
+		public bool Add(XHD.Model.shop_purchase_goods model)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("insert into shop_purchase_goods(");
+			strSql.Append("gid,oid,rec_id,from_order_id,user_type,customer_id,user_id,goods_id,goods_sn2,goods_sn,goods_name,brand_id,old_price,goods_price,goods_unit,goods_desc,goods_number,booking_time,p_status,dispose_user,dispose_time,dispose_note,demand_time,grade,reviewer,is_paid,is_remind,arrive_time,last_update_time,is_show,already_bought)");
+			strSql.Append(" values (");
+			strSql.Append("@gid,@oid,@rec_id,@from_order_id,@user_type,@customer_id,@user_id,@goods_id,@goods_sn2,@goods_sn,@goods_name,@brand_id,@old_price,@goods_price,@goods_unit,@goods_desc,@goods_number,@booking_time,@p_status,@dispose_user,@dispose_time,@dispose_note,@demand_time,@grade,@reviewer,@is_paid,@is_remind,@arrive_time,@last_update_time,@is_show,@already_bought)");
+			MySqlParameter[] parameters = {
+					new MySqlParameter("@gid", MySqlDbType.Int32,8),
+					new MySqlParameter("@oid", MySqlDbType.Int32,8),
+					new MySqlParameter("@rec_id", MySqlDbType.Int32,8),
+					new MySqlParameter("@from_order_id", MySqlDbType.Int32,10),
+					new MySqlParameter("@user_type", MySqlDbType.Int32,2),
+					new MySqlParameter("@customer_id", MySqlDbType.Int32,8),
+					new MySqlParameter("@user_id", MySqlDbType.Int32,8),
+					new MySqlParameter("@goods_id", MySqlDbType.Int32,8),
+					new MySqlParameter("@goods_sn2", MySqlDbType.VarChar,30),
+					new MySqlParameter("@goods_sn", MySqlDbType.VarChar,30),
+					new MySqlParameter("@goods_name", MySqlDbType.VarChar,60),
+					new MySqlParameter("@brand_id", MySqlDbType.Int32,8),
+					new MySqlParameter("@old_price", MySqlDbType.Decimal,12),
+					new MySqlParameter("@goods_price", MySqlDbType.Decimal,12),
+					new MySqlParameter("@goods_unit", MySqlDbType.VarChar,10),
+					new MySqlParameter("@goods_desc", MySqlDbType.VarChar,255),
+					new MySqlParameter("@goods_number", MySqlDbType.Int32,10),
+					new MySqlParameter("@booking_time", MySqlDbType.Int32,10),
+					new MySqlParameter("@p_status", MySqlDbType.Int32,2),
+					new MySqlParameter("@dispose_user", MySqlDbType.VarChar,30),
+					new MySqlParameter("@dispose_time", MySqlDbType.Int32,10),
+					new MySqlParameter("@dispose_note", MySqlDbType.VarChar,255),
+					new MySqlParameter("@demand_time", MySqlDbType.Int32,10),
+					new MySqlParameter("@grade", MySqlDbType.Int32,2),
+					new MySqlParameter("@reviewer", MySqlDbType.Int32,2),
+					new MySqlParameter("@is_paid", MySqlDbType.Int32,2),
+					new MySqlParameter("@is_remind", MySqlDbType.Int32,2),
+					new MySqlParameter("@arrive_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@last_update_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@is_show", MySqlDbType.Int32,2),
+					new MySqlParameter("@already_bought", MySqlDbType.VarChar,10)};
+			parameters[0].Value = model.gid;
+			parameters[1].Value = model.oid;
+			parameters[2].Value = model.rec_id;
+			parameters[3].Value = model.from_order_id;
+			parameters[4].Value = model.user_type;
+			parameters[5].Value = model.customer_id;
+			parameters[6].Value = model.user_id;
+			parameters[7].Value = model.goods_id;
+			parameters[8].Value = model.goods_sn2;
+			parameters[9].Value = model.goods_sn;
+			parameters[10].Value = model.goods_name;
+			parameters[11].Value = model.brand_id;
+			parameters[12].Value = model.old_price;
+			parameters[13].Value = model.goods_price;
+			parameters[14].Value = model.goods_unit;
+			parameters[15].Value = model.goods_desc;
+			parameters[16].Value = model.goods_number;
+			parameters[17].Value = model.booking_time;
+			parameters[18].Value = model.p_status;
+			parameters[19].Value = model.dispose_user;
+			parameters[20].Value = model.dispose_time;
+			parameters[21].Value = model.dispose_note;
+			parameters[22].Value = model.demand_time;
+			parameters[23].Value = model.grade;
+			parameters[24].Value = model.reviewer;
+			parameters[25].Value = model.is_paid;
+			parameters[26].Value = model.is_remind;
+			parameters[27].Value = model.arrive_time;
+			parameters[28].Value = model.last_update_time;
+			parameters[29].Value = model.is_show;
+			parameters[30].Value = model.already_bought;
+
+			int rows=Shop_DbHelperMySQL.ExecuteSql(strSql.ToString(),parameters);
+			if (rows > 0)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		/// <summary>
+		/// 更新一条数据
+		/// </summary>
+		public bool Update(XHD.Model.shop_purchase_goods model)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("update shop_purchase_goods set ");
+			strSql.Append("oid=@oid,");
+			strSql.Append("rec_id=@rec_id,");
+			strSql.Append("from_order_id=@from_order_id,");
+			strSql.Append("user_type=@user_type,");
+			strSql.Append("customer_id=@customer_id,");
+			strSql.Append("user_id=@user_id,");
+			strSql.Append("goods_id=@goods_id,");
+			strSql.Append("goods_sn2=@goods_sn2,");
+			strSql.Append("goods_sn=@goods_sn,");
+			strSql.Append("goods_name=@goods_name,");
+			strSql.Append("brand_id=@brand_id,");
+			strSql.Append("old_price=@old_price,");
+			strSql.Append("goods_price=@goods_price,");
+			strSql.Append("goods_unit=@goods_unit,");
+			strSql.Append("goods_desc=@goods_desc,");
+			strSql.Append("goods_number=@goods_number,");
+			strSql.Append("booking_time=@booking_time,");
+			strSql.Append("p_status=@p_status,");
+			strSql.Append("dispose_user=@dispose_user,");
+			strSql.Append("dispose_time=@dispose_time,");
+			strSql.Append("dispose_note=@dispose_note,");
+			strSql.Append("demand_time=@demand_time,");
+			strSql.Append("grade=@grade,");
+			strSql.Append("reviewer=@reviewer,");
+			strSql.Append("is_paid=@is_paid,");
+			strSql.Append("is_remind=@is_remind,");
+			strSql.Append("arrive_time=@arrive_time,");
+			strSql.Append("last_update_time=@last_update_time,");
+			strSql.Append("is_show=@is_show,");
+			strSql.Append("already_bought=@already_bought");
+			strSql.Append(" where gid=@gid ");
+			MySqlParameter[] parameters = {
+					new MySqlParameter("@oid", MySqlDbType.Int32,8),
+					new MySqlParameter("@rec_id", MySqlDbType.Int32,8),
+					new MySqlParameter("@from_order_id", MySqlDbType.Int32,10),
+					new MySqlParameter("@user_type", MySqlDbType.Int32,2),
+					new MySqlParameter("@customer_id", MySqlDbType.Int32,8),
+					new MySqlParameter("@user_id", MySqlDbType.Int32,8),
+					new MySqlParameter("@goods_id", MySqlDbType.Int32,8),
+					new MySqlParameter("@goods_sn2", MySqlDbType.VarChar,30),
+					new MySqlParameter("@goods_sn", MySqlDbType.VarChar,30),
+					new MySqlParameter("@goods_name", MySqlDbType.VarChar,60),
+					new MySqlParameter("@brand_id", MySqlDbType.Int32,8),
+					new MySqlParameter("@old_price", MySqlDbType.Decimal,12),
+					new MySqlParameter("@goods_price", MySqlDbType.Decimal,12),
+					new MySqlParameter("@goods_unit", MySqlDbType.VarChar,10),
+					new MySqlParameter("@goods_desc", MySqlDbType.VarChar,255),
+					new MySqlParameter("@goods_number", MySqlDbType.Int32,10),
+					new MySqlParameter("@booking_time", MySqlDbType.Int32,10),
+					new MySqlParameter("@p_status", MySqlDbType.Int32,2),
+					new MySqlParameter("@dispose_user", MySqlDbType.VarChar,30),
+					new MySqlParameter("@dispose_time", MySqlDbType.Int32,10),
+					new MySqlParameter("@dispose_note", MySqlDbType.VarChar,255),
+					new MySqlParameter("@demand_time", MySqlDbType.Int32,10),
+					new MySqlParameter("@grade", MySqlDbType.Int32,2),
+					new MySqlParameter("@reviewer", MySqlDbType.Int32,2),
+					new MySqlParameter("@is_paid", MySqlDbType.Int32,2),
+					new MySqlParameter("@is_remind", MySqlDbType.Int32,2),
+					new MySqlParameter("@arrive_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@last_update_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@is_show", MySqlDbType.Int32,2),
+					new MySqlParameter("@already_bought", MySqlDbType.VarChar,10),
+					new MySqlParameter("@gid", MySqlDbType.Int32,8)};
+			parameters[0].Value = model.oid;
+			parameters[1].Value = model.rec_id;
+			parameters[2].Value = model.from_order_id;
+			parameters[3].Value = model.user_type;
+			parameters[4].Value = model.customer_id;
+			parameters[5].Value = model.user_id;
+			parameters[6].Value = model.goods_id;
+			parameters[7].Value = model.goods_sn2;
+			parameters[8].Value = model.goods_sn;
+			parameters[9].Value = model.goods_name;
+			parameters[10].Value = model.brand_id;
+			parameters[11].Value = model.old_price;
+			parameters[12].Value = model.goods_price;
+			parameters[13].Value = model.goods_unit;
+			parameters[14].Value = model.goods_desc;
+			parameters[15].Value = model.goods_number;
+			parameters[16].Value = model.booking_time;
+			parameters[17].Value = model.p_status;
+			parameters[18].Value = model.dispose_user;
+			parameters[19].Value = model.dispose_time;
+			parameters[20].Value = model.dispose_note;
+			parameters[21].Value = model.demand_time;
+			parameters[22].Value = model.grade;
+			parameters[23].Value = model.reviewer;
+			parameters[24].Value = model.is_paid;
+			parameters[25].Value = model.is_remind;
+			parameters[26].Value = model.arrive_time;
+			parameters[27].Value = model.last_update_time;
+			parameters[28].Value = model.is_show;
+			parameters[29].Value = model.already_bought;
+			parameters[30].Value = model.gid;
+
+			int rows=Shop_DbHelperMySQL.ExecuteSql(strSql.ToString(),parameters);
+			if (rows > 0)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// 删除一条数据
+		/// </summary>
+		public bool Delete(int gid)
+		{
+			
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("delete from shop_purchase_goods ");
+			strSql.Append(" where gid=@gid ");
+			MySqlParameter[] parameters = {
+					new MySqlParameter("@gid", MySqlDbType.Int32,8)			};
+			parameters[0].Value = gid;
+
+			int rows=Shop_DbHelperMySQL.ExecuteSql(strSql.ToString(),parameters);
+			if (rows > 0)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		/// <summary>
+		/// 批量删除数据
+		/// </summary>
+		public bool DeleteList(string gidlist )
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("delete from shop_purchase_goods ");
+			strSql.Append(" where gid in ("+gidlist + ")  ");
+			int rows=Shop_DbHelperMySQL.ExecuteSql(strSql.ToString());
+			if (rows > 0)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+
+		/// <summary>
+		/// 得到一个对象实体
+		/// </summary>
+		public XHD.Model.shop_purchase_goods GetModel(int gid)
+		{
+			
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("select gid,oid,rec_id,from_order_id,user_type,customer_id,user_id,goods_id,goods_sn2,goods_sn,goods_name,brand_id,old_price,goods_price,goods_unit,goods_desc,goods_number,booking_time,p_status,dispose_user,dispose_time,dispose_note,demand_time,grade,reviewer,is_paid,is_remind,arrive_time,last_update_time,is_show,already_bought from shop_purchase_goods ");
+			strSql.Append(" where gid=@gid ");
+			MySqlParameter[] parameters = {
+					new MySqlParameter("@gid", MySqlDbType.Int32,8)			};
+			parameters[0].Value = gid;
+
+			XHD.Model.shop_purchase_goods model=new XHD.Model.shop_purchase_goods();
+			DataSet ds=Shop_DbHelperMySQL.Query(strSql.ToString(),parameters);
+			if(ds.Tables[0].Rows.Count>0)
+			{
+				return DataRowToModel(ds.Tables[0].Rows[0]);
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+
+		/// <summary>
+		/// 得到一个对象实体
+		/// </summary>
+		public XHD.Model.shop_purchase_goods DataRowToModel(DataRow row)
+		{
+			XHD.Model.shop_purchase_goods model=new XHD.Model.shop_purchase_goods();
+			if (row != null)
+			{
+					//model.gid=row["gid"].ToString();
+					//model.oid=row["oid"].ToString();
+					//model.rec_id=row["rec_id"].ToString();
+				if(row["from_order_id"]!=null && row["from_order_id"].ToString()!="")
+				{
+					model.from_order_id=int.Parse(row["from_order_id"].ToString());
+				}
+				if(row["user_type"]!=null && row["user_type"].ToString()!="")
+				{
+					model.user_type=int.Parse(row["user_type"].ToString());
+				}
+					//model.customer_id=row["customer_id"].ToString();
+					//model.user_id=row["user_id"].ToString();
+					//model.goods_id=row["goods_id"].ToString();
+				if(row["goods_sn2"]!=null)
+				{
+					model.goods_sn2=row["goods_sn2"].ToString();
+				}
+				if(row["goods_sn"]!=null)
+				{
+					model.goods_sn=row["goods_sn"].ToString();
+				}
+				if(row["goods_name"]!=null)
+				{
+					model.goods_name=row["goods_name"].ToString();
+				}
+					//model.brand_id=row["brand_id"].ToString();
+				if(row["old_price"]!=null && row["old_price"].ToString()!="")
+				{
+					model.old_price=decimal.Parse(row["old_price"].ToString());
+				}
+				if(row["goods_price"]!=null && row["goods_price"].ToString()!="")
+				{
+					model.goods_price=decimal.Parse(row["goods_price"].ToString());
+				}
+				if(row["goods_unit"]!=null)
+				{
+					model.goods_unit=row["goods_unit"].ToString();
+				}
+				if(row["goods_desc"]!=null)
+				{
+					model.goods_desc=row["goods_desc"].ToString();
+				}
+				if(row["goods_number"]!=null && row["goods_number"].ToString()!="")
+				{
+					model.goods_number=int.Parse(row["goods_number"].ToString());
+				}
+				if(row["booking_time"]!=null && row["booking_time"].ToString()!="")
+				{
+					model.booking_time=int.Parse(row["booking_time"].ToString());
+				}
+				if(row["p_status"]!=null && row["p_status"].ToString()!="")
+				{
+					model.p_status=int.Parse(row["p_status"].ToString());
+				}
+				if(row["dispose_user"]!=null)
+				{
+					model.dispose_user=row["dispose_user"].ToString();
+				}
+				if(row["dispose_time"]!=null && row["dispose_time"].ToString()!="")
+				{
+					model.dispose_time=int.Parse(row["dispose_time"].ToString());
+				}
+				if(row["dispose_note"]!=null)
+				{
+					model.dispose_note=row["dispose_note"].ToString();
+				}
+				if(row["demand_time"]!=null && row["demand_time"].ToString()!="")
+				{
+					model.demand_time=int.Parse(row["demand_time"].ToString());
+				}
+				if(row["grade"]!=null && row["grade"].ToString()!="")
+				{
+					model.grade=int.Parse(row["grade"].ToString());
+				}
+				if(row["reviewer"]!=null && row["reviewer"].ToString()!="")
+				{
+					model.reviewer=int.Parse(row["reviewer"].ToString());
+				}
+				if(row["is_paid"]!=null && row["is_paid"].ToString()!="")
+				{
+					model.is_paid=int.Parse(row["is_paid"].ToString());
+				}
+				if(row["is_remind"]!=null && row["is_remind"].ToString()!="")
+				{
+					model.is_remind=int.Parse(row["is_remind"].ToString());
+				}
+				if(row["arrive_time"]!=null && row["arrive_time"].ToString()!="")
+				{
+					model.arrive_time=int.Parse(row["arrive_time"].ToString());
+				}
+				if(row["last_update_time"]!=null && row["last_update_time"].ToString()!="")
+				{
+					model.last_update_time=int.Parse(row["last_update_time"].ToString());
+				}
+				if(row["is_show"]!=null && row["is_show"].ToString()!="")
+				{
+					model.is_show=int.Parse(row["is_show"].ToString());
+				}
+				if(row["already_bought"]!=null)
+				{
+					model.already_bought=row["already_bought"].ToString();
+				}
+			}
+			return model;
+		}
+
+		/// <summary>
+		/// 获得数据列表
+		/// </summary>
+		public DataSet GetList(string strWhere)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("select gid,oid,rec_id,from_order_id,user_type,customer_id,user_id,goods_id,goods_sn2,goods_sn,goods_name,brand_id,old_price,goods_price,goods_unit,goods_desc,goods_number,booking_time,p_status,dispose_user,dispose_time,dispose_note,demand_time,grade,reviewer,is_paid,is_remind,arrive_time,last_update_time,is_show,already_bought ");
+			strSql.Append(" FROM shop_purchase_goods ");
+			if(strWhere.Trim()!="")
+			{
+				strSql.Append(" where "+strWhere);
+			}
+			return Shop_DbHelperMySQL.Query(strSql.ToString());
+		}
+
+		/// <summary>
+		/// 获取记录总数
+		/// </summary>
+		public int GetRecordCount(string strWhere)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("select count(1) FROM shop_purchase_goods ");
+			if(strWhere.Trim()!="")
+			{
+				strSql.Append(" where "+strWhere);
+			}
+            object obj = Shop_DbHelperMySQL.GetSingle(strSql.ToString());
+			if (obj == null)
+			{
+				return 0;
+			}
+			else
+			{
+				return Convert.ToInt32(obj);
+			}
+		}
+		/// <summary>
+		/// 分页获取数据列表
+		/// </summary>
+		public DataSet GetListByPage(string strWhere, string orderby, int startIndex, int endIndex)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("SELECT * FROM ( ");
+			strSql.Append(" SELECT ROW_NUMBER() OVER (");
+			if (!string.IsNullOrEmpty(orderby.Trim()))
+			{
+				strSql.Append("order by T." + orderby );
+			}
+			else
+			{
+				strSql.Append("order by T.gid desc");
+			}
+			strSql.Append(")AS Row, T.*  from shop_purchase_goods T ");
+			if (!string.IsNullOrEmpty(strWhere.Trim()))
+			{
+				strSql.Append(" WHERE " + strWhere);
+			}
+			strSql.Append(" ) TT");
+			strSql.AppendFormat(" WHERE TT.Row between {0} and {1}", startIndex, endIndex);
+			return Shop_DbHelperMySQL.Query(strSql.ToString());
+		}
+
+		/*
+		/// <summary>
+		/// 分页获取数据列表
+		/// </summary>
+		public DataSet GetList(int PageSize,int PageIndex,string strWhere)
+		{
+			MySqlParameter[] parameters = {
+					new MySqlParameter("@tblName", MySqlDbType.VarChar, 255),
+					new MySqlParameter("@fldName", MySqlDbType.VarChar, 255),
+					new MySqlParameter("@PageSize", MySqlDbType.Int32),
+					new MySqlParameter("@PageIndex", MySqlDbType.Int32),
+					new MySqlParameter("@IsReCount", MySqlDbType.Bit),
+					new MySqlParameter("@OrderType", MySqlDbType.Bit),
+					new MySqlParameter("@strWhere", MySqlDbType.VarChar,1000),
+					};
+			parameters[0].Value = "shop_purchase_goods";
+			parameters[1].Value = "gid";
+			parameters[2].Value = PageSize;
+			parameters[3].Value = PageIndex;
+			parameters[4].Value = 0;
+			parameters[5].Value = 0;
+			parameters[6].Value = strWhere;	
+			return Shop_DbHelperMySQL.RunProcedure("UP_GetRecordByPage",parameters,"ds");
+		}*/
+
+		#endregion  BasicMethod
+		#region  ExtensionMethod
+
+		#endregion  ExtensionMethod
+	}
+}
+

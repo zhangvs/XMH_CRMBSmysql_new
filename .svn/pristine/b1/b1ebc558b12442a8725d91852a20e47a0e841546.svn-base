@@ -1,0 +1,419 @@
+﻿/**  版本信息模板在安装目录下，可自行修改。
+* product.cs
+*
+* 功 能： N/A
+* 类 名： product
+*
+* Ver    变更日期             负责人  变更内容
+* ───────────────────────────────────
+* V0.01  2015/10/5 16:36:25   N/A    初版
+*
+* Copyright (c) 2012 Maticsoft Corporation. All rights reserved.
+*┌──────────────────────────────────┐
+*│　此技术信息为本公司机密信息，未经本公司书面同意禁止向第三方披露．　│
+*│　版权所有：动软卓越（北京）科技有限公司　　　　　　　　　　　　　　│
+*└──────────────────────────────────┘
+*/
+using System;
+using System.Data;
+using System.Text;
+using System.Data.SqlClient;
+using XHD.DBUtility;
+using MySql.Data.MySqlClient;//Please add references
+namespace XHD.DAL
+{
+    /// <summary>
+    /// 数据访问类:product
+    /// </summary>
+    public partial class product
+    {
+        public product()
+        { }
+        #region  BasicMethod
+
+        /// <summary>
+        /// 得到最大ID
+        /// </summary>
+        public int GetMaxId()
+        {
+            return DbHelperMySQL.GetMaxID("Id", "product");
+        }
+
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int Id)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from product");
+            strSql.Append(" where Id=@Id");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@Id", MySqlDbType.Int32)
+			};
+            parameters[0].Value = Id;
+
+            return DbHelperMySQL.Exists(strSql.ToString(), parameters);
+        }
+
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public int Add(XHD.Model.product model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("insert into product(");
+            strSql.Append("Factory_Id,proName,score,proimage)");
+            strSql.Append(" values (");
+            strSql.Append("@Factory_Id,@proName,@score,@proimage)");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@Factory_Id", MySqlDbType.VarChar,60),
+					new MySqlParameter("@proName", MySqlDbType.VarChar,50),
+					new MySqlParameter("@score", MySqlDbType.Decimal,18),
+					new MySqlParameter("@proimage", MySqlDbType.VarChar,100)};
+            parameters[0].Value = model.Factory_Id;
+            parameters[1].Value = model.proName;
+            parameters[2].Value = model.score;
+            parameters[3].Value = model.proimage;
+
+            object obj = DbHelperMySQL.GetSingle(strSql.ToString(), parameters);
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return Convert.ToInt32(obj);
+            }
+        }
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(XHD.Model.product model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update product set ");
+            strSql.Append("proName=@proName,");
+            strSql.Append("score=@score,");
+            strSql.Append("proimage=@proimage");
+            strSql.Append(" where Id=@Id");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@proName", MySqlDbType.VarChar,50),
+					new MySqlParameter("@score", MySqlDbType.Decimal,18),
+					new MySqlParameter("@proimage", MySqlDbType.VarChar,100),
+					new MySqlParameter("@Id", MySqlDbType.Int32,11)};
+            parameters[0].Value = model.proName;
+            parameters[1].Value = model.score;
+            parameters[2].Value = model.proimage;
+            parameters[3].Value = model.Id;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int Id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from product ");
+            strSql.Append(" where Id=@Id");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@Id", MySqlDbType.Int32)
+			};
+            parameters[0].Value = Id;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 批量删除数据
+        /// </summary>
+        public bool DeleteList(string Idlist)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from product ");
+            strSql.Append(" where Id in (" + Idlist + ")  ");
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.product GetModel(int Id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select Id,proName,score,proimage from product ");
+            strSql.Append(" where Id=@Id limit 1");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@Id", MySqlDbType.Int32)
+			};
+            parameters[0].Value = Id;
+
+            XHD.Model.product model = new XHD.Model.product();
+            DataSet ds = DbHelperMySQL.Query(strSql.ToString(), parameters);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                return DataRowToModel(ds.Tables[0].Rows[0]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.product DataRowToModel(DataRow row)
+        {
+            XHD.Model.product model = new XHD.Model.product();
+            if (row != null)
+            {
+                if (row["Id"] != null && row["Id"].ToString() != "")
+                {
+                    model.Id = int.Parse(row["Id"].ToString());
+                }
+                if (row["proName"] != null)
+                {
+                    model.proName = row["proName"].ToString();
+                }
+                if (row["score"] != null && row["score"].ToString() != "")
+                {
+                    model.score = decimal.Parse(row["score"].ToString());
+                }
+                if (row["proimage"] != null)
+                {
+                    model.proimage = row["proimage"].ToString();
+                }
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select Id,proName,score,proimage ");
+            strSql.Append(" FROM product ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 获得前几行数据
+        /// </summary>
+        public DataSet GetList(int Top, string strWhere, string filedOrder)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select ");
+
+            strSql.Append(" Id,proName,score,proimage ");
+            strSql.Append(" FROM product ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder);
+            if (Top > 0)
+            {
+                strSql.Append(" limit " + Top.ToString());
+            }
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 获取记录总数
+        /// </summary>
+        public int GetRecordCount(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) FROM product ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            object obj = DbHelperMySQL.GetSingle(strSql.ToString());
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return Convert.ToInt32(obj);
+            }
+        }
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetListByPage(string strWhere, string orderby, int startIndex, int endIndex)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("SELECT * FROM ( ");
+            strSql.Append(" SELECT ROW_NUMBER() OVER (");
+            if (!string.IsNullOrEmpty(orderby.Trim()))
+            {
+                strSql.Append("order by T." + orderby);
+            }
+            else
+            {
+                strSql.Append("order by T.Id desc");
+            }
+            strSql.Append(")AS Row, T.*  from product T ");
+            if (!string.IsNullOrEmpty(strWhere.Trim()))
+            {
+                strSql.Append(" WHERE " + strWhere);
+            }
+            strSql.Append(" ) TT");
+            strSql.AppendFormat(" WHERE TT.Row between {0} and {1}", startIndex, endIndex);
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append("select ");
+            strSql.Append("  * FROM product ");
+            //strSql.Append(" WHERE id not in ( SELECT top " + (PageIndex - 1) * PageSize + " id FROM product ");
+            //strSql.Append(" where " + strWhere + " order by " + filedOrder + " ) ");
+            strSql1.Append(" select count(id) FROM product ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 获取在途信息
+        /// </summary>
+        public DataSet getOrderNum(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append(" select  g.goods_name,g.goods_id,g.brand_id,dh.rq,dh.bm,dh.djhm, ");
+            strSql.Append("          dh.bzdw,sum(dh.sl) as sl,sum(dh.ydsl) as ydsl,sum(dh.wdsl) as wdsl,sum(dh.sjztsl) as sjztsl,sum(dh.ztdjsl) as ztdjsl,dh.dhrq,dh.jl,     ");
+            strSql.Append("         ifnull(dq.sl,0) as real_num, ");
+            strSql.Append("         (ifnull(dq.sl,0) + ifnull(h.sj_ztsl,0) -ifnull(k.ddsl,0)) as purchase_can_sale, ");
+            strSql.Append("         (ifnull(k.ddsl,0) - ifnull(k.zhsl,0)) as waiting_number, ");
+            strSql.Append("         ifnull(k.zhsl,0) as locked_number ");
+            strSql.Append(" from dhdjk as dh ");
+            strSql.Append(" left join ecs_goods as g on dh.bm=g.goods_id  ");
+            strSql.Append(" left join (select bm, sum(sjztsl) as sj_ztsl from dhdjk where is_close = 0 group by bm) h on h.bm=dh.bm ");
+            strSql.Append(" left join (select goods_id, sum(goods_num) as ddsl,sum(locked_num) as zhsl from ecs_locked_goods group by goods_id ) k on dh.bm=k.goods_id ");
+            strSql.Append("  inner join dhxlk as x on dh.djhm=x.djhm  ");
+            strSql.Append(" left join dqkcyl as dq on dq.bm=dh.bm   and dq.hw='k1' ");
+
+            strSql1.Append("  select count(1)  from (");
+            strSql1.Append(" select count(dh.bm) FROM dhdjk as dh left join ecs_goods as g on dh.bm=g.goods_id");
+            strSql1.Append("  inner join dhxlk as x on dh.djhm=x.djhm ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" group by dh.bm");
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            strSql1.Append(" group by dh.bm");
+            strSql1.Append(" ) as abc");
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 获取在途信息明细
+        /// </summary>
+        public DataSet getOrderDetail(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append("select  d.RQ,d.JHRQ,d.bzdw,d.BZSL,d.BM,d.DDHM,d.BZ");
+            strSql.Append("  from zt_djk as d");
+            strSql.Append("  inner join zt_xlk as x on d.djhm=x.djhm and x.jz='√'  ");
+            strSql.Append("  inner join (");
+            strSql.Append("  select distinct d.djhm from dhdjk as d");
+            strSql.Append("   inner join dhxlk as x on d.djhm=x.djhm and  x.jz='√' ");
+            strSql.Append("   where d.WDSL>0 and d.is_close=0 and " + strWhere);
+            strSql.Append("  ) as dh on dh.djhm=d.ddhm");
+
+            strSql1.Append(" select count(d.DJHM) FROM zt_djk as d");
+            strSql1.Append("  inner join zt_xlk as x on d.djhm=x.djhm ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+        /*
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetList(int PageSize,int PageIndex,string strWhere)
+        {
+            SqlParameter[] parameters = {
+                    new SqlParameter("@tblName", SqlDbType.VarChar, 255),
+                    new SqlParameter("@fldName", SqlDbType.VarChar, 255),
+                    new SqlParameter("@PageSize", SqlDbType.Int),
+                    new SqlParameter("@PageIndex", SqlDbType.Int),
+                    new SqlParameter("@IsReCount", SqlDbType.Bit),
+                    new SqlParameter("@OrderType", SqlDbType.Bit),
+                    new SqlParameter("@strWhere", SqlDbType.VarChar,1000),
+                    };
+            parameters[0].Value = "product";
+            parameters[1].Value = "Id";
+            parameters[2].Value = PageSize;
+            parameters[3].Value = PageIndex;
+            parameters[4].Value = 0;
+            parameters[5].Value = 0;
+            parameters[6].Value = strWhere;	
+            return DbHelperSQL.RunProcedure("UP_GetRecordByPage",parameters,"ds");
+        }*/
+
+        #endregion  BasicMethod
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}

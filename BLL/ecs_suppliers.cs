@@ -1,0 +1,243 @@
+﻿using System;
+using System.Data;
+using System.Collections.Generic;
+using XHD.Common;
+using XHD.Model;
+namespace XHD.BLL
+{
+    /// <summary>
+    /// ecs_suppliers
+    /// </summary>
+    public partial class ecs_suppliers
+    {
+        private readonly XHD.DAL.ecs_suppliers dal = new XHD.DAL.ecs_suppliers();
+        public ecs_suppliers()
+        { }
+        #region  BasicMethod
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int suppliers_id)
+        {
+            return dal.Exists(suppliers_id);
+        }
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public int Add(XHD.Model.ecs_suppliers model)
+        {
+            return dal.Add(model);
+        }
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(XHD.Model.ecs_suppliers model)
+        {
+            return dal.Update(model);
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int suppliers_id)
+        {
+
+            return dal.Delete(suppliers_id);
+        }
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool DeleteList(string suppliers_idlist)
+        {
+            return dal.DeleteList(suppliers_idlist);
+        }
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.ecs_suppliers GetModel(int suppliers_id)
+        {
+
+            return dal.GetModel(suppliers_id);
+        }
+
+        /// <summary>
+        /// 得到一个对象实体，从缓存中
+        /// </summary>
+        public XHD.Model.ecs_suppliers GetModelByCache(int suppliers_id)
+        {
+
+            string CacheKey = "ecs_suppliersModel-" + suppliers_id;
+            object objModel = XHD.Common.DataCache.GetCache(CacheKey);
+            if (objModel == null)
+            {
+                try
+                {
+                    objModel = dal.GetModel(suppliers_id);
+                    if (objModel != null)
+                    {
+                        int ModelCache = XHD.Common.ConfigHelper.GetConfigInt("ModelCache");
+                        XHD.Common.DataCache.SetCache(CacheKey, objModel, DateTime.Now.AddMinutes(ModelCache), TimeSpan.Zero);
+                    }
+                }
+                catch { }
+            }
+            return (XHD.Model.ecs_suppliers)objModel;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            return dal.GetList(strWhere);
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetListByDJHM(string strWhere)
+        {
+            return dal.GetListByDJHM(strWhere);
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public List<XHD.Model.ecs_suppliers> GetModelList(string strWhere)
+        {
+            DataSet ds = dal.GetList(strWhere);
+            return DataTableToList(ds.Tables[0]);
+        }
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public List<XHD.Model.ecs_suppliers> DataTableToList(DataTable dt)
+        {
+            List<XHD.Model.ecs_suppliers> modelList = new List<XHD.Model.ecs_suppliers>();
+            int rowsCount = dt.Rows.Count;
+            if (rowsCount > 0)
+            {
+                XHD.Model.ecs_suppliers model;
+                for (int n = 0; n < rowsCount; n++)
+                {
+                    model = dal.DataRowToModel(dt.Rows[n]);
+                    if (model != null)
+                    {
+                        modelList.Add(model);
+                    }
+                }
+            }
+            return modelList;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetAllList()
+        {
+            return GetList("");
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public int GetRecordCount(string strWhere)
+        {
+            return dal.GetRecordCount(strWhere);
+        }
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetListByPage(string strWhere, string orderby, int startIndex, int endIndex)
+        {
+            return dal.GetListByPage(strWhere, orderby, startIndex, endIndex);
+        }
+
+        public DataSet GetList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetList(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+        public DataSet GetLists(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetLists(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+        /// <summary>
+        ///获取经销商
+        /// </summary>
+        public DataSet GetDearList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetDearList(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Cancel(int ID)
+        {
+            return dal.Cancel(ID);
+        }
+        /// <summary>
+        /// 更新密码(uid)
+        /// </summary>
+        public bool changepwd(XHD.Model.scm_supply_user model)
+        {
+            return dal.changepwd(model);
+        }
+
+
+
+
+
+        /// <summary>
+        /// 分页获得供应商所经营的品牌
+        /// </summary>
+        public DataSet GetOperateBrand(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetOperateBrand(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+
+        // 关联供应商所经营的品牌
+        public bool OperateBrand(string brandIds, string supplyId, string factory_id)
+        {
+            return dal.OperateBrand(brandIds, supplyId, factory_id);
+        }
+
+        // 解除关联供应商所经营的品牌
+        public bool UnOperateBrand(string brandIds, string supplyId, string factory_id)
+        {
+            return dal.UnOperateBrand(brandIds, supplyId, factory_id);
+        }
+
+        //获取供应商的员工
+        public DataSet GetSupEmp(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetSupEmp(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+        /// <summary>
+        /// 通过存储过程生成erp_code
+        /// </summary>
+        /// <param name="strObj"></param>
+        /// <returns></returns>
+        public string GetBill(string strObj)
+        {
+            return dal.GetBill(strObj);
+        }
+
+        #endregion  BasicMethod
+
+        #region  ExtensionMethod
+        public DataSet GetPageData(int pageSize, int pageIndex, string tableName, string city_where, out string Total)
+        {
+            return dal.GetPageData(pageSize, pageIndex, tableName, city_where, out Total);
+        }
+        #endregion  ExtensionMethod
+    }
+}
+

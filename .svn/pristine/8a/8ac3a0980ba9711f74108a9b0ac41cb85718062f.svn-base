@@ -1,0 +1,67 @@
+﻿
+var bp_brand_name; //品牌名
+var bp_brand_names = new Array();//品牌名数组
+var bp_percentages = new Array();//品牌提成数组(销售额-退货-基数)*比例==提成
+
+
+//个人每日实际销售量
+function getBrandManagerData(GridData) {
+    clearData();
+    bp_brand_names = [];//考核品牌名数组
+    bp_percentages = [];//考核品牌提成数组
+    var _id = 0;
+    
+    for (var j = 0; j < GridData.Rows.length; j++) {
+        //取列字段赋值
+        bp_brand_name = GridData.Rows[j].bp_brand_name;//品牌name
+        //判断品牌名称数组中是否存在当前品牌名，如果不存在初始化一个新数组
+        if ($.inArray(bp_brand_name, bp_brand_names) < 0) {
+            _id = bp_brand_names.push(bp_brand_name) - 1;//如果第一次出现，添加到数组中,返回前放入元素的id,返回值-1为数组角标
+            bp_percentages.push(GridData.Rows[j].bp_percentage);//品牌提成
+            $("#form1").append("<div id='main" + _id + "' style='height:300px' ></div>");
+            $("#form1").append("<div id='mainSide" + _id + "' style='height:300px' ></div><hr style='height:10px;border:none;border-top:10px groove skyblue;' />");
+            initSingleData(_id);
+            //当前品牌的基数，计划，画线
+            getBasePlanLine(_id,parseFloat(GridData.Rows[j].base.toFixed()), parseFloat(GridData.Rows[j].plan.toFixed()));
+        }
+        //循环赋值
+        getSingleDataValue(_id,GridData.Rows[j]);
+    }
+    initGroupData(bp_brand_names);
+    initWholeData(bp_brand_names);
+    ie_forEach();
+    if (singlecount!=0) {
+        dataDraw(bp_brand_names, yearUnits, yearLegendDatas, yearLegendBools);
+    }
+    else {
+        dataDraw(bp_brand_names, monthUnits, monthLegendDatas, monthLegendBools);
+    }
+}
+
+
+//个人每日实际销售量
+function getBrandManagerData_Emp(GridData) {
+    clearSideData();
+    var nb;//当前品牌id
+    var d = 0;//当前品牌下姓名下标
+        for (var i = 0; i < GridData.Rows.length; i++) {
+            bp_brand_name = GridData.Rows[i].bp_brand_name;
+            var _id = $.inArray(bp_brand_name, bp_brand_names);
+            if (_id!=nb) {
+                nb = _id;
+                d = i;
+                initSideData(_id);
+            }
+            getSideDataValue(_id, i - d, GridData.Rows[i]);
+    }
+    ie_forEach();
+    if (singlecount == 12) {
+        sideDraw(bp_brand_names, sideBrandEmp, sideYearLegendDatas, sideYearLegendBools);
+    }
+    else {
+        sideDraw(bp_brand_names, sideBrandEmp, sideMonthLegendDatas, sideMonthLegendBools);
+    }
+    
+}
+
+

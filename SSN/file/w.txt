@@ -1,0 +1,107 @@
+一：JQuery:
+
+ 1.$(function(){
+
+  });
+
+2.$(function () {
+    var cr = $("#cr");
+    cr.click(function () {
+    if (cr.is(":checked"))
+    {
+      alert("感谢你的支持!你可以继续操作!");
+    }
+   });
+  });
+
+二：Ajax
+
+ 1.
+
+三：Js
+
+ 1.
+
+---------------------------------------------------------------------------------
+
+0722 8333 2836
+
+---------------------------------------------------------------------------------
+
+ocx
+---------------------------------------------------------------------------------
+文件下载： a 标签指定 到下载页面。
+/// <summary>
+        /// 下?载?页?3面?
+        /// </summary>
+        /// <param name="path"></param>
+        private void download_file(string path)
+        {
+            if (File .Exists(path))
+            {
+                FileStream fs = new FileStream(path, FileMode.Open);
+                byte[] bytes = new byte[( int)fs.Length];
+                fs.Read(bytes, 0, bytes.Length);
+                fs.Close();
+                Response.ContentType = "application/octet-stream" ;
+                Response.AddHeader( "Content-Disposition", "attachment;filename=" + HttpUtility.UrlEncode(System.IO.Path .GetFileName(path), Encoding.UTF8));
+                Response.AddHeader( "Content-Length", bytes.Length.ToString());
+                Response.BinaryWrite(bytes);
+                Response.Flush();
+                Response.End();
+                Response.Close();
+            }
+        }
+或者：
+/// <summary>
+        /// 附件下载
+        /// </summary>
+        public bool FileDown()
+        {
+            string filename = Request.Params["file" ];
+            string url = Server.MapPath("email_upload/" ) + filename;
+            try
+            {
+                FileInfo fi = new FileInfo(url);
+                if (fi.Exists)
+                {
+                    Response.Clear();
+                    Response.AddHeader( "Content-Disposition", "attachment;filename=" + fi.Name);
+                    Response.AddHeader( "Content-Length", fi.Length.ToString());
+                    Response.ContentType = "application/octet-stream" ;
+                    Response.WriteFile(fi.FullName);
+                    Response.Filter.Close();
+                }
+                else
+                {
+                    ClientScript.RegisterStartupScript(ClientScript.GetType(), "", "<script>alert('文件不存在！');</script>" );
+                }
+            }
+            catch (Exception )
+            {
+                ClientScript.RegisterStartupScript(ClientScript.GetType(), "", "<script>faile();</script>" );
+            }
+            return true ;
+        }
+
+---------------------------------------------------------------------------------
+[
+            {"Menu_id":"1098","Menu_name":"今日未接","parentid":"0","parentname":"无","App_id":"7","Menu_url":"","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"10","Menu_type":"sys",
+"children":[{"Menu_id":"1099","Menu_name":"今日未接","parentid":"1098","parentname":"今日未接","App_id":"7","Menu_url":"PhoneRecords/MissPhoneDay.aspx","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"10","Menu_type":"sys"}
+           ]},
+
+            {"Menu_id":"1100","Menu_name":"电话记录","parentid":"0","parentname":"无","App_id":"7","Menu_url":"","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"20","Menu_type":"sys",
+"children":[{"Menu_id":"1101","Menu_name":"今日电话","parentid":"1100","parentname":"电话记录","App_id":"7","Menu_url":"PhoneRecords/PhoneToday.aspx","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"10","Menu_type":"sys"},
+            {"Menu_id":"1102","Menu_name":"昨日电话","parentid":"1100","parentname":"电话记录","App_id":"7","Menu_url":"PhoneRecords/PhoneYesterday.aspx ","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"20","Menu_type":"sys"},
+            {"Menu_id":"1103","Menu_name":"最近一月","parentid":"1100","parentname":"电话记录","App_id":"7","Menu_url":"PhoneRecords/PhoneMonth.aspx ","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"30","Menu_type":"sys"}]},
+
+           {"Menu_id":"1104","Menu_name":"最近一周","parentid":"0","parentname":"无","App_id":"7","Menu_url":"","Menu_icon":"images/icon/3.png","Menu_handler":"","Menu_order":"30","Menu_type":"sys",
+"children":[{"Menu_id":"1105","Menu_name":"免费电话","parentid":"1104","parentname":"最近一周","App_id":"7","Menu_url":"PhoneRecords/PhoneFree.aspx ","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"10","Menu_type":"sys"},
+            {"Menu_id":"1106","Menu_name":"400热线","parentid":"1104","parentname":"最近一周","App_id":"7","Menu_url":"PhoneRecords/PhoneHotLine.aspx ","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"20","Menu_type":"sys"},
+            {"Menu_id":"1107","Menu_name":"外呼电话","parentid":"1104","parentname":"最近一周","App_id":"7","Menu_url":"PhoneRecords/PhoneOutbound.aspx ","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"30","Menu_type":"sys"},
+            {"Menu_id":"1108","Menu_name":"已处理电话","parentid":"1104","parentname":"最近一周","App_id":"7","Menu_url":"PhoneRecords/PhoneProcessed.aspx ","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"40","Menu_type":"sys"},
+            {"Menu_id":"1109","Menu_name":"未处理电话","parentid":"1104","parentname":"最近一周","App_id":"7","Menu_url":"PhoneRecords/PhoneUnProcessed.aspx ","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"50","Menu_type":"sys"},
+            {"Menu_id":"1110","Menu_name":"语音留言","parentid":"1104","parentname":"最近一周","App_id":"7","Menu_url":"PhoneRecords/VoiceMessage.aspx ","Menu_icon":"images/icon/77.png","Menu_handler":"","Menu_order":"60","Menu_type":"sys"}
+           ]
+         }
+]

@@ -1,0 +1,372 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{38D7AA58-C95B-449B-86C6-A8073A56E11F}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>XHD.BLL</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>XHD.BLL</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <PublishUrl>http://localhost/Maticsoft.BLL/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\DAL\bin\Debug\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="auth.cs" />
+    <Compile Include="bzsldygx.cs" />
+    <Compile Include="crm_contact_shop.cs" />
+    <Compile Include="crm_customer_grade.cs" />
+    <Compile Include="crm_customer_group.cs" />
+    <Compile Include="crm_customer_receivable_acc.cs" />
+    <Compile Include="crm_shop_askprice.cs" />
+    <Compile Include="dms_brand_managerService.cs" />
+    <Compile Include="dmsService.cs" />
+    <Compile Include="dms_set_excludeService.cs" />
+    <Compile Include="dms_set_ratingService.cs" />
+    <Compile Include="hr_group_info.cs" />
+    <Compile Include="ims\ims_check_cycle.cs" />
+    <Compile Include="ims\ims_check_rule.cs" />
+    <Compile Include="ims\ims_check_task.cs" />
+    <Compile Include="ims\ims_complaint_points.cs" />
+    <Compile Include="CRM_Contact.cs" />
+    <Compile Include="crm_contact_end.cs" />
+    <Compile Include="CRM_contract.cs" />
+    <Compile Include="CRM_Customer.cs" />
+    <Compile Include="CRM_CustomerEnd_End.cs" />
+    <Compile Include="crm_customer_dailyplanService.cs" />
+    <Compile Include="crm_customer_end.cs" />
+    <Compile Include="crm_customer_grab.cs" />
+    <Compile Include="crm_customer_handnum.cs" />
+    <Compile Include="crm_customer_protect.cs" />
+    <Compile Include="crm_dept_copyauth.cs" />
+    <Compile Include="crm_exchange.cs" />
+    <Compile Include="CRM_Follow.cs" />
+    <Compile Include="crm_follow_end.cs" />
+    <Compile Include="crm_grab_notes.cs" />
+    <Compile Include="CRM_invoice.cs" />
+    <Compile Include="crm_oa_boardrecord.cs" />
+    <Compile Include="crm_oa_boardroom.cs" />
+    <Compile Include="crm_offersheetpdf.cs" />
+    <Compile Include="CRM_order.cs" />
+    <Compile Include="CRM_order_details.cs" />
+    <Compile Include="crm_order_feat.cs" />
+    <Compile Include="CRM_product.cs" />
+    <Compile Include="CRM_product_category.cs" />
+    <Compile Include="CRM_receive.cs" />
+    <Compile Include="crm_set_plan_daysService.cs" />
+    <Compile Include="crm_set_pripub.cs" />
+    <Compile Include="crm_set_grabrule.cs" />
+    <Compile Include="crm_set_pripub_detail.cs" />
+    <Compile Include="crm_set_pubpri_count.cs" />
+    <Compile Include="crm_set_shoplockip.cs" />
+    <Compile Include="crm_set_pubpri.cs" />
+    <Compile Include="crm_set_pubpri_detail.cs" />
+    <Compile Include="crm_sys_param.cs" />
+    <Compile Include="crm_task.cs" />
+    <Compile Include="crm_task_delegate.cs" />
+    <Compile Include="crm_task_follow.cs" />
+    <Compile Include="crm_task_okrs.cs" />
+    <Compile Include="CRM_using_feedback.cs" />
+    <Compile Include="dms_brand_percentageService.cs" />
+    <Compile Include="dms_customer_saleService.cs" />
+    <Compile Include="dms_monthnode_saleService.cs" />
+    <Compile Include="dms_salaryService.cs" />
+    <Compile Include="dms_set_bonus_teamService.cs" />
+    <Compile Include="dms_team_bonusService.cs" />
+    <Compile Include="ecs_admin_user.cs" />
+    <Compile Include="ecs_attribute.cs" />
+    <Compile Include="ecs_brand.cs" />
+    <Compile Include="ecs_brand_checkService.cs" />
+    <Compile Include="ecs_brand_percentageService.cs" />
+    <Compile Include="ecs_goods.cs" />
+    <Compile Include="ecs_goods_activity.cs" />
+    <Compile Include="ecs_goods_attr.cs" />
+    <Compile Include="ecs_goods_gallery.cs" />
+    <Compile Include="ecs_goods_type.cs" />
+    <Compile Include="ecs_market.cs" />
+    <Compile Include="ecs_month_baseService.cs" />
+    <Compile Include="ecs_order_info.cs" />
+    <Compile Include="ecs_per_planService.cs" />
+    <Compile Include="ecs_sale_parametersService.cs" />
+    <Compile Include="ecs_set_bonusService.cs" />
+    <Compile Include="ecs_set_nodeService.cs" />
+    <Compile Include="ecs_shop_configService.cs" />
+    <Compile Include="ecs_suppliers.cs" />
+    <Compile Include="ecs_total_planService.cs" />
+    <Compile Include="ecs_users.cs" />
+    <Compile Include="Exchange.cs" />
+    <Compile Include="hr_employee_Arc.cs" />
+    <Compile Include="hr_wage_info.cs" />
+    <Compile Include="ims\ims_emp_score.cs" />
+    <Compile Include="ims\ims_emp_score_details.cs" />
+    <Compile Include="ims\ims_lead_score_average.cs" />
+    <Compile Include="MonthService.cs" />
+    <Compile Include="oa_message.cs" />
+    <Compile Include="Param_Area.cs" />
+    <Compile Include="Personal_Score.cs" />
+    <Compile Include="product.cs" />
+    <Compile Include="qa_answer.cs" />
+    <Compile Include="qa_grade.cs" />
+    <Compile Include="qa_question.cs" />
+    <Compile Include="qa_setinfo.cs" />
+    <Compile Include="scm_article.cs" />
+    <Compile Include="scm_authority_dtcolumn.cs" />
+    <Compile Include="scm_authority_supply.cs" />
+    <Compile Include="scm_bzsldygx.cs" />
+    <Compile Include="scm_dear_relate.cs" />
+    <Compile Include="scm_emp_brand_relate.cs" />
+    <Compile Include="scm_msm.cs" />
+    <Compile Include="scm_msmsend.cs" />
+    <Compile Include="scm_purchase_list.cs" />
+    <Compile Include="scm_spe_goods.cs" />
+    <Compile Include="scm_spe_order.cs" />
+    <Compile Include="scm_spe_order_detail.cs" />
+    <Compile Include="scm_spe_order_goods.cs" />
+    <Compile Include="scm_stock.cs" />
+    <Compile Include="scm_supplydear_relate.cs" />
+    <Compile Include="scm_supply_app.cs" />
+    <Compile Include="scm_supply_goods.cs" />
+    <Compile Include="scm_spe_supply_set.cs" />
+    <Compile Include="scm_supply_menu.cs" />
+    <Compile Include="scm_supply_user.cs" />
+    <Compile Include="scm_supply_visit_emp.cs" />
+    <Compile Include="scm_suppply_authority.cs" />
+    <Compile Include="scm_sys_dtcolumn.cs" />
+    <Compile Include="shop\crm_contact_bill.cs" />
+    <Compile Include="shop\crm_contact_bill_check.cs" />
+    <Compile Include="shop\fms_ac_period.cs" />
+    <Compile Include="shop\shop_authorize.cs" />
+    <Compile Include="shop\shop_invoices_advance_billing.cs" />
+    <Compile Include="shop\shop_invoices_among.cs" />
+    <Compile Include="shop\shop_invoices_among_goods.cs" />
+    <Compile Include="shop\shop_locked_goods.cs" />
+    <Compile Include="shop\shop_purchase_goods.cs" />
+    <Compile Include="shop\shop_purchase_log.cs" />
+    <Compile Include="shop\shop_purchase_order.cs" />
+    <Compile Include="shop_base_code.cs" />
+    <Compile Include="shop_cart.cs" />
+    <Compile Include="shop_goods.cs" />
+    <Compile Include="shop_member_level.cs" />
+    <Compile Include="shop_order_goods.cs" />
+    <Compile Include="shop_order_info.cs" />
+    <Compile Include="shop_payment.cs" />
+    <Compile Include="shop_payment_attr.cs" />
+    <Compile Include="shop_points_order.cs" />
+    <Compile Include="shop_points_order_goods.cs" />
+    <Compile Include="shop_region.cs" />
+    <Compile Include="shop_shipping.cs" />
+    <Compile Include="shop_ship_company.cs" />
+    <Compile Include="shop_ship_unload.cs" />
+    <Compile Include="shop_user_address.cs" />
+    <Compile Include="SqlHelperClass.cs" />
+    <Compile Include="ssn_answer.cs" />
+    <Compile Include="ssn_art.cs" />
+    <Compile Include="ssn_art_app.cs" />
+    <Compile Include="ssn_art_menu.cs" />
+    <Compile Include="ssn_authority.cs" />
+    <Compile Include="ssn_button.cs" />
+    <Compile Include="ssn_question.cs" />
+    <Compile Include="ssn_question_add.cs" />
+    <Compile Include="ssn_role.cs" />
+    <Compile Include="ssn_role_emp.cs" />
+    <Compile Include="ssn_visit.cs" />
+    <Compile Include="sys_authority_factory.cs" />
+    <Compile Include="Sys_FactoryInfo.cs" />
+    <Compile Include="HJ_Phone_RecordsManager.cs" />
+    <Compile Include="Param_SysParam_Type.cs" />
+    <Compile Include="Personal_Calendar.cs" />
+    <Compile Include="Personal_notes.cs" />
+    <Compile Include="hr_department.cs" />
+    <Compile Include="hr_employee.cs" />
+    <Compile Include="hr_position.cs" />
+    <Compile Include="hr_post.cs" />
+    <Compile Include="Param_City.cs" />
+    <Compile Include="Param_SysParam.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="public_news.cs" />
+    <Compile Include="public_notice.cs" />
+    <Compile Include="Sys_App.cs" />
+    <Compile Include="Sys_authority.cs" />
+    <Compile Include="Sys_Button.cs" />
+    <Compile Include="Sys_data_authority.cs" />
+    <Compile Include="sys_info.cs" />
+    <Compile Include="Sys_log.cs" />
+    <Compile Include="Sys_log_Err.cs" />
+    <Compile Include="sys_manage.cs" />
+    <Compile Include="Sys_Menu.cs" />
+    <Compile Include="Sys_online.cs" />
+    <Compile Include="Sys_role.cs" />
+    <Compile Include="Sys_role_emp.cs" />
+    <Compile Include="CRM_contract_attachment.cs" />
+    <Compile Include="Sys_Task.cs" />
+    <Compile Include="ims\ims_check_task_standard.cs" />
+    <Compile Include="tool_batch.cs" />
+    <Compile Include="wms\djkdb.cs" />
+    <Compile Include="wms\dqkcyl.cs" />
+    <Compile Include="wms\xlkdb.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{E3D8759A-C5EB-402D-9F10-F5C6029A8D1A}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DAL\DALmysql.csproj">
+      <Project>{9fe00521-3a8b-42b1-814e-585e99407b2e}</Project>
+      <Name>DALmysql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DBUtility\DBUtility.csproj">
+      <Project>{0988c62e-247f-471f-a183-db509c7a3839}</Project>
+      <Name>DBUtility</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Model\Model.csproj">
+      <Project>{53995DBB-9836-4647-AD22-865884FDEB9E}</Project>
+      <Name>Model</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

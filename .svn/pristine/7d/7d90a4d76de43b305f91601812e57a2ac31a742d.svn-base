@@ -1,0 +1,402 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+
+namespace XHD.BLL
+{
+    /// <summary>
+    /// dmsService
+    /// </summary>
+    public partial class dmsService
+    {
+        private readonly XHD.DAL.dmsDAO dal = new XHD.DAL.dmsDAO();
+
+        #region 迁徙3图
+        /// <summary>
+        /// 获得当日城市订单
+        /// </summary>
+        public DataSet GetTodayCityAmt(string date)
+        {
+            return dal.GetTodayCityAmt(date);
+        }
+
+        /// <summary>
+        /// 获得当日城市订单
+        /// </summary>
+        public DataSet GetCityAmt()
+        {
+            return dal.GetCityAmt();
+        }
+
+        /// <summary>
+        /// 获得当日省份订单
+        /// </summary>
+        public DataSet GetTodayProvinceAmt(string date)
+        {
+            return dal.GetTodayProvinceAmt(date);
+        }
+        #endregion
+
+
+        #region 区域
+
+        /// <summary>
+        /// 获得月份城市订单
+        /// </summary>
+        public DataSet GetMonthGoodTxt(string keyWord, string yearMonth,string qtBrand)
+        {
+            return dal.GetMonthGoodTxt(keyWord, yearMonth, qtBrand);
+        }
+
+        /// <summary>
+        /// 获得月份城市订单
+        /// </summary>
+        public DataSet GetMonthCityAmt(string strSqlOne, string yearMonth, string qtBrand)
+        {
+            return dal.GetMonthCityAmt(strSqlOne, yearMonth, qtBrand);
+        }
+
+        /// <summary>
+        /// 获得月份省份订单
+        /// </summary>
+        public DataSet GetMonthProvinceAmt(string strSqlOne, string yearMonth, string qtBrand)
+        {
+            return dal.GetMonthProvinceAmt(strSqlOne, yearMonth, qtBrand);
+        }
+
+
+        /// <summary>
+        /// 获得月份省份内品牌排行
+        /// </summary>
+        public DataSet GetProvinceYear_Months(string strSqlOne, string yearMonth, string provinceId, string qtBrand)
+        {
+            return dal.GetProvinceYear_Months(strSqlOne, yearMonth, provinceId, qtBrand);
+        }
+        /// <summary>
+        /// 获得月份省份内品牌排行
+        /// </summary>
+        public DataSet GetProvinceMonth_Brand(string strSqlOne, string yearMonth, string provinceId, string qtBrand)
+        {
+            return dal.GetProvinceMonth_Brand(strSqlOne, yearMonth, provinceId, qtBrand);
+        }
+
+        /// <summary>
+        /// 获得月份省份内城市排行
+        /// </summary>
+        public DataSet GetProvinceMonth_City(string strSqlOne, string yearMonth, string provinceId, string qtBrand)
+        {
+            return dal.GetProvinceMonth_City(strSqlOne, yearMonth, provinceId, qtBrand);
+        }
+
+        /// <summary>
+        /// 获得月份省份内客服排行
+        /// </summary>
+        public DataSet GetProvinceMonth_Good(string strSqlOne, string yearMonth, string provinceId, string qtBrand)
+        {
+            return dal.GetProvinceMonth_Good(strSqlOne, yearMonth, provinceId, qtBrand);
+        }
+        /// <summary>
+        /// 获得月份省份内客服排行
+        /// </summary>
+        public DataSet GetProvinceMonth_Emp(string strSqlOne, string yearMonth, string provinceId, string qtBrand)
+        {
+            return dal.GetProvinceMonth_Emp(strSqlOne, yearMonth, provinceId, qtBrand);
+        }
+
+        /// <summary>
+        /// 获得月份省份内客户排行
+        /// </summary>
+        public DataSet GetProvinceMonth_Customer(string strSqlOne, string yearMonth, string provinceId, string qtBrand)
+        {
+            return dal.GetProvinceMonth_Customer(strSqlOne, yearMonth, provinceId, qtBrand);
+        }
+
+
+        /// <summary>
+        /// 获得月份省份内客服排行
+        /// </summary>
+        public DataSet GetCityYear_Months(string strSqlOne, string yearMonth, string cityId, string qtBrand)
+        {
+            return dal.GetCityYear_Months(strSqlOne, yearMonth, cityId, qtBrand);
+        }
+
+        /// <summary>
+        /// 获得月份省份内客服排行
+        /// </summary>
+        public DataSet GetCityMonth_Brand(string strSqlOne, string yearMonth, string cityId, string qtBrand)
+        {
+            return dal.GetCityMonth_Brand(strSqlOne, yearMonth, cityId, qtBrand);
+        }
+        /// <summary>
+        /// 获得月份省份内客服排行
+        /// </summary>
+        public DataSet GetCityMonth_Good(string strSqlOne, string yearMonth, string cityId, string qtBrand)
+        {
+            return dal.GetCityMonth_Good(strSqlOne, yearMonth, cityId, qtBrand);
+        }
+        /// <summary>
+        /// 获得月份省份内客服排行
+        /// </summary>
+        public DataSet GetCityMonth_Emp(string strSqlOne, string yearMonth, string cityId, string qtBrand)
+        {
+            return dal.GetCityMonth_Emp(strSqlOne, yearMonth, cityId, qtBrand);
+        }
+
+        /// <summary>
+        /// 获得月份省份内客户排行
+        /// </summary>
+        public DataSet GetCityMonth_Customer(string strSqlOne, string yearMonth, string cityId, string qtBrand)
+        {
+            return dal.GetCityMonth_Customer(strSqlOne, yearMonth, cityId,qtBrand);
+        }
+
+        #endregion
+
+        #region 统计
+        /// <summary>
+        /// 选择权限内的个人月销售数据 
+        /// </summary>
+        public DataSet GetMonthSaleBackData(string strSqlOne, string yearMonth, string monthColumns)
+        {
+            return dal.GetMonthSaleBackData(strSqlOne, yearMonth, monthColumns);
+        }
+
+        /// <summary>
+        /// 获得时间段月份明细_一个部门的销售数据，部门经理
+        /// </summary>
+        public DataSet GetManagerMonthDepData(string strSqlOne, string yearMonth, string monthColumns)
+        {
+            return dal.GetManagerMonthDepData(strSqlOne, yearMonth, monthColumns);
+        }
+
+        /// <summary>
+        /// 获得时间段月份明细_全部数据和各个部门，31天，中心
+        /// </summary>
+        public DataSet GetMonthAllDepData(string strSqlOne, string yearMonth, string monthColumns)
+        {
+            return dal.GetMonthAllDepData(strSqlOne, yearMonth, monthColumns);
+        }
+
+
+
+        /// <summary>
+        /// 获得时间段月份明细，个人或选择的客服的员工号：销售数据，（年报）
+        /// </summary>
+        public DataSet GetYearSaleBackData(string strSqlOne, string year)
+        {
+            return dal.GetYearSaleBackData(strSqlOne, year);
+        }
+
+        /// <summary>
+        /// 获得时间段月份明细_一个部门的销售数据，部门经理，年报
+        /// </summary>
+        public DataSet GetYearDepData(string strSqlOne, string year)
+        {
+            return dal.GetYearDepData(strSqlOne, year);
+        }
+
+        /// <summary>
+        /// 获得时间段12月份明细_全部数据和各个部门(年报)，12个月，中心
+        /// </summary>
+        public DataSet GetYearAllDepData(string strSqlOne, string year)
+        {
+            return dal.GetYearAllDepData(strSqlOne, year);
+        }
+        #endregion
+
+        #region 品牌
+        /// <summary>
+        /// 获得品牌月份明细
+        /// </summary>
+        public DataSet GetBrandSaleBackData(string strSqlOne, string yearMonth, string qtBrand)
+        {
+            return dal.GetBrandSaleBackData(strSqlOne, yearMonth, qtBrand);
+        }
+
+        /// <summary>
+        /// 获得品牌月份明细
+        /// </summary>
+        public DataSet GetYearBrandSaleBackData(string strSqlOne, string yearMonth, string qtBrand)
+        {
+            return dal.GetYearBrandSaleBackData(strSqlOne, yearMonth, qtBrand);
+        }
+        #endregion
+        
+        #region 品管
+        /// <summary>
+        /// 获得品牌月份明细
+        /// </summary>
+        public DataSet GetBrandManagerData(string strSqlOne, string yearMonth, string monthColumms, string qtBrand)
+        {
+            return dal.GetBrandManagerData(strSqlOne, yearMonth, monthColumms, qtBrand);
+        }
+        /// <summary>
+        /// 获得月份省份内客服排行
+        /// </summary>
+        public DataSet GetBrandManagerData_Emp(string strSqlOne, string yearMonth, string month, string qtBrand)
+        {
+            return dal.GetBrandManagerData_Emp(strSqlOne, yearMonth, month, qtBrand);
+        }
+
+        /// <summary>
+        /// 获得月份省份内客服排行
+        /// </summary>
+        public DataSet GetBrandManagerData_Good(string strSqlOne, string yearMonth, string month, string qtBrand)
+        {
+            return dal.GetBrandManagerData_Good(strSqlOne, yearMonth, month, qtBrand);
+        }
+
+        /// <summary>
+        /// 获得品牌年明细
+        /// </summary>
+        public DataSet GetBrandManagerData_Year(string strSqlOne, string year, string qtBrand)
+        {
+            return dal.GetBrandManagerData_Year(strSqlOne, year, qtBrand);
+        }
+
+        /// <summary>
+        /// 获得月份省份内客服排行
+        /// </summary>
+        public DataSet GetBrandManagerData_Emp_Year(string strSqlOne, string year, string qtBrand)
+        {
+            return dal.GetBrandManagerData_Emp_Year(strSqlOne, year, qtBrand);
+        }
+        #endregion
+
+        /// <summary>
+        /// 获得月份省份内客服排行
+        /// </summary>
+        public DataSet GetBrandManagerData_Good_Year(string strSqlOne, string year, string qtBrand)
+        {
+            return dal.GetBrandManagerData_Good_Year(strSqlOne, year, qtBrand);
+        }
+        #region 薪资
+        /// <summary>
+        /// 获得个人薪资考核品牌提成
+        /// </summary>
+        public DataSet GetBrandPercentageData(string a_, string b_, string strSqlOne, string emp_code, string yearMonth, string filedOrder)
+        {
+            return dal.GetBrandPercentageData(a_, b_, strSqlOne, emp_code, yearMonth, filedOrder);
+        }
+
+
+        /// <summary>
+        /// 获得个人月冠军
+        /// </summary>
+        public DataSet GetPersonalMonthRankData(string monthColumns, string isNodes, string strSqlOne, string d_ids, string yearMonth)
+        {
+            return dal.GetPersonalMonthRankData(monthColumns, isNodes, strSqlOne, d_ids, yearMonth);
+        }
+
+        /// <summary>
+        /// 获得个人节点冠军
+        /// </summary>
+        public DataSet GetPersonalNodeRankData(string monthColumns, string isNodes, string strSqlOne, string d_ids, string nodeA, string nodeB)
+        {
+            return dal.GetPersonalNodeRankData(monthColumns, isNodes, strSqlOne, d_ids, nodeA, nodeB);
+        }
+
+        /// <summary>
+        /// 获得团队月冠军
+        /// </summary>
+        public DataSet GetTeamMonthRankData(string monthColumns, string isNodes, string strSqlOne, string d_ids, string yearMonth)
+        {
+            return dal.GetTeamMonthRankData(monthColumns, isNodes, strSqlOne, d_ids, yearMonth);
+        }
+
+        /// <summary>
+        /// 获得团队周
+        /// </summary>
+        public DataSet GetTeamNodeRankData(string monthColumns, string isNodes, string strSqlOne, string d_ids, string nodeA, string nodeB)
+        {
+            return dal.GetTeamNodeRankData(monthColumns, isNodes, strSqlOne, d_ids, nodeA, nodeB);
+        }
+
+        /// <summary>
+        /// 获得个人薪资月冠军，节点冠军，节点达标奖励
+        /// </summary>
+        public DataSet GetPersonalMonthSalaryData(string year, string month)
+        {
+            return dal.GetPersonalMonthSalaryData(year, month);
+        }
+
+        /// <summary>
+        /// 基本工资
+        /// </summary>
+        public DataSet GetMonthCustomerSaleData(string strSqlOne, string d_id, string yearMonth)
+        {
+            return dal.GetMonthCustomerSaleData(strSqlOne, d_id, yearMonth);
+        }
+        #endregion
+
+        #region 客户
+        /// <summary>
+        /// 客户树
+        /// </summary>
+        public DataSet GetCustomerTree(string yearMonth, string emp_code)
+        {
+            return dal.GetCustomerTree(yearMonth, emp_code);
+        }
+
+        /// <summary>
+        /// 获得个人客户销售年报
+        /// </summary>
+        public DataSet GetCustomerYearSaleBackData(string strSqlOne, string year)
+        {
+            return dal.GetCustomerYearSaleBackData(strSqlOne, year);
+        }
+
+        /// <summary>
+        /// 获得个人客户销售月报
+        /// </summary>
+        public DataSet GetCustomerMonthSaleBackData(string strSqlOne, string yearMonth)
+        {
+            return dal.GetCustomerMonthSaleBackData(strSqlOne, yearMonth);
+        }
+
+        /// <summary>
+        /// 部门客户销售数据，中心：部门和个人的客户销售数据，部门：部门下每个客服的客户销售数据
+        /// </summary>
+        public DataSet GetCustomerYearManagerDepData(string strSqlOne, string year)
+        {
+            return dal.GetCustomerYearManagerDepData(strSqlOne, year);
+        }
+
+        /// <summary>
+        /// 部门客户销售数据，中心：部门和个人的客户销售数据，部门：部门下每个客服的客户销售数据
+        /// </summary>
+        public DataSet GetCustomerMonthManagerDepData(string strSqlOne, string yearMonth)
+        {
+            return dal.GetCustomerMonthManagerDepData(strSqlOne, yearMonth);
+        }
+
+        /// <summary>
+        /// 客户下，品牌下，单品月内销售情况，具体到每一天
+        /// </summary>
+        public DataSet GetCustomerMonthBrandGoodsData(string strSqlOne, string yearMonth)
+        {
+            return dal.GetCustomerMonthBrandGoodsData(strSqlOne, yearMonth);
+        }
+
+        /// <summary>
+        /// 客户下，品牌下，单品月内销售情况，具体到每一天
+        /// </summary>
+        public DataSet GetCustomerYearBrandGoodsData(string strSqlOne, string yearMonth)
+        {
+            return dal.GetCustomerYearBrandGoodsData(strSqlOne, yearMonth);
+        }
+
+        /// <summary>
+        /// 客户下，品牌下，单品月内销售情况，具体到每一天
+        /// </summary>
+        public DataSet GetCustomerYearGood(string strSqlOne, string yearMonth)
+        {
+            return dal.GetCustomerYearGood(strSqlOne, yearMonth);
+        }
+        #endregion
+        
+    }
+}
+

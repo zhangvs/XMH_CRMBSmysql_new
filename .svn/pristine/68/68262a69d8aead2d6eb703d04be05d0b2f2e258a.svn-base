@@ -1,0 +1,384 @@
+﻿using System;
+using System.Data;
+using System.Text;
+using MySql.Data.MySqlClient;
+using XHD.DBUtility;//Please add references
+
+namespace FMS_DAL
+{
+    /// <summary>
+    /// 数据访问类:fms_kuan
+    /// </summary>
+    public partial class fms_kuan
+    {
+        public fms_kuan()
+        { }
+        #region  BasicMethod
+
+        /// <summary>
+        /// 得到最大ID
+        /// </summary>
+        public int GetMaxId()
+        {
+            return FMS_DbHelperMySQL.GetMaxID("id", "fms_kuan");
+        }
+
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int id)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from fms_kuan");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = id;
+
+            return FMS_DbHelperMySQL.Exists(strSql.ToString(), parameters);
+        }
+
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public bool Add(FMS_Model.fms_kuan model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("insert into fms_kuan(");
+            strSql.Append("id,jzdate,jytime,jiefang,daifang,name,number,user_qq,admin_name,admin_id,erp_dakuanhao,status,file_time,confirm_time,dkmassage_id,user_id,acc_type)");
+            strSql.Append(" values (");
+            strSql.Append("@id,@jzdate,@jytime,@jiefang,@daifang,@name,@number,@user_qq,@admin_name,@admin_id,@erp_dakuanhao,@status,@file_time,@confirm_time,@dkmassage_id,@user_id,@acc_type)");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11),
+					new MySqlParameter("@jzdate", MySqlDbType.VarChar,50),
+					new MySqlParameter("@jytime", MySqlDbType.VarChar,60),
+					new MySqlParameter("@jiefang", MySqlDbType.VarChar,20),
+					new MySqlParameter("@daifang", MySqlDbType.Decimal,15),
+					new MySqlParameter("@name", MySqlDbType.VarChar,100),
+					new MySqlParameter("@number", MySqlDbType.VarChar,30),
+					new MySqlParameter("@user_qq", MySqlDbType.VarChar,20),
+					new MySqlParameter("@admin_name", MySqlDbType.VarChar,25),
+					new MySqlParameter("@admin_id", MySqlDbType.VarChar,10),
+					new MySqlParameter("@erp_dakuanhao", MySqlDbType.VarChar,32),
+					new MySqlParameter("@status", MySqlDbType.Int16,2),
+					new MySqlParameter("@file_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@confirm_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@dkmassage_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@user_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@acc_type", MySqlDbType.Int16,1)};
+            parameters[0].Value = model.id;
+            parameters[1].Value = model.jzdate;
+            parameters[2].Value = model.jytime;
+            parameters[3].Value = model.jiefang;
+            parameters[4].Value = model.daifang;
+            parameters[5].Value = model.name;
+            parameters[6].Value = model.number;
+            parameters[7].Value = model.user_qq;
+            parameters[8].Value = model.admin_name;
+            parameters[9].Value = model.admin_id;
+            parameters[10].Value = model.erp_dakuanhao;
+            parameters[11].Value = model.status;
+            parameters[12].Value = model.file_time;
+            parameters[13].Value = model.confirm_time;
+            parameters[14].Value = model.dkmassage_id;
+            parameters[15].Value = model.user_id;
+            parameters[16].Value = model.acc_type;
+
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(FMS_Model.fms_kuan model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update fms_kuan set ");
+            strSql.Append("jzdate=@jzdate,");
+            strSql.Append("jytime=@jytime,");
+            strSql.Append("jiefang=@jiefang,");
+            strSql.Append("daifang=@daifang,");
+            strSql.Append("name=@name,");
+            strSql.Append("number=@number,");
+            strSql.Append("user_qq=@user_qq,");
+            strSql.Append("admin_name=@admin_name,");
+            strSql.Append("admin_id=@admin_id,");
+            strSql.Append("erp_dakuanhao=@erp_dakuanhao,");
+            strSql.Append("status=@status,");
+            strSql.Append("file_time=@file_time,");
+            strSql.Append("confirm_time=@confirm_time,");
+            strSql.Append("dkmassage_id=@dkmassage_id,");
+            strSql.Append("user_id=@user_id,");
+            strSql.Append("acc_type=@acc_type");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@jzdate", MySqlDbType.VarChar,50),
+					new MySqlParameter("@jytime", MySqlDbType.VarChar,60),
+					new MySqlParameter("@jiefang", MySqlDbType.VarChar,20),
+					new MySqlParameter("@daifang", MySqlDbType.Decimal,15),
+					new MySqlParameter("@name", MySqlDbType.VarChar,100),
+					new MySqlParameter("@number", MySqlDbType.VarChar,30),
+					new MySqlParameter("@user_qq", MySqlDbType.VarChar,20),
+					new MySqlParameter("@admin_name", MySqlDbType.VarChar,25),
+					new MySqlParameter("@admin_id", MySqlDbType.VarChar,10),
+					new MySqlParameter("@erp_dakuanhao", MySqlDbType.VarChar,32),
+					new MySqlParameter("@status", MySqlDbType.Int16,2),
+					new MySqlParameter("@file_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@confirm_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@dkmassage_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@user_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@acc_type", MySqlDbType.Int16,1),
+					new MySqlParameter("@id", MySqlDbType.Int32,11)};
+            parameters[0].Value = model.jzdate;
+            parameters[1].Value = model.jytime;
+            parameters[2].Value = model.jiefang;
+            parameters[3].Value = model.daifang;
+            parameters[4].Value = model.name;
+            parameters[5].Value = model.number;
+            parameters[6].Value = model.user_qq;
+            parameters[7].Value = model.admin_name;
+            parameters[8].Value = model.admin_id;
+            parameters[9].Value = model.erp_dakuanhao;
+            parameters[10].Value = model.status;
+            parameters[11].Value = model.file_time;
+            parameters[12].Value = model.confirm_time;
+            parameters[13].Value = model.dkmassage_id;
+            parameters[14].Value = model.user_id;
+            parameters[15].Value = model.acc_type;
+            parameters[16].Value = model.id;
+
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from fms_kuan ");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = id;
+
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 批量删除数据
+        /// </summary>
+        public bool DeleteList(string idlist)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from fms_kuan ");
+            strSql.Append(" where id in (" + idlist + ")  ");
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public FMS_Model.fms_kuan GetModel(int id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select id,jzdate,jytime,jiefang,daifang,name,number,user_qq,admin_name,admin_id,erp_dakuanhao,status,file_time,confirm_time,dkmassage_id,user_id from fms_kuan,acc_type ");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = id;
+
+            FMS_Model.fms_kuan model = new FMS_Model.fms_kuan();
+            DataSet ds = FMS_DbHelperMySQL.Query(strSql.ToString(), parameters);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                return DataRowToModel(ds.Tables[0].Rows[0]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public FMS_Model.fms_kuan DataRowToModel(DataRow row)
+        {
+            FMS_Model.fms_kuan model = new FMS_Model.fms_kuan();
+            if (row != null)
+            {
+                if (row["id"] != null && row["id"].ToString() != "")
+                {
+                    model.id = int.Parse(row["id"].ToString());
+                }
+                if (row["jzdate"] != null)
+                {
+                    model.jzdate = row["jzdate"].ToString();
+                }
+                if (row["jytime"] != null)
+                {
+                    model.jytime = row["jytime"].ToString();
+                }
+                if (row["jiefang"] != null)
+                {
+                    model.jiefang = row["jiefang"].ToString();
+                }
+                if (row["daifang"] != null && row["daifang"].ToString() != "")
+                {
+                    model.daifang = decimal.Parse(row["daifang"].ToString());
+                }
+                if (row["name"] != null)
+                {
+                    model.name = row["name"].ToString();
+                }
+                if (row["number"] != null)
+                {
+                    model.number = row["number"].ToString();
+                }
+                if (row["user_qq"] != null)
+                {
+                    model.user_qq = row["user_qq"].ToString();
+                }
+                if (row["admin_name"] != null)
+                {
+                    model.admin_name = row["admin_name"].ToString();
+                }
+                if (row["admin_id"] != null)
+                {
+                    model.admin_id = row["admin_id"].ToString();
+                }
+                if (row["erp_dakuanhao"] != null)
+                {
+                    model.erp_dakuanhao = row["erp_dakuanhao"].ToString();
+                }
+                if (row["status"] != null && row["status"].ToString() != "")
+                {
+                    model.status = int.Parse(row["status"].ToString());
+                }
+                if (row["file_time"] != null && row["file_time"].ToString() != "")
+                {
+                    model.file_time = int.Parse(row["file_time"].ToString());
+                }
+                if (row["confirm_time"] != null && row["confirm_time"].ToString() != "")
+                {
+                    model.confirm_time = int.Parse(row["confirm_time"].ToString());
+                }
+                if (row["dkmassage_id"] != null && row["dkmassage_id"].ToString() != "")
+                {
+                    model.dkmassage_id = int.Parse(row["dkmassage_id"].ToString());
+                }
+                if (row["user_id"] != null && row["user_id"].ToString() != "")
+                {
+                    model.user_id = int.Parse(row["user_id"].ToString());
+                }
+                if (row["acc_type"] != null && row["acc_type"].ToString() != "")
+                {
+                    model.acc_type = int.Parse(row["acc_type"].ToString());
+                }
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select id,jzdate,jytime,jiefang,daifang,name,number,user_qq,admin_name,admin_id,erp_dakuanhao,status,file_time,confirm_time,dkmassage_id,user_id,acc_type ");
+            strSql.Append(" FROM fms_kuan ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return FMS_DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+        //获得客户的应收款
+        public string GetCollectedAmoun(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select sum(daifang) as collected_amount from fms_kuan ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+
+            object obj = FMS_DbHelperMySQL.GetSingle(strSql.ToString());
+            if (obj == null)
+            {
+                return "0";
+            }
+            else
+            {
+                return obj.ToString();
+            }
+        }
+
+        /// <summary>
+        /// 加载公司户认款信息
+        /// </summary>
+        public DataSet GetList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append("select id,jzdate,jytime,jiefang,daifang,name,number,user_qq,admin_name,admin_id,erp_dakuanhao,status,file_time,confirm_time,dkmassage_id,user_id,acc_type ");
+            strSql.Append(" FROM fms_kuan ");
+            strSql1.Append(" select count(id) FROM fms_kuan ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = FMS_DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return FMS_DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        #endregion  BasicMethod
+
+
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}
+
+

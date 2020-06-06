@@ -1,0 +1,1 @@
+﻿<%@ WebHandler Language="C#" CodeBehind="DMS_Show.ashx.cs" Class="XHD.DMS.DMS.DMS_Show" %>

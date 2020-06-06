@@ -1,0 +1,367 @@
+﻿using System;
+using System.Data;
+using System.Text;
+using System.Data.SqlClient;
+using XHD.DBUtility;
+using MySql.Data.MySqlClient;//Please add references
+
+namespace XHD.DAL.wms
+{
+    /// <summary>
+    /// 数据访问类:dqkcyl
+    /// </summary>
+    public partial class dqkcyl
+    {
+        public dqkcyl()
+        { }
+        #region  BasicMethod
+
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(long ID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from dqkcyl");
+            strSql.Append(" where ID=@ID ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@ID", MySqlDbType.Int32,20)			};
+            parameters[0].Value = ID;
+
+            return DbHelperMySQL.Exists(strSql.ToString(), parameters);
+        }
+
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public bool Add(XHD.Model.wms.dqkcyl model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("insert into dqkcyl(");
+            strSql.Append("BM,PM,ZTIDH,CD,DW,SL,DJ,HW,SCCJ,GUIGE,JE,JBZ,XSJ,XSJJE,MH,ID,SGZ_KC,SGZ_PdDate)");
+            strSql.Append(" values (");
+            strSql.Append("@BM,@PM,@ZTIDH,@CD,@DW,@SL,@DJ,@HW,@SCCJ,@GUIGE,@JE,@JBZ,@XSJ,@XSJJE,@MH,@ID,@SGZ_KC,@SGZ_PdDate)");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@BM", MySqlDbType.VarChar,30),
+					new MySqlParameter("@PM", MySqlDbType.VarChar,100),
+					new MySqlParameter("@ZTIDH", MySqlDbType.Decimal,3),
+					new MySqlParameter("@CD", MySqlDbType.VarChar,10),
+					new MySqlParameter("@DW", MySqlDbType.VarChar,10),
+					new MySqlParameter("@SL", MySqlDbType.Decimal,15),
+					new MySqlParameter("@DJ", MySqlDbType.Decimal,18),
+					new MySqlParameter("@HW", MySqlDbType.VarChar,16),
+					new MySqlParameter("@SCCJ", MySqlDbType.VarChar,30),
+					new MySqlParameter("@GUIGE", MySqlDbType.VarChar,100),
+					new MySqlParameter("@JE", MySqlDbType.Decimal,14),
+					new MySqlParameter("@JBZ", MySqlDbType.VarChar,50),
+					new MySqlParameter("@XSJ", MySqlDbType.Decimal,12),
+					new MySqlParameter("@XSJJE", MySqlDbType.Decimal,12),
+					new MySqlParameter("@MH", MySqlDbType.Decimal,18),
+					new MySqlParameter("@ID", MySqlDbType.Int32,20),
+					new MySqlParameter("@SGZ_KC", MySqlDbType.Decimal,15),
+					new MySqlParameter("@SGZ_PdDate", MySqlDbType.DateTime)};
+            parameters[0].Value = model.BM;
+            parameters[1].Value = model.PM;
+            parameters[2].Value = model.ZTIDH;
+            parameters[3].Value = model.CD;
+            parameters[4].Value = model.DW;
+            parameters[5].Value = model.SL;
+            parameters[6].Value = model.DJ;
+            parameters[7].Value = model.HW;
+            parameters[8].Value = model.SCCJ;
+            parameters[9].Value = model.GUIGE;
+            parameters[10].Value = model.JE;
+            parameters[11].Value = model.JBZ;
+            parameters[12].Value = model.XSJ;
+            parameters[13].Value = model.XSJJE;
+            parameters[14].Value = model.MH;
+            parameters[15].Value = model.ID;
+            parameters[16].Value = model.SGZ_KC;
+            parameters[17].Value = model.SGZ_PdDate;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(XHD.Model.wms.dqkcyl model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update dqkcyl set ");
+            strSql.Append("BM=@BM,");
+            strSql.Append("PM=@PM,");
+            strSql.Append("ZTIDH=@ZTIDH,");
+            strSql.Append("CD=@CD,");
+            strSql.Append("DW=@DW,");
+            strSql.Append("SL=@SL,");
+            strSql.Append("DJ=@DJ,");
+            strSql.Append("HW=@HW,");
+            strSql.Append("SCCJ=@SCCJ,");
+            strSql.Append("GUIGE=@GUIGE,");
+            strSql.Append("JE=@JE,");
+            strSql.Append("JBZ=@JBZ,");
+            strSql.Append("XSJ=@XSJ,");
+            strSql.Append("XSJJE=@XSJJE,");
+            strSql.Append("MH=@MH,");
+            strSql.Append("SGZ_KC=@SGZ_KC,");
+            strSql.Append("SGZ_PdDate=@SGZ_PdDate");
+            strSql.Append(" where ID=@ID ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@BM", MySqlDbType.VarChar,30),
+					new MySqlParameter("@PM", MySqlDbType.VarChar,100),
+					new MySqlParameter("@ZTIDH", MySqlDbType.Decimal,3),
+					new MySqlParameter("@CD", MySqlDbType.VarChar,10),
+					new MySqlParameter("@DW", MySqlDbType.VarChar,10),
+					new MySqlParameter("@SL", MySqlDbType.Decimal,15),
+					new MySqlParameter("@DJ", MySqlDbType.Decimal,18),
+					new MySqlParameter("@HW", MySqlDbType.VarChar,16),
+					new MySqlParameter("@SCCJ", MySqlDbType.VarChar,30),
+					new MySqlParameter("@GUIGE", MySqlDbType.VarChar,100),
+					new MySqlParameter("@JE", MySqlDbType.Decimal,14),
+					new MySqlParameter("@JBZ", MySqlDbType.VarChar,50),
+					new MySqlParameter("@XSJ", MySqlDbType.Decimal,12),
+					new MySqlParameter("@XSJJE", MySqlDbType.Decimal,12),
+					new MySqlParameter("@MH", MySqlDbType.Decimal,18),
+					new MySqlParameter("@SGZ_KC", MySqlDbType.Decimal,15),
+					new MySqlParameter("@SGZ_PdDate", MySqlDbType.DateTime),
+					new MySqlParameter("@ID", MySqlDbType.Int32,20)};
+            parameters[0].Value = model.BM;
+            parameters[1].Value = model.PM;
+            parameters[2].Value = model.ZTIDH;
+            parameters[3].Value = model.CD;
+            parameters[4].Value = model.DW;
+            parameters[5].Value = model.SL;
+            parameters[6].Value = model.DJ;
+            parameters[7].Value = model.HW;
+            parameters[8].Value = model.SCCJ;
+            parameters[9].Value = model.GUIGE;
+            parameters[10].Value = model.JE;
+            parameters[11].Value = model.JBZ;
+            parameters[12].Value = model.XSJ;
+            parameters[13].Value = model.XSJJE;
+            parameters[14].Value = model.MH;
+            parameters[15].Value = model.SGZ_KC;
+            parameters[16].Value = model.SGZ_PdDate;
+            parameters[17].Value = model.ID;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(long ID)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from dqkcyl ");
+            strSql.Append(" where ID=@ID ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@ID", MySqlDbType.Int32,20)			};
+            parameters[0].Value = ID;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 批量删除数据
+        /// </summary>
+        public bool DeleteList(string IDlist)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from dqkcyl ");
+            strSql.Append(" where ID in (" + IDlist + ")  ");
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.wms.dqkcyl GetModel(long ID)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select BM,PM,ZTIDH,CD,DW,SL,DJ,HW,SCCJ,GUIGE,JE,JBZ,XSJ,XSJJE,MH,ID,SGZ_KC,SGZ_PdDate from dqkcyl ");
+            strSql.Append(" where ID=@ID ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@ID", MySqlDbType.Int32,20)			};
+            parameters[0].Value = ID;
+
+            XHD.Model.wms.dqkcyl model = new XHD.Model.wms.dqkcyl();
+            DataSet ds = DbHelperMySQL.Query(strSql.ToString(), parameters);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                return DataRowToModel(ds.Tables[0].Rows[0]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.wms.dqkcyl DataRowToModel(DataRow row)
+        {
+            XHD.Model.wms.dqkcyl model = new XHD.Model.wms.dqkcyl();
+            if (row != null)
+            {
+                if (row["BM"] != null)
+                {
+                    model.BM = row["BM"].ToString();
+                }
+                if (row["PM"] != null)
+                {
+                    model.PM = row["PM"].ToString();
+                }
+                if (row["ZTIDH"] != null && row["ZTIDH"].ToString() != "")
+                {
+                    model.ZTIDH = decimal.Parse(row["ZTIDH"].ToString());
+                }
+                if (row["CD"] != null)
+                {
+                    model.CD = row["CD"].ToString();
+                }
+                if (row["DW"] != null)
+                {
+                    model.DW = row["DW"].ToString();
+                }
+                if (row["SL"] != null && row["SL"].ToString() != "")
+                {
+                    model.SL = decimal.Parse(row["SL"].ToString());
+                }
+                if (row["DJ"] != null && row["DJ"].ToString() != "")
+                {
+                    model.DJ = decimal.Parse(row["DJ"].ToString());
+                }
+                if (row["HW"] != null)
+                {
+                    model.HW = row["HW"].ToString();
+                }
+                if (row["SCCJ"] != null)
+                {
+                    model.SCCJ = row["SCCJ"].ToString();
+                }
+                if (row["GUIGE"] != null)
+                {
+                    model.GUIGE = row["GUIGE"].ToString();
+                }
+                if (row["JE"] != null && row["JE"].ToString() != "")
+                {
+                    model.JE = decimal.Parse(row["JE"].ToString());
+                }
+                if (row["JBZ"] != null)
+                {
+                    model.JBZ = row["JBZ"].ToString();
+                }
+                if (row["XSJ"] != null && row["XSJ"].ToString() != "")
+                {
+                    model.XSJ = decimal.Parse(row["XSJ"].ToString());
+                }
+                if (row["XSJJE"] != null && row["XSJJE"].ToString() != "")
+                {
+                    model.XSJJE = decimal.Parse(row["XSJJE"].ToString());
+                }
+                if (row["MH"] != null && row["MH"].ToString() != "")
+                {
+                    model.MH = decimal.Parse(row["MH"].ToString());
+                }
+                if (row["ID"] != null && row["ID"].ToString() != "")
+                {
+                    model.ID = long.Parse(row["ID"].ToString());
+                }
+                if (row["SGZ_KC"] != null && row["SGZ_KC"].ToString() != "")
+                {
+                    model.SGZ_KC = decimal.Parse(row["SGZ_KC"].ToString());
+                }
+                if (row["SGZ_PdDate"] != null && row["SGZ_PdDate"].ToString() != "")
+                {
+                    model.SGZ_PdDate = DateTime.Parse(row["SGZ_PdDate"].ToString());
+                }
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select BM,PM,ZTIDH,CD,DW,SL,DJ,HW,SCCJ,GUIGE,JE,JBZ,XSJ,XSJJE,MH,ID,SGZ_KC,SGZ_PdDate ");
+            strSql.Append(" FROM dqkcyl ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+      
+
+        /// <summary>
+        /// 获取记录总数
+        /// </summary>
+        public int GetRecordCount(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) FROM dqkcyl ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            object obj = DbHelperMySQL.GetSingle(strSql.ToString());
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return Convert.ToInt32(obj);
+            }
+        }
+
+        #endregion  BasicMethod
+
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}
+

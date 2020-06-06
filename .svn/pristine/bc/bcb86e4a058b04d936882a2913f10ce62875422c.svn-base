@@ -1,0 +1,158 @@
+﻿using System;
+using System.Data;
+using System.Collections.Generic;
+using XHD.Common;
+using FMS_Model;
+
+namespace FMS_BLL
+{
+    /// <summary>
+    /// shop_order_info
+    /// </summary>
+    public partial class shop_order_info
+    {
+        private readonly FMS_DAL.shop_order_info dal = new FMS_DAL.shop_order_info();
+        public shop_order_info()
+        { }
+
+        #region  BasicMethod
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int order_id)
+        {
+            return dal.Exists(order_id);
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int order_id)
+        {
+
+            return dal.Delete(order_id);
+        }
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool DeleteList(string order_idlist)
+        {
+            return dal.DeleteList(order_idlist);
+        }
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public FMS_Model.shop_order_info GetModel(int order_id)
+        {
+
+            return dal.GetModel(order_id);
+        }
+
+        /// <summary>
+        /// 得到一个对象实体，从缓存中
+        /// </summary>
+        public FMS_Model.shop_order_info GetModelByCache(int order_id)
+        {
+
+            string CacheKey = "shop_order_infoModel-" + order_id;
+            object objModel = XHD.Common.DataCache.GetCache(CacheKey);
+            if (objModel == null)
+            {
+                try
+                {
+                    objModel = dal.GetModel(order_id);
+                    if (objModel != null)
+                    {
+                        int ModelCache = XHD.Common.ConfigHelper.GetConfigInt("ModelCache");
+                        XHD.Common.DataCache.SetCache(CacheKey, objModel, DateTime.Now.AddMinutes(ModelCache), TimeSpan.Zero);
+                    }
+                }
+                catch { }
+            }
+            return (FMS_Model.shop_order_info)objModel;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            return dal.GetList(strWhere);
+        }
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public List<FMS_Model.shop_order_info> GetModelList(string strWhere)
+        {
+            DataSet ds = dal.GetList(strWhere);
+            return DataTableToList(ds.Tables[0]);
+        }
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public List<FMS_Model.shop_order_info> DataTableToList(DataTable dt)
+        {
+            List<FMS_Model.shop_order_info> modelList = new List<FMS_Model.shop_order_info>();
+            int rowsCount = dt.Rows.Count;
+            if (rowsCount > 0)
+            {
+                FMS_Model.shop_order_info model;
+                for (int n = 0; n < rowsCount; n++)
+                {
+                    model = dal.DataRowToModel(dt.Rows[n]);
+                    if (model != null)
+                    {
+                        modelList.Add(model);
+                    }
+                }
+            }
+            return modelList;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetAllList()
+        {
+            return GetList("");
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            return dal.GetList(PageSize, PageIndex, strWhere, filedOrder, out Total);
+        }
+
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetListJson(int PageSize, int PageIndex, DataTable dt, string filedOrder, out string Total)
+        {
+            return dal.GetListJson(PageSize, PageIndex, dt, filedOrder, out Total);
+        }
+
+        //获得某订单下的所有商品、运费等信息
+        public DataSet orderCount(string strWhere)
+        {
+            return dal.orderCount(strWhere);
+        }
+
+
+        //获得客户的其他费用
+        public string GetOtherAmoun(string strWhere)
+        {
+            return dal.GetOtherAmoun(strWhere);
+        }
+
+        #endregion  BasicMethod
+
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}
+

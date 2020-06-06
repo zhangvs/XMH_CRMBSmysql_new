@@ -1,0 +1,40 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace XHD.Model.kingdee
+{
+    public partial class CustomerKingDee
+    {
+        public string FNumber { get; set; }
+        /// <summary>
+        /// ※客户名称 
+        /// </summary>
+        public string FName { get; set; }
+        /// <summary>
+        /// 地址
+        /// </summary>
+        public string FAddress { get; set; }
+        /// <summary>
+        /// 电话号码
+        /// </summary>
+        public string FPhone { get; set; }
+        /// <summary>
+        /// 增值税率
+        /// </summary>
+        public string CustomerService { get; set; }
+    }
+
+    public partial class CustomerKingDeeList
+    {
+        public string strJson { get; set; }
+    }
+
+    public partial class KingDeeBack
+    {
+        public bool Success { get; set; }
+        public string Msg { get; set; }
+        public int ErrorCode { get; set; }
+    }
+}

@@ -1,0 +1,3944 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Data;
+using XHD.Common;
+using System.Web.Security;
+using System.Text;
+using XHD.Model;
+using XHD.BLL;
+using XHD.Model;
+using System.Web.Script.Serialization;
+using System.Data.OleDb;
+using System.IO;
+using XHD.Common;
+using NPOI.SS.UserModel;
+using System.IO;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.Util;
+using NPOI.HSSF.Util;
+
+
+namespace XHD.DMS.DMS
+{
+    /// <summary>
+    /// Reports_DMS 的摘要说明
+    /// </summary>
+    public class Reports_DMS : IHttpHandler
+    {
+
+        public void ProcessRequest(HttpContext context)
+        {
+            context.Response.ContentType = "text/plain";
+            HttpRequest request = context.Request;
+
+            var cookie = context.Request.Cookies[FormsAuthentication.FormsCookieName];
+            var ticket = FormsAuthentication.Decrypt(cookie.Value);
+            string CoockiesID = ticket.UserData;
+
+            BLL.hr_employee emp = new BLL.hr_employee();
+            BLL.ecs_brand brand = new BLL.ecs_brand();
+            BLL.hr_department dep = new BLL.hr_department();
+
+            BLL.ecs_order_info order_info = new BLL.ecs_order_info();
+            Model.ecs_order_info infoModel = new Model.ecs_order_info();
+
+            //月基数
+            ecs_month_baseService ecs_month_baseService = new ecs_month_baseService();
+            ecs_month_base ecs_month_base = new ecs_month_base();
+            //月计划
+            ecs_per_planService ecs_per_planService = new ecs_per_planService();
+            ecs_per_plan ecs_per_plan = new ecs_per_plan();
+
+
+            //品牌基数计划
+            ecs_brand_checkService ecs_brand_checkService = new ecs_brand_checkService();
+            ecs_brand_check ecs_brand_check = new ecs_brand_check();
+
+            //品牌提成考核品牌
+            ecs_brand_percentageService ecs_brand_percentageService = new ecs_brand_percentageService();
+            ecs_brand_percentage ecs_brand_percentage = new ecs_brand_percentage();
+
+            //品牌奖金
+            ecs_set_bonusService ecs_set_bonusService = new ecs_set_bonusService();
+            ecs_set_bonus ecs_set_bonus = new ecs_set_bonus();
+
+            //dms团队奖金
+            dms_team_bonusService dms_team_bonusService = new dms_team_bonusService();
+            dms_team_bonus dms_team_bonus = new dms_team_bonus();
+
+            //dms个人品牌提成明细表
+            dms_brand_percentageService dms_brand_percentageService = new dms_brand_percentageService();
+            dms_brand_percentage dms_brand_percentage = new dms_brand_percentage();
+
+            //dms个人月，节点销售情况，完成率
+            dms_monthnode_saleService dms_monthnode_saleService = new dms_monthnode_saleService();
+            dms_monthnode_sale dms_monthnode_sale = new dms_monthnode_sale();
+
+            //dms个人薪资汇总
+            dms_salaryService dms_salaryService = new dms_salaryService();
+            dms_salary dms_salary = new dms_salary();
+
+            dms_customer_saleService dms_customer_saleService = new dms_customer_saleService();
+            dms_customer_sale dms_customer_sale = new dms_customer_sale();
+
+            //工资等级
+            ecs_sale_parametersService ecs_sale_parametersService = new ecs_sale_parametersService();
+            ecs_sale_parameters ecs_sale_parameters = new ecs_sale_parameters();
+
+
+            //退货截取时间点，此时间之前取W，之后取商城退货表，如果此时间无，则取当前时间，只取W老数据
+            DateTime returnDateTime = DateTime.Now;
+            string returnTimeStamp = Common.TimeParser.GenerateTimeStamp(returnDateTime);
+
+            ecs_shop_configService ecs_shop_configService = new BLL.ecs_shop_configService();
+            ecs_shop_config ecs_shop_config = new Model.ecs_shop_config();
+            DataSet dsShopConfig = ecs_shop_configService.GetList("code='return_stop_wms'");
+
+            string returnTime = "";
+            if (dsShopConfig != null && dsShopConfig.Tables[0].Rows.Count > 0)
+            {
+                returnTime = dsShopConfig.Tables[0].Rows[0]["value"].ToString();
+                returnDateTime = DateTime.Parse(returnTime);
+                returnTimeStamp = Common.TimeParser.GenerateTimeStamp(returnDateTime);
+            }
+
+
+            int emp_id = int.Parse(CoockiesID);
+            DataSet dsemp = emp.GetList("id=" + emp_id);
+            string factory_Id = string.Empty;
+            string id = string.Empty;
+            string uid = string.Empty;
+            string emp_code = string.Empty;
+            string name = string.Empty;
+            string d_id = string.Empty;
+            string roletype = string.Empty;
+            if (dsemp != null && dsemp.Tables[0].Rows.Count > 0)
+            {
+                factory_Id = dsemp.Tables[0].Rows[0]["Factory_Id"].ToString();
+                id = dsemp.Tables[0].Rows[0]["id"].ToString();
+                uid = dsemp.Tables[0].Rows[0]["uid"].ToString();
+                emp_code = dsemp.Tables[0].Rows[0]["emp_code"].ToString();
+                name = dsemp.Tables[0].Rows[0]["name"].ToString();
+                d_id = dsemp.Tables[0].Rows[0]["d_id"].ToString();
+                roletype = dsemp.Tables[0].Rows[0]["roletype"].ToString();
+            }
+            #region 获取当天各城市订单量
+            if (request["Action"] == "getTodayCityAmt")
+            {
+                string date = context.Request["date"];//g根据月份判断取第几列，数据库第三列为1月
+                if (date == "")
+                {
+                    date = DateTime.Now.Date.ToString("yyyy-MM-dd");
+                }
+                DataSet ds = order_info.GetTodayCityAmt(date);
+                string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                context.Response.Write(dt);
+            }
+            #endregion
+
+            #region 获取各城市订单总量
+            else if (request["Action"] == "getCityAmt")
+            {
+                DataSet ds = order_info.GetCityAmt();
+                string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                context.Response.Write(dt);
+            }
+            #endregion
+
+            #region 获取当天各城市订单量
+            else if (request["Action"] == "GetTodayProvinceAmt")
+            {
+                string date = context.Request["date"];//g根据月份判断取第几列，数据库第三列为1月
+                if (date == "")
+                {
+                    date = DateTime.Now.Date.ToString("yyyy-MM-dd");
+                }
+                DataSet ds = order_info.GetTodayProvinceAmt(date);
+                string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                context.Response.Write(dt);
+            }
+            #endregion
+
+            #region 区域
+            //省份年报
+            #region 省份城市年报
+
+            #region 根据单品关键字查询单品
+            else if (request["Action"] == "getYearGoodTxt")
+            {
+                string year = context.Request["syear"];
+                string qtBrand = "";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                }
+                string keyWord = context.Request["keyWord"];
+
+                if (!string.IsNullOrEmpty(year))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand = " where bp_brand_id not IN (select bp_brand_id from ecs_brand_percentage where bp_brand_id not in (" + brandIdList.Replace(";", ",") + ") )";
+                    }
+                    DataSet ds = order_info.GetMonthGoodTxt(keyWord, year, qtBrand);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 获取月份各城市订单量
+            if (request["Action"] == "getYearCityAmt")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(year))
+                {
+                    if (brandIdList != "")
+                    {
+                        //qtBrand += " and bp_brand_id not IN (select bp_brand_id from ecs_brand_percentage where bp_brand_id not in (" + brandIdList.Replace(";", ",") + ") )";
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodId != "")
+                    {
+                        qtBrand += " AND goods_id =" + goodId;
+                    }
+                    else if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+
+                    DataSet ds = order_info.GetMonthCityAmt(strSqlOne, year, returnDateTime, returnTimeStamp, qtBrand);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 获取月份各省份订单量
+            if (request["Action"] == "getYearProvinceAmt")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+
+                if (!string.IsNullOrEmpty(year))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+
+                    if (goodId != "")
+                    {
+                        qtBrand += " AND goods_id =" + goodId;
+                    }
+                    else if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    DataSet ds = order_info.GetMonthProvinceAmt(strSqlOne, year, returnDateTime, returnTimeStamp, qtBrand);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+                
+            #endregion
+            //城市月报
+            #region 省份城市月报 
+
+            #region 根据单品关键字查询单品
+            else if (request["Action"] == "getMonthGoodTxt")
+            {
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                month = month.Length < 2 ? "0" + month : month;
+                string qtBrand = "";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                }
+                string keyWord = context.Request["keyWord"];
+
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    string yearMonth = year + "-" + month;
+                    if (brandIdList != "")
+                    {
+                        qtBrand = " where bp_brand_id not IN (select bp_brand_id from ecs_brand_percentage where bp_brand_id not in (" + brandIdList.Replace(";", ",") + ") )";
+                    }
+                    DataSet ds = order_info.GetMonthGoodTxt(keyWord, yearMonth, qtBrand);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 获取月份各城市订单量
+            if (request["Action"] == "getMonthCityAmt")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                month = month.Length < 2 ? "0" + month : month;
+                
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList=="")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList=="")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    string qtBrand = " where 1=1 ";
+                    string yearMonth = year + "-" + month;
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodId != "")
+                    {
+                        qtBrand += " AND goods_id =" + goodId;
+                    }
+                    else if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+
+                    DataSet ds = order_info.GetMonthCityAmt(strSqlOne, yearMonth, returnDateTime, returnTimeStamp, qtBrand);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 获取月份各省份订单量
+            if (request["Action"] == "getMonthProvinceAmt")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                month = month.Length < 2 ? "0" + month : month;
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    string yearMonth = year + "-" + month;
+
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+
+                    if (goodId!="")
+                    {
+                        qtBrand += " AND goods_id =" + goodId;
+                    }
+                    else if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    
+
+                    DataSet ds = order_info.GetMonthProvinceAmt(strSqlOne, yearMonth, returnDateTime, returnTimeStamp, qtBrand);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+            #endregion
+            //省份--------------------------------------------------------------------------------------------
+            #region 省份详情
+            #region 省内年度各月份销售占比
+            if (request["Action"] == "getProvinceYear_Months")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string yearMonth = context.Request["yearMonth"];
+                string provinceId = context.Request["provinceId"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    DataSet ds = order_info.GetProvinceYear_Months(strSqlOne, yearMonth, provinceId, qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 省内月度品牌销售占比
+            if (request["Action"] == "getProvinceMonth_Brand")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string yearMonth = context.Request["yearMonth"];
+                string provinceId = context.Request["provinceId"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    DataSet ds = order_info.GetProvinceMonth_Brand(strSqlOne, yearMonth, provinceId,qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 省内月度单品销售占比
+            if (request["Action"] == "getProvinceMonth_Good")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string yearMonth = context.Request["yearMonth"];
+                string provinceId = context.Request["provinceId"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    DataSet ds = order_info.GetProvinceMonth_Good(strSqlOne, yearMonth, provinceId, qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 省内月度城市销售占比
+            if (request["Action"] == "getProvinceMonth_City")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string yearMonth = context.Request["yearMonth"];
+                string provinceId = context.Request["provinceId"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    DataSet ds = order_info.GetProvinceMonth_City(strSqlOne, yearMonth, provinceId, qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 省内月度客服销售占比
+            if (request["Action"] == "getProvinceMonth_Emp")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string yearMonth = context.Request["yearMonth"];
+                string provinceId = context.Request["provinceId"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    DataSet ds = order_info.GetProvinceMonth_Emp(strSqlOne, yearMonth, provinceId, qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 省内月度客户销售占比
+            if (request["Action"] == "getProvinceMonth_Customer")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string yearMonth = context.Request["yearMonth"];
+                string provinceId = context.Request["provinceId"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    DataSet ds = order_info.GetProvinceMonth_Customer(strSqlOne, yearMonth, provinceId, qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+            #endregion
+            //城市--------------------------------------------------------------------------------------------
+            #region 城市详情
+            #region 获取市内年度各月份对比
+            if (request["Action"] == "getCityYear_Months")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string yearMonth = context.Request["yearMonth"];
+                string cityId = context.Request["cityId"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    DataSet ds = order_info.GetCityYear_Months(strSqlOne, yearMonth, cityId, qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 获取市内品牌销售占比
+            if (request["Action"] == "getCityMonth_Brand")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string yearMonth = context.Request["yearMonth"];
+                string cityId = context.Request["cityId"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    DataSet ds = order_info.GetCityMonth_Brand(strSqlOne, yearMonth, cityId, qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 获取市内单品销售占比
+            if (request["Action"] == "getCityMonth_Good")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string yearMonth = context.Request["yearMonth"];
+                string cityId = context.Request["cityId"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    DataSet ds = order_info.GetCityMonth_Good(strSqlOne, yearMonth, cityId, qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 获取市内客服销售占比
+            if (request["Action"] == "getCityMonth_Emp")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string yearMonth = context.Request["yearMonth"];
+                string cityId = context.Request["cityId"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+                    DataSet ds = order_info.GetCityMonth_Emp(strSqlOne, yearMonth, cityId, qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 获取市内客户销售占比
+            if (request["Action"] == "getCityMonth_Customer")
+            {
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string yearMonth = context.Request["yearMonth"];
+                string cityId = context.Request["cityId"];
+                string qtBrand = " where 1=1 ";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                if (brandIdList == "")
+                {
+                    brandIdList = getManagerBrandIdList(emp_code);
+                    if (brandIdList == "")
+                    {
+                        string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                        if (emp_codes == "")
+                        {
+                            context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                            return;
+                        }
+                        strSqlOne += emp_codes;
+                    }
+                }
+                string goodId = context.Request["goodId"];
+                string goodTextBox = context.Request["goodTextBox"];
+
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    if (brandIdList != "")
+                    {
+                        qtBrand += " and bp_brand_id in (" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    if (goodTextBox != "")
+                    {
+                        qtBrand += " AND goods_name like '%" + goodTextBox + "%'";
+                    }
+
+                    DataSet ds = order_info.GetCityMonth_Customer(strSqlOne, yearMonth, cityId, qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #endregion
+            #endregion
+
+            #region 下拉列表
+
+            #region 部门下拉列表
+            else if (request["Action"] == "getDep")
+            {
+                DataSet ecs_brand_percentageDs = dep.GetList("factory_Id='1000' and parentid=1 order by d_order");
+                string dt = Common.GetGridJSON.DataTableToJSON(ecs_brand_percentageDs.Tables[0]);
+                //8={"Rows":   22=,"Total":"10"}---8固定，22只能是考核品牌Total为两位数字时
+                dt = "[{id:'all',text:'全部部门',d_icon:'../images/icon/61.png',children:" + dt.Substring(8, dt.Length - 22).Replace("d_name", "text") + "}]";
+                context.Response.Write(dt);
+            }
+            #endregion
+
+            #region 姓名下拉列表
+            else if (request["Action"] == "getDeptPerson")
+            {
+                BLL.crm_dept_copyauth copy = new BLL.crm_dept_copyauth();
+                string serchtxt = "factory_Id='" + factory_Id + "'";
+                DataSet dsAll = dep.GetList(0, serchtxt, "d_order");
+                if (roletype != "1")
+                {
+                    serchtxt += " and id=" + int.Parse(d_id);
+                }
+                DataSet ds = dep.GetList(0, serchtxt, "d_order");
+                DataSet dscopy = copy.GetList("factory_Id='" + factory_Id + "'and emp_id=" + emp_id + " and (date(C_valid_Date)>=curdate() or C_valid_Date='1')");
+                string parentid = "0";                                         //当登陆者为管理员时可以查看所有部门，parentid=0
+                if (roletype != "1")
+                {
+                    parentid = ds.Tables[0].Rows[0]["parentid"].ToString();   //当登陆者不为管理员时查看自己部门，parentid=当前登陆者
+                }
+
+                string returntxt = string.Empty;
+                //获取当前登陆者权限
+                Data.GetDataAuth dataauth = new Data.GetDataAuth();
+                string txt = dataauth.GetDataAuthByid("1", "Sys_view", emp_id.ToString(), factory_Id);
+                string[] arr = txt.Split(':');
+
+                if (txt != "all" && txt != "none")
+                {
+                    switch (arr[0])
+                    {
+                        case "none": returntxt = " and 1=2 ";
+                            break;
+                        case "my":
+                            returntxt = "emp_id =" + arr[1];
+                            break;
+                        case "dep":
+                            returntxt = "1=1";
+                            break;
+                        case "depall":
+                            returntxt = "1=1";
+                            break;
+                        case "all":
+                            returntxt = "1=1";
+                            break;
+                    }
+                }
+                else
+                {
+                    returntxt = "1=1";
+                }
+
+                StringBuilder str = new StringBuilder();
+                str.Append("[");
+                str.Append(GetTreeStringX(int.Parse(parentid), dsAll.Tables[0], 1, int.Parse(d_id), returntxt));
+                string dept_Id = string.Empty;
+                string dept_parentid = string.Empty;
+                for (int i = 0; i < dscopy.Tables[0].Rows.Count; i++)
+                {
+                    str.Append(",");
+                    dept_Id = dscopy.Tables[0].Rows[i]["dept_Id"].ToString();
+                    ds = dep.GetList(0, "factory_Id='" + factory_Id + "'  and id=" + int.Parse(dept_Id) + " or parentid=" + int.Parse(dept_Id), "d_order");
+                    dept_parentid = ds.Tables[0].Rows[0]["parentid"].ToString();
+                    str.Append(GetTreeString(int.Parse(dept_parentid), ds.Tables[0], 1, returntxt));
+                }
+                str.Replace(",", "", str.Length - 1, 1);
+                str.Append("]");
+                //string str1 = "[{id:34,text:'网络项目技术部',d_icon:'../images/icon/61.png',children:[{id:'p1106',text:'傅建军',d_icon:'images/icon/93.png'},{id:'p1107',text:'王立全',d_icon:'images/icon/93.png'},{id:'p1109',text:'王佃坤',d_icon:'images/icon/93.png'},{id:'p1110',text:'李东升',d_icon:'images/icon/93.png'},{id:'p1111',text:'陈伟',d_icon:'images/icon/38.png'},{id:'p1112',text:'邢荣',d_icon:'images/icon/93.png'},{id:'p1307',text:'唐宏勋',d_icon:'images/icon/93.png'},{id:'p1309',text:'刘伟琳',d_icon:'images/icon/93.png'},{id:'p1310',text:'曹轩',d_icon:'images/icon/93.png'}]},{id:143,text:'财务内勤',d_icon:'../images/icon/88.png'}]";
+                context.Response.Write(str);
+
+            }
+            #endregion
+
+            #region 考核品牌下拉列表
+            else if (request["Action"] == "getCheckBrandTree")
+            {
+                string brandIdList = getManagerBrandIdList(emp_code);//品牌
+                string whereSql = "";
+                if (brandIdList!="")
+                {
+                    whereSql =" bp_brand_id in (" + brandIdList + ")";
+                }
+                DataSet ecs_brand_percentageDs = ecs_brand_percentageService.GetList(whereSql);
+                string dt = Common.GetGridJSON.DataTableToJSON(ecs_brand_percentageDs.Tables[0]);
+                int you = dt.IndexOf(']');
+                string childrenStr = dt.Substring(8, you - 8 + 1).Replace("bp_brand_name\":\"\"", "bp_brand_name\":\"其它品牌\"").Replace("bp_brand_name", "text").Replace("bp_brand_id", "id");
+                //8={"Rows":   22=,"Total":"10"}---8固定，22只能是考核品牌Total为两位数字时
+                dt = "[{id:'all',text:'全部品牌',d_icon:'../images/icon/61.png',children:" + childrenStr + "}]";
+                context.Response.Write(dt);
+            }
+            #endregion
+
+            #region 个人客户下拉列表
+            else if (request["Action"] == "getCustomerTree")
+            {
+                string admin_user_name = context.Request["admin_user_name"];
+                if (admin_user_name != "null")
+                {
+                    emp_code = admin_user_name;
+                }
+
+                string yearMonth = context.Request["yearMonth"];
+
+                DataSet dsCustomerTree = order_info.GetCustomerTree(yearMonth, " and emp.emp_code =" + emp_code);
+                int count = dsCustomerTree.Tables[0].Rows.Count;
+
+                string dt = Common.GetGridJSON.DataTableToJSON(dsCustomerTree.Tables[0]);
+
+                //8={"Rows":   22=,"Total":"10"}---8固定，22只能是考核品牌Total为两位数字时
+                dt = "[{id:'all',text:'全部客户',d_icon:'../images/icon/61.png',children:" + dt.Substring(8, dt.Length - 20 - count.ToString().Length).Replace("u_company", "text").Replace("user_id", "id") + "}]";
+                context.Response.Write(dt);
+            }
+            #endregion
+
+            #region 部门客户下拉列表
+            else if (request["Action"] == "getCustomerTree_Manager")
+            {
+                string idlist = PageValidate.InputText(request["idlist"], int.MaxValue);
+
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                string monthColumns = MonthService.getMonthColumn(month);
+                month = month.Length < 2 ? "0" + month : month;
+                string yearMonth = year + "-" + month;
+
+                string ordertime = string.Empty; //订单时间段
+                string djtime = string.Empty;//出库单据时间段
+                string dt = "";
+
+                string empCodes = "";
+                DataSet empCodeDS;
+                //姓名栏位为空，取全部门d_pids
+                if (idlist == "")
+                {
+                    //权限
+                    string returntxt = " and 1=1";
+                    if (dsemp.Tables[0].Rows.Count > 0)
+                    {
+                        if (dsemp.Tables[0].Rows[0]["uid"].ToString() != "admin")
+                        {
+                            XHD.DMS.Data.GetDataAuth dataauth = new XHD.DMS.Data.GetDataAuth();
+                            string txt = dataauth.GetDataAuthByid("1", "Sys_view", emp_id.ToString(), factory_Id);
+                            DataSet dsDep = dep.GetAllList("Factory_Id='" + factory_Id + "'");
+
+                            string[] arr = txt.Split(':');
+
+                            switch (arr[0])
+                            {
+                                case "none": returntxt = " and 1=2 ";
+                                    break;
+                                case "my":
+                                    returntxt = " and (emp.id=" + int.Parse(arr[1]) + ")";
+                                    break;
+                                case "dep":
+                                    if (string.IsNullOrEmpty(arr[1]))
+                                    {
+                                        returntxt = " and (emp.d_id=" + int.Parse(emp_id.ToString()) + ")";
+                                    }
+                                    else
+                                    {
+                                        returntxt = " and (1=2)";
+                                    }
+                                    break;
+                                case "depall":
+                                    string deptask = GetDepTask(int.Parse(arr[1]), dsDep.Tables[0]);
+                                    string intext = arr[1] + "," + deptask;
+                                    returntxt = " and ( emp.d_id in (" + intext.TrimEnd(',') + "))";
+                                    break;
+                                case "all":
+                                    string deptaskAll = GetDepTask(1, dsDep.Tables[0]);
+                                    string intextAll = deptaskAll;
+                                    returntxt = " and ( emp.d_id in (" + intextAll.TrimEnd(',') + "))";
+                                    break;
+                            }
+
+                            if (arr[0] == "all")
+                            {
+                                if (returntxt == "")
+                                {
+                                    context.Response.Write("{\"Total\":\"0\"}");
+                                    return;
+                                }
+                                DataSet ds = order_info.GetCustomerTree(yearMonth, returntxt);
+                                if (ds != null && ds.Tables[0].Rows.Count > 0)
+                                {
+                                    dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                                }
+
+
+                            }
+                            else
+                            {
+                                //求出项目经理所在部门（大部门：包括小组）的所有客服id
+                                //DataSet dsEmps = emp.GetList("d_id in ( SELECT id from hr_department where parentid = " + d_id + " or id =" + d_id + ")");
+                                DataSet dsEmps = emp.GetList("1=1 " + returntxt.Replace("emp.d_id", "d_id"));
+                                string emps = "";
+                                if (dsEmps != null && dsEmps.Tables[0].Rows.Count > 0)
+                                {
+
+                                    for (int i = 0; i < dsEmps.Tables[0].Rows.Count; i++)
+                                    {
+                                        emps += dsEmps.Tables[0].Rows[i]["emp_code"].ToString() + ",";
+                                    }
+                                    emps = emps.TrimEnd(',');
+                                }
+                                DataSet ds = order_info.GetCustomerTree(yearMonth, " and emp.emp_code in(" + emps + ")");
+                                if (ds != null && ds.Tables[0].Rows.Count > 0)
+                                {
+                                    dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                                }
+                            }
+
+                        }
+                    }
+
+
+                }
+                //姓名栏位为个人p1277,选择的客服
+                else if (idlist.IndexOf('p') >= 0)
+                {
+                    BLL.hr_post post = new BLL.hr_post();
+                    empCodeDS = post.GetEmpCode("post_id in (" + idlist.Replace(";", ",").Replace("-", "").Replace("p", "") + ")");
+                    if (empCodeDS != null && empCodeDS.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < empCodeDS.Tables[0].Rows.Count; i++)
+                        {
+                            empCodes += "'" + empCodeDS.Tables[0].Rows[i]["emp_code"].ToString() + "',";//取得部门下的所有员工号
+                        }
+                        empCodes = empCodes.Trim(',');//去掉最后一个逗号
+                        if (empCodes == "")
+                        {
+                            context.Response.Write("{\"Total\":\"0\"}");
+                            return;
+                        }
+                        DataSet ds = order_info.GetCustomerTree(yearMonth, " and emp.emp_code in(" + empCodes + ")");
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    }
+
+                }
+
+                context.Response.Write(dt);
+
+            }
+            #endregion
+
+            #endregion
+
+            #region 时间段销售数据
+
+            #region 获取单个人的月业绩明细
+            else if (request["Action"] == "getMonthSaleBackData")
+            {
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                string monthColumns = MonthService.getMonthColumn(month);
+                month = month.Length < 2 ? "0" + month : month;
+                string ordertime = string.Empty; //订单时间段
+                string djtime = string.Empty;//出库单据时间段
+                string dt = "";
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    string yearMonth = year + "-" + month;
+                    strSqlOne += " and emp.emp_code =" + emp_code;
+                    DataSet ds = order_info.GetMonthSaleBackData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp, monthColumns);
+
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    }
+
+                    //追加节点字符串
+                    string nodeList = getNodeList(year, month);
+                    if (nodeList != "")
+                    {
+                        dt = dt.TrimEnd('}') + nodeList;
+                    }
+
+                    context.Response.Write(dt);
+
+                }
+
+            }
+            #endregion
+
+            #region 获取单个人的年业绩明细
+            else if (request["Action"] == "getYearSaleBackData")
+            {
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                string ordertime = string.Empty; //订单时间段
+                string djtime = string.Empty;//出库单据时间段
+                string dt = "";
+                if (!string.IsNullOrEmpty(year))
+                {
+                    strSqlOne += " and emp.emp_code =" + emp_code;
+                    DataSet ds = order_info.GetYearSaleBackData(strSqlOne, year, returnDateTime, returnTimeStamp);
+
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    }
+
+                    context.Response.Write(dt);
+
+                }
+
+            }
+            #endregion
+
+
+            #region 获取部门的业绩明细(月报)（分开展示，中心：所有部门ALL，部门经理：部门合计+部门所有人的明细，选择个人：求选择的人的明细）
+            else if (request["Action"] == "getMonthSaleBackData_Manager")
+            {
+                string idlist = PageValidate.InputText(request["idlist"], int.MaxValue);
+
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                string monthColumns = MonthService.getMonthColumn(month);
+                month = month.Length < 2 ? "0" + month : month;
+                string yearMonth = year + "-" + month;
+
+                string ordertime = string.Empty; //订单时间段
+                string djtime = string.Empty;//出库单据时间段
+                string dt = "";
+
+                string empCodes = "";
+                DataSet empCodeDS;
+                //姓名栏位为空，取全部门d_pids
+                if (idlist == "")
+                {
+                    //权限
+                    string returntxt = " and 1=1";
+
+                    if (dsemp.Tables[0].Rows.Count > 0)
+                    {
+                        if (dsemp.Tables[0].Rows[0]["uid"].ToString() != "admin")
+                        {
+                            XHD.DMS.Data.GetDataAuth dataauth = new XHD.DMS.Data.GetDataAuth();
+                            string txt = dataauth.GetDataAuthByid("1", "Sys_view", emp_id.ToString(), factory_Id);
+                            DataSet dsDep = dep.GetAllList("Factory_Id='" + factory_Id + "'");
+
+                            string[] arr = txt.Split(':');
+
+                            switch (arr[0])
+                            {
+                                case "none": returntxt = " and 1=2 ";
+                                    break;
+                                case "my":
+                                    returntxt = " and (emp.id=" + int.Parse(arr[1]) + ")";
+                                    break;
+                                case "dep":
+                                    if (string.IsNullOrEmpty(arr[1]))
+                                    {
+                                        returntxt = " and (emp.d_id=" + int.Parse(emp_id.ToString()) + ")";
+                                    }
+                                    else
+                                    {
+                                        returntxt = " and (1=2)";
+                                    }
+                                    break;
+                                case "depall":
+                                    string deptask = GetDepTask(int.Parse(arr[1]), dsDep.Tables[0]);
+                                    string intext = arr[1] + "," + deptask;
+                                    returntxt = " and ( emp.d_id in (" + intext.TrimEnd(',') + "))";
+                                    break;
+                                case "all":
+                                    string deptaskAll = GetDepTask(1, dsDep.Tables[0]);
+                                    string intextAll = deptaskAll;
+                                    returntxt = " and ( emp.d_id in (" + intextAll.TrimEnd(',') + "))";
+                                    break;
+                            }
+                            strSqlOne += returntxt;
+                            if (arr[0] == "all")
+                            {
+                                DataSet ds = order_info.GetMonthAllDepData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp, monthColumns);
+                                if (ds != null && ds.Tables[0].Rows.Count > 0)
+                                {
+                                    dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                                }
+                            }
+                            else
+                            {
+                                DataSet ds = order_info.GetManagerMonthDepData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp, monthColumns);
+                                if (ds != null && ds.Tables[0].Rows.Count > 0)
+                                {
+                                    dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                                }
+                            }
+
+                        }
+                    }
+
+
+                }
+                //姓名栏位为个人p1277,选择的客服
+                else if (idlist.IndexOf('p') >= 0)
+                {
+                    BLL.hr_post post = new BLL.hr_post();
+                    empCodeDS = post.GetEmpCode("post_id in (" + idlist.Replace(";", ",").Replace("-", "").Replace("p", "") + ")");
+                    if (empCodeDS != null && empCodeDS.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < empCodeDS.Tables[0].Rows.Count; i++)
+                        {
+                            empCodes += "'" + empCodeDS.Tables[0].Rows[i]["emp_code"].ToString() + "',";//取得部门下的所有员工号
+                        }
+                        empCodes = empCodes.Trim(',');//去掉最后一个逗号
+                        if (empCodes == "")
+                        {
+                            context.Response.Write("{\"Total\":\"0\"}");
+                            return;
+                        }
+                        strSqlOne += " and emp.emp_code in(" + empCodes + ")";
+                        DataSet ds = order_info.GetManagerMonthDepData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp, monthColumns);
+                        if (ds != null && ds.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                        }
+                    }
+                }
+                //追加节点字符串
+                string nodeList = getNodeList(year, month);
+                if (nodeList != "")
+                {
+                    dt = dt.TrimEnd('}') + nodeList;
+                }
+
+                context.Response.Write(dt);
+
+            }
+            #endregion
+
+            #region 获取部门的业绩明细(12个月年报)
+            else if (request["Action"] == "getYearSaleBackData_Manager")
+            {
+                string idlist = PageValidate.InputText(request["idlist"], int.MaxValue);
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                string ordertime = string.Empty; //订单时间段
+                string djtime = string.Empty;//出库单据时间段
+                string dt = "";
+                string empCodes = "";
+                DataSet empCodeDS;
+                //姓名栏位为空，取全部门d_pids
+                if (idlist == "")
+                {
+                    //权限
+                    string returntxt = " and 1=1";
+                    if (dsemp.Tables[0].Rows.Count > 0)
+                    {
+                        if (dsemp.Tables[0].Rows[0]["uid"].ToString() != "admin")
+                        {
+                            XHD.DMS.Data.GetDataAuth dataauth = new XHD.DMS.Data.GetDataAuth();
+                            string txt = dataauth.GetDataAuthByid("1", "Sys_view", emp_id.ToString(), factory_Id);
+                            DataSet dsDep = dep.GetAllList("Factory_Id='" + factory_Id + "'");
+
+                            string[] arr = txt.Split(':');
+
+                            switch (arr[0])
+                            {
+                                case "none": returntxt = " and 1=2 ";
+                                    break;
+                                case "my":
+                                    returntxt = " and (emp.id=" + int.Parse(arr[1]) + ")";
+                                    break;
+                                case "dep":
+                                    if (string.IsNullOrEmpty(arr[1]))
+                                    {
+                                        returntxt = " and (emp.d_id=" + int.Parse(emp_id.ToString()) + ")";
+                                    }
+                                    else
+                                    {
+                                        returntxt = " and (1=2)";
+                                    }
+                                    break;
+                                case "depall":
+                                    string deptask = GetDepTask(int.Parse(arr[1]), dsDep.Tables[0]);
+                                    string intext = arr[1] + "," + deptask;
+                                    returntxt = " and ( emp.d_id in (" + intext.TrimEnd(',') + "))";
+                                    break;
+                                case "all":
+                                    string deptaskAll = GetDepTask(1, dsDep.Tables[0]);
+                                    string intextAll = deptaskAll;
+                                    returntxt = " and ( emp.d_id in (" + intextAll.TrimEnd(',') + "))";
+                                    break;
+                            }
+
+                            strSqlOne += returntxt;
+                            if (arr[0] == "all")
+                            {
+                                DataSet ds = order_info.GetYearAllDepData(strSqlOne, year, returnDateTime, returnTimeStamp);
+                                if (ds != null && ds.Tables[0].Rows.Count > 0)
+                                {
+                                    dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                                }
+                            }
+                            else
+                            {
+                                DataSet ds = order_info.GetYearDepData(strSqlOne, year, returnDateTime, returnTimeStamp);
+                                if (ds != null && ds.Tables[0].Rows.Count > 0)
+                                {
+                                    dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                                }
+                            }
+
+                        }
+                    }
+
+
+                }
+                //姓名栏位为个人p1277,选择的客服
+                else if (idlist.IndexOf('p') >= 0)
+                {
+                    BLL.hr_post post = new BLL.hr_post();
+                    empCodeDS = post.GetEmpCode("post_id in (" + idlist.Replace(";", ",").Replace("-", "").Replace("p", "") + ")");
+                    if (empCodeDS != null && empCodeDS.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < empCodeDS.Tables[0].Rows.Count; i++)
+                        {
+                            empCodes += "'" + empCodeDS.Tables[0].Rows[i]["emp_code"].ToString() + "',";//取得部门下的所有员工号
+                        }
+                        empCodes = empCodes.Trim(',');//去掉最后一个逗号
+                        if (empCodes == "")
+                        {
+                            context.Response.Write("{\"Total\":\"0\"}");
+                            return;
+                        }
+                        strSqlOne += " and emp.emp_code in(" + empCodes + ")";
+                        DataSet ds = order_info.GetYearDepData(strSqlOne, year, returnDateTime, returnTimeStamp);
+                        if (ds != null && ds.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                        }
+
+                    }
+                }
+
+                context.Response.Write(dt);
+
+            }
+            #endregion
+
+            #endregion
+
+            #region 考核品牌销售数据
+
+            #region 获取个人品牌的基数计划
+            else if (request["Action"] == "getBrandCheck")
+            {
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                string month = context.Request["smonth"];
+                string monthColumns = "a_" + month + ",b_" + month + ",";//月计划字段,基数字段,
+                if (!string.IsNullOrEmpty(month))
+                {
+                    string whereStr = "";
+                    if (emp_code != "dmin")
+                    {
+                        whereStr = "bc_user_name=" + emp_code;
+                    }
+                    if (brandIdList != "")
+                    {
+                        whereStr += " and bc_brand_id in(" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    //品牌月计划
+                    DataSet ecs_brand_checkData = ecs_brand_checkService.GetPlanBaseList(monthColumns, whereStr);
+                    if (ecs_brand_checkData != null && ecs_brand_checkData.Tables[0].Rows.Count > 0)
+                    {
+                        string brand_checkJson = Common.GetGridJSON.DataTableToJSON(ecs_brand_checkData.Tables[0]);
+                        context.Response.Write(brand_checkJson);
+                    }
+                }
+            }
+            #endregion
+
+            #region 获取个人品牌的业绩明细
+            else if (request["Action"] == "getBrandSaleBackData")
+            {
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                string qtBrand = "";
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                month = month.Length < 2 ? "0" + month : month;
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    //品牌销量
+                    string yearMonth = year + "-" + month;
+                    strSqlOne += " and emp.emp_code =" + emp_code;
+                    if (brandIdList != "")
+                    {
+                        //qtBrand = " where brand_id not IN (select bp_brand_id from ecs_brand_percentage where bp_brand_id not in (" + brandIdList.Replace(";", ",") + ") )";
+                        qtBrand = " where brand_id in (" + brandIdList.Replace(";", ",") + ") ";
+                    }
+                    DataSet ds = order_info.GetBrandSaleBackData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp, qtBrand);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                        context.Response.Write(dt);
+                    }
+
+                }
+
+            }
+            #endregion
+
+            #region 获取部门品牌的基数计划
+            else if (request["Action"] == "getBrandCheck_Manager")
+            {
+                string idlist = PageValidate.InputText(request["idlist"], int.MaxValue);
+                string empCodes = getEmpCodes(idlist, emp_id, factory_Id);
+
+                if (empCodes == "")
+                {
+                    context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                    return;
+                }
+
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+
+                string month = context.Request["smonth"];
+                string monthColumns = "sum(a_" + month + ") a_" + month + ",sum(b_" + month + ") b_" + month + ",";//月计划字段,基数字段,
+                if (!string.IsNullOrEmpty(month))
+                {
+                    string whereStr = "";
+                    if (emp_code != "dmin")
+                    {
+                        whereStr = "bc_user_name in (" + empCodes + ")";
+                    }
+                    if (brandIdList != "")
+                    {
+                        whereStr += "and bc_brand_id in(" + brandIdList.Replace(";", ",") + ")";
+                    }
+                    //品牌月计划
+                    DataSet ecs_brand_checkData = ecs_brand_checkService.GetPlanBaseList_Manager(monthColumns, whereStr);
+                    if (ecs_brand_checkData != null && ecs_brand_checkData.Tables[0].Rows.Count > 0)
+                    {
+                        string brand_checkJson = Common.GetGridJSON.DataTableToJSON(ecs_brand_checkData.Tables[0]);
+                        context.Response.Write(brand_checkJson);
+                    }
+                }
+            }
+            #endregion
+
+            #region 获取部门品牌的业绩明细
+            else if (request["Action"] == "getBrandSaleBackData_Manager")
+            {
+                string qtBrand = "";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+
+                string idlist = PageValidate.InputText(request["idlist"], int.MaxValue);
+                string empCodes = getEmpCodes(idlist, emp_id, factory_Id);
+
+                if (empCodes == "")
+                {
+                    context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                    return;
+                }
+
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                month = month.Length < 2 ? "0" + month : month;
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    string yearMonth = year + "-" + month;
+                    strSqlOne += " and emp.emp_code in(" + empCodes + ")";
+                    //品牌销量
+
+                    if (brandIdList != "")
+                    {
+                        qtBrand = " where brand_id in (" + brandIdList.Replace(";", ",") + ") ";
+                    }
+                    DataSet ds = order_info.GetBrandSaleBackData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp, qtBrand);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                        context.Response.Write(dt);
+                    }
+
+                }
+
+            }
+            #endregion
+
+
+
+            #region 获取个人品牌的基数计划（年报）
+            else if (request["Action"] == "getYearBrandCheck")
+            {
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                string whereStr = "";
+                if (emp_code != "dmin")
+                {
+                    whereStr = "bc_user_name=" + emp_code;
+                }
+                if (brandIdList != "")
+                {
+                    whereStr += " and bc_brand_id in(" + brandIdList.Replace(";", ",") + ")";
+                }
+                //品牌月计划
+                DataSet ecs_brand_checkData = ecs_brand_checkService.GetYearPlanBaseList(whereStr);
+                if (ecs_brand_checkData != null && ecs_brand_checkData.Tables[0].Rows.Count > 0)
+                {
+                    string brand_checkJson = Common.GetGridJSON.DataTableToJSON(ecs_brand_checkData.Tables[0]);
+                    context.Response.Write(brand_checkJson);
+                }
+            }
+            #endregion
+
+            #region 获取个人品牌的业绩明细（年报）
+            else if (request["Action"] == "getYearBrandSaleBackData")
+            {
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+                string qtBrand = "";
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                if (!string.IsNullOrEmpty(year))
+                {
+                    strSqlOne += " and emp.emp_code in(" + emp_code + ")";
+                    //品牌销量
+                    if (brandIdList != "")
+                    {
+                        qtBrand = " where brand_id in (" + brandIdList.Replace(";", ",") + ") ";
+                    }
+                    DataSet ds = order_info.GetYearBrandSaleBackData(strSqlOne, year, returnDateTime, returnTimeStamp, qtBrand);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                        context.Response.Write(dt);
+                    }
+                }
+            }
+            #endregion
+
+            #region 获取部门品牌的基数计划（年报）
+            else if (request["Action"] == "getYearBrandCheck_Manager")
+            {
+                string idlist = PageValidate.InputText(request["idlist"], int.MaxValue);
+                string empCodes = getEmpCodes(idlist, emp_id, factory_Id);
+
+                if (empCodes == "")
+                {
+                    context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                    return;
+                }
+
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+
+                string whereStr = "";
+                if (emp_code != "dmin")
+                {
+                    whereStr = "bc_user_name in (" + empCodes + ")";
+                }
+                if (brandIdList != "")
+                {
+                    whereStr += "and bc_brand_id in(" + brandIdList.Replace(";", ",") + ")";
+                }
+                //品牌月计划
+                DataSet ecs_brand_checkData = ecs_brand_checkService.GetYearPlanBaseList_Manager(whereStr);
+                if (ecs_brand_checkData != null && ecs_brand_checkData.Tables[0].Rows.Count > 0)
+                {
+                    string brand_checkJson = Common.GetGridJSON.DataTableToJSON(ecs_brand_checkData.Tables[0]);
+                    context.Response.Write(brand_checkJson);
+                }
+            }
+            #endregion
+
+            #region 获取部门品牌的业绩明细（年报）
+            else if (request["Action"] == "getYearBrandSaleBackData_Manager")
+            {
+                string qtBrand = "";
+                string brandIdList = PageValidate.InputText(request["brandIdList"], int.MaxValue);//品牌
+
+                string idlist = PageValidate.InputText(request["idlist"], int.MaxValue);
+                string empCodes = getEmpCodes(idlist, emp_id, factory_Id);
+
+                if (empCodes == "")
+                {
+                    context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                    return;
+                }
+
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                if (!string.IsNullOrEmpty(year))
+                {
+                    strSqlOne += " and emp.emp_code in(" + empCodes + ")";
+                    //品牌销量
+                    if (brandIdList != "")
+                    {
+                        qtBrand = " where brand_id in (" + brandIdList.Replace(";", ",") + ") ";
+                    }
+                    DataSet ds = order_info.GetYearBrandSaleBackData(strSqlOne, year, returnDateTime, returnTimeStamp, qtBrand);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                        context.Response.Write(dt);
+                    }
+
+                }
+
+            }
+            #endregion
+
+            #endregion
+
+            #region 品管
+            #region 负责品牌的统计销售情况
+            else if (request["Action"] == "getBrandManagerData_Year")
+            {
+                string qtBrand = "";
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string year = context.Request["syear"];
+                string brandIdList = getManagerBrandIdList(emp_code);//品牌
+                if (!string.IsNullOrEmpty(year))
+                {
+                    if (brandIdList == "")
+                    {
+                        brandIdList = getManagerBrandIdList(emp_code);
+                        if (brandIdList == "")
+                        {
+                            string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                            if (emp_codes == "")
+                            {
+                                context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                                return;
+                            }
+                            strSqlOne += emp_codes;
+                        }
+                    }
+                    else
+                    {
+                        string returnSqlTxt = DataAuth("7", factory_Id);
+                        strSqlOne += returnSqlTxt;
+                        qtBrand = " where brand_id in (" + brandIdList + ") ";
+                    }
+                    DataSet ds = order_info.GetBrandManagerData_Year(strSqlOne, year, returnDateTime, returnTimeStamp, qtBrand);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    }
+                    context.Response.Write(dt);
+                }
+                else
+                {
+                    context.Response.Write("0"); 
+                }
+
+
+            }
+            #endregion
+
+            #region 负责品牌的客服销售情况
+            if (request["Action"] == "getBrandManagerData_Emp_Year")
+            {
+                string qtBrand = "";
+                string year = context.Request["syear"];
+                string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                string brandIdList = getManagerBrandIdList(emp_code);//品牌
+                if (!string.IsNullOrEmpty(year))
+                {
+                    if (brandIdList == "")
+                    {
+                        brandIdList = getManagerBrandIdList(emp_code);
+                        if (brandIdList == "")
+                        {
+                            string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                            if (emp_codes == "")
+                            {
+                                context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                                return;
+                            }
+                            strSqlOne += emp_codes;
+                        }
+                    }
+                    else
+                    {
+                        string returnSqlTxt = DataAuth("7", factory_Id);
+                        strSqlOne += returnSqlTxt;
+                        qtBrand = " where brand_id in (" + brandIdList + ") ";
+                    }
+
+                    DataSet ds = order_info.GetBrandManagerData_Emp_Year(strSqlOne, year, qtBrand, returnDateTime, returnTimeStamp);
+                    string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    context.Response.Write(dt);
+                }
+            }
+            #endregion
+
+            #region 负责品牌的统计销售情况
+            else if (request["Action"] == "getBrandManagerData")
+            {
+                string brandIdList=getManagerBrandIdList(emp_code);//品牌
+                if (brandIdList != "")
+                {
+                    string returnSqlTxt = DataAuth("7", factory_Id);
+                    string qtBrand = "";
+                    string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                    string year = context.Request["syear"];
+                    string month = context.Request["smonth"];
+                    string month2 = month.Length < 2 ? "0" + month : month;
+                    if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                    {
+                        //品牌销量
+                        string yearMonth = year + "-" + month2;
+                        strSqlOne += returnSqlTxt;
+                        if (brandIdList != "")
+                        {
+                            qtBrand = " where brand_id in (" + brandIdList + ") ";
+                        }
+                        DataSet ds = order_info.GetBrandManagerData(strSqlOne, yearMonth, month, returnDateTime, returnTimeStamp, qtBrand);
+                        string dt = "";
+                        if (ds != null && ds.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                        }
+                        //追加节点字符串
+                        string nodeList = getNodeList(year, month);
+                        if (nodeList != "")
+                        {
+                            dt = dt.TrimEnd('}') + nodeList;
+                        }
+                        context.Response.Write(dt);
+                    }
+                }
+                else
+                {
+                    context.Response.Write("0");
+                }
+            }
+            #endregion
+
+            #region 负责品牌的客服销售情况
+            if (request["Action"] == "getBrandManagerData_Emp")
+            {
+                string brandIdList = getManagerBrandIdList(emp_code);//品牌
+                if (brandIdList != "")
+                {
+                    string strSqlOne = " emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+                    string returnSqlTxt = DataAuth("7", factory_Id);
+                    strSqlOne += returnSqlTxt;
+                    string year = context.Request["syear"];
+                    string month = context.Request["smonth"];
+                    string month2 = month.Length < 2 ? "0" + month : month;
+                    string qtBrand = "";
+
+                    if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                    {
+                        string yearMonth = year + "-" + month2;
+                        if (brandIdList != "")
+                        {
+                            qtBrand += " where brand_id in (" + brandIdList + ") ";
+                        }
+
+                        DataSet ds = order_info.GetBrandManagerData_Emp(strSqlOne, yearMonth, month, qtBrand, returnDateTime, returnTimeStamp);
+                        string dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                        context.Response.Write(dt);
+                    }
+                }
+
+            }
+            #endregion
+
+            #endregion
+
+
+            #region 薪资数据
+
+            #region 获取个人薪资，品牌提成部分
+            else if (request["Action"] == "getBrandPercentageData")
+            {
+                string dt = "";
+                string sorttext = " bc_user_name,percentage_brand desc ";
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    string a_ = "a_" + month;
+                    string b_ = "b_" + month;
+
+                    int intNextMonth = int.Parse(month) + 1;
+                    DateTime nextMonth = Convert.ToDateTime(year + "-" + intNextMonth.ToString() + "-" + "01");//查询月份的下一个月份的20号，用来与当前时间对比，大于下个月20号就取历史数据，小于等于就实时查询
+
+                    month = month.Length < 2 ? "0" + month : month;
+                    string empCodesAll = getDeps(factory_Id);
+
+                    string yearMonth = year + "-" + month;
+                    string strSqlOne = " where emp.factory_id='" + factory_Id + "' and emp.isdelete=0  and admin_user_name is not null ";
+
+                    DateTime dtNow = DateTime.Now;
+                    if (dtNow > nextMonth)
+                    {
+                        //先取dms表内数据，如果没有再去执行复杂sql
+                        DataSet ds_dms_brand_percentage = dms_brand_percentageService.GetList(" year=" + year + " and month=" + month + " and bc_user_name =" + emp_code);
+                        //有一个人的提成也算有，结果真一个人的话，就不对了
+                        if (ds_dms_brand_percentage != null && ds_dms_brand_percentage.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds_dms_brand_percentage.Tables[0]);
+                        }
+                        else
+                        {
+                            DataSet ds_personal = order_info.GetBrandPercentageData(a_, b_, strSqlOne, emp_code, yearMonth, returnDateTime, returnTimeStamp, sorttext);
+                            if (ds_personal != null && ds_personal.Tables[0].Rows.Count > 0)
+                            {
+                                //历史提成表首次就插入所有人的数据，方便后面取数效率
+                                dms_brand_percentageService.DeleteBySql(" year=" + year + " and month=" + month);
+                                DataSet ds_brandPercentage = order_info.GetBrandPercentageData(a_, b_, strSqlOne, empCodesAll, yearMonth, returnDateTime, returnTimeStamp, sorttext);
+                                AddBrandPercentage(ds_brandPercentage, year, month);
+                                ds_dms_brand_percentage = dms_brand_percentageService.GetListOrderByPercentage(" year=" + year + " and month=" + month + " and bc_user_name in(" + emp_code + ")");
+
+                                if (ds_dms_brand_percentage != null && ds_dms_brand_percentage.Tables[0].Rows.Count > 0)
+                                {
+                                    dt = Common.GetGridJSON.DataTableToJSON(ds_dms_brand_percentage.Tables[0]);
+                                }
+                                else
+                                {
+                                    dt = "{\"Total\":\"0\"}";
+                                }
+                            }
+                            else
+                            {
+                                dt = "{\"Total\":\"0\"}";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //当前月份和上个月份，先删除掉，再重新插入
+                        dms_brand_percentageService.DeleteBySql(" year=" + year + " and month=" + month + " and bc_user_name in(" + emp_code + ")");
+
+                        //如果大于当前月份,因为当下月份数字在不断变化，数据不固定,只能实时查询，执行复杂sql
+                        DataSet ds_brandPercentage = order_info.GetBrandPercentageData(a_, b_, strSqlOne, emp_code, yearMonth, returnDateTime, returnTimeStamp, sorttext);
+
+                        AddBrandPercentage(ds_brandPercentage, year, month);
+                        DataSet ds_dms_brand_percentage = dms_brand_percentageService.GetListOrderByPercentage(" year=" + year + " and month=" + month + " and bc_user_name in(" + emp_code + ")");
+
+                        if (ds_dms_brand_percentage != null && ds_dms_brand_percentage.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds_dms_brand_percentage.Tables[0]);
+                        }
+
+                    }
+                }
+
+                context.Response.Write(dt);
+
+            }
+
+
+            #endregion
+
+            #region 获取部门薪资，品牌提成部分
+            else if (request["Action"] == "getBrandPercentageData_Manager")
+            {
+                string dt = "";
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                string idlist = PageValidate.InputText(request["idlist"], int.MaxValue);
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    string empCodes = getEmpCodes(idlist, emp_id, factory_Id);
+                    if (empCodes == "")
+                    {
+                        context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                        return;
+                    }
+
+                    string empCodesAll = getDeps(factory_Id);
+
+                    string sorttext = " bc_user_name desc,percentage_brand desc ";
+                    string strSqlOne = " where emp.factory_id='" + factory_Id + "' and emp.isdelete=0  ";
+                    string a_ = "a_" + month;
+                    string b_ = "b_" + month;
+
+                    int intNextMonth = int.Parse(month) + 1;
+                    DateTime nextMonth = Convert.ToDateTime(year + "-" + intNextMonth.ToString() + "-" + "01");//查询月份的下一个月份的20号，用来与当前时间对比，大于下个月20号就取历史数据，小于等于就实时查询
+
+                    month = month.Length < 2 ? "0" + month : month;
+                    DataSet ds_dms_brand_percentage;//提成明细表
+                    //月份提成，月销量
+                    string yearMonth = year + "-" + month;
+                    //获取当前时间的月份，如果小于当前月份，直接从历史表内取值。如果大于当前月份,因为当下月份数字在不断变化，数据不固定,只能实时查询，执行复杂sql
+                    DateTime dtNow = DateTime.Now;
+                    if (dtNow > nextMonth)//上上个月再从归档表取数
+                    {
+                        //先取dms表内数据，如果没有再去执行复杂sql，本部门数据
+                        ds_dms_brand_percentage = dms_brand_percentageService.GetListOrderByPercentage(" year=" + year + " and month=" + month + " and bc_user_name in(" + empCodes + ")");
+                        if (ds_dms_brand_percentage != null && ds_dms_brand_percentage.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds_dms_brand_percentage.Tables[0]);
+                        }
+                        else
+                        {
+                            dms_brand_percentageService.DeleteBySql(" year=" + year + " and month=" + month);
+                            //品牌销量
+                            DataSet ds_brandPercentage = order_info.GetBrandPercentageData(a_, b_, strSqlOne, empCodesAll, yearMonth, returnDateTime, returnTimeStamp, sorttext);
+                            AddBrandPercentage(ds_brandPercentage, year, month);
+                            ds_dms_brand_percentage = dms_brand_percentageService.GetListOrderByPercentage(" year=" + year + " and month=" + month + " and bc_user_name in(" + empCodes + ")");
+                            if (ds_dms_brand_percentage != null && ds_dms_brand_percentage.Tables[0].Rows.Count > 0)
+                            {
+                                dt = Common.GetGridJSON.DataTableToJSON(ds_dms_brand_percentage.Tables[0]);
+                            }
+                            else
+                            {
+                                dt = "{\"Total\":\"0\"}";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //当前月份和上个月份，先删除掉，再重新插入
+                        dms_brand_percentageService.DeleteBySql(" year=" + year + " and month=" + month);
+
+                        //如果大于当前月份,因为当下月份数字在不断变化，数据不固定,只能实时查询，执行复杂sql
+                        DataSet ds_brandPercentage = order_info.GetBrandPercentageData(a_, b_, strSqlOne, empCodesAll, yearMonth, returnDateTime, returnTimeStamp, sorttext);
+                        AddBrandPercentage(ds_brandPercentage, year, month);
+                        ds_dms_brand_percentage = dms_brand_percentageService.GetListOrderByPercentage(" year=" + year + " and month=" + month + " and bc_user_name in(" + empCodes + ")");
+                        if (ds_dms_brand_percentage != null && ds_dms_brand_percentage.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds_dms_brand_percentage.Tables[0]);
+                        }
+                        else
+                        {
+                            dt = "{\"Total\":\"0\"}";
+                        }
+                    }
+                    context.Response.Write(dt);
+
+                }
+
+            }
+
+            #endregion
+
+
+            #region 获取个人薪资统计
+            else if (request["Action"] == "getSalaryData")
+            {
+                string dt = "";
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+
+                string yearMonth = year + "-" + month;
+                string a_ = "a_" + month;
+                string b_ = "b_" + month;
+                string sorttext = " bc_user_name desc,percentage_brand desc ";
+                string strSqlOne = " where emp.factory_id='" + factory_Id + "' and emp.isdelete=0  and admin_user_name is not null ";
+
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    int intNextMonth = int.Parse(month) + 1;
+                    DateTime nextMonth = Convert.ToDateTime(year + "-" + intNextMonth.ToString() + "-" + "01");//查询月份的下一个月份的20号，用来与当前时间对比，大于下个月20号就取历史数据，小于等于就实时查询
+
+                    DateTime dtNow = DateTime.Now;
+                    #region 上上月数据
+                    if (dtNow > nextMonth)
+                    {
+                        DataSet ds_personal = order_info.GetBrandPercentageData(a_, b_, strSqlOne, emp_code, yearMonth, returnDateTime, returnTimeStamp, sorttext);
+                        if (ds_personal != null && ds_personal.Tables[0].Rows.Count > 0)
+                        {
+                            //直接从历史汇总表内取值
+                            DataSet ds_dms_salary = dms_salaryService.GetList(" year=" + year + " and month=" + month + " and admin_user_name =" + emp_code);
+                            if (ds_dms_salary != null && ds_dms_salary.Tables[0].Rows.Count > 0)
+                            {
+                                dt = Common.GetGridJSON.DataTableToJSON(ds_dms_salary.Tables[0]);//历史汇总表
+                            }
+                            else
+                            {
+                                dt = salaryLiu(factory_Id, year, month, name, emp_code, returnDateTime, returnTimeStamp);
+                            }
+                        }
+                        else
+                        {
+                            dt = "{\"Total\":\"0\"}";
+                        }
+                    }
+                    #endregion
+
+                    #region 本月或者上月数据
+                    else
+                    {
+
+                        dt = salaryLiu(factory_Id, year, month, name, emp_code, returnDateTime, returnTimeStamp);
+                    }
+                    #endregion
+                }
+                context.Response.Write(dt);
+            }
+            #endregion
+
+            #region 获取部门薪资统计
+            else if (request["Action"] == "getSalaryData_Manager")
+            {
+                string idlist = PageValidate.InputText(request["idlist"], int.MaxValue);
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    int intNextMonth = int.Parse(month) + 1;
+                    DateTime nextMonth = Convert.ToDateTime(year + "-" + intNextMonth.ToString() + "-" + "01");//查询月份的下一个月份的20号，用来与当前时间对比，大于下个月20号就取历史数据，小于等于就实时查询
+
+                    string empCodes = getEmpCodes(idlist, emp_id, factory_Id);
+                    if (empCodes == "")
+                    {
+                        context.Response.Write("{\"empCodes\":\"empCodes:0\"}");
+                        return;
+                    }
+                    string dt = "";
+
+                    DateTime dtNow = DateTime.Now;
+                    //上上个月再从归档表里面取数据
+                    if (dtNow > nextMonth)
+                    {
+                        //直接从历史汇总表内取值
+                        DataSet ds_dms_salary = dms_salaryService.GetList(" year=" + year + " and month=" + month + " and admin_user_name in(" + empCodes + ")");
+                        if (ds_dms_salary != null && ds_dms_salary.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds_dms_salary.Tables[0]);//历史汇总表
+                        }
+                        else
+                        {
+                            dt = salaryLiu(factory_Id, year, month, name, empCodes, returnDateTime, returnTimeStamp);
+                        }
+                    }
+                    else
+                    {
+                        dt = salaryLiu(factory_Id, year, month, name, empCodes, returnDateTime, returnTimeStamp);
+
+                    }
+                    context.Response.Write(dt);
+
+                }
+
+            }
+
+            #endregion
+
+
+            #region 获取部门奖励表数据，用于展示光荣榜
+            else if (request["Action"] == "getTeamData_Manager")
+            {
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                month = month.Length < 2 ? "0" + month : month;
+                string dt = "";
+                string d_ids = DataAuth(emp_id.ToString(), factory_Id);
+                d_ids = d_ids.Replace("emp.d_id", "d_pid");
+
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    DataSet ds_dms_team_bonus;//团队薪资
+                    //获取当前时间的月份，如果小于当前月份，直接从历史汇总表内取值。如果大于当前月份，不操作
+                    DateTime dtNow = DateTime.Now;
+                    if (int.Parse(month) <= dtNow.Month)
+                    {
+                        //直接从历史汇总表内取值and d_pid=" + d_id
+                        ds_dms_team_bonus = dms_team_bonusService.GetList(" year=" + year + " and monthnode like '%" + month + "%'  and (team_bonus <>0 or team_champion <>0) " + d_ids);
+
+                        if (ds_dms_team_bonus != null && ds_dms_team_bonus.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds_dms_team_bonus.Tables[0]);//历史汇总表
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+                context.Response.Write(dt);
+            }
+            #endregion
+
+            #region 获取部门奖励合计
+            else if (request["Action"] == "team_carvebonus")
+            {
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                month = month.Length < 2 ? "0" + month : month;
+                string dt = "";
+
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    //考勤数据导入之后不允许再分配团队奖
+                    DataSet dsImport = dms_salaryService.GetListImportAttendance(year, month);
+                    if (dsImport != null && dsImport.Tables[0].Rows.Count > 0)
+                    {
+                        dt = "{\"state\":\"1\"}";
+                    }
+                    else
+                    {
+                        DateTime dtNow = DateTime.Now;
+                        if (int.Parse(month) <= dtNow.Month)
+                        {
+                            //合计团队奖励
+                            DataSet ds_dms_team_bonus = dms_team_bonusService.Sum_Champion_Bonus(" year=" + year + " and monthnode like '%" + month + "%'  and (team_bonus <>0 or team_champion <>0) and d_pid=" + d_id);
+                            if (ds_dms_team_bonus.Tables[0].Rows[0][0].ToString() != "")
+                            {
+                                dt = "{\"team_bonus\":" + ds_dms_team_bonus.Tables[0].Rows[0][0].ToString() + "}";
+                                //已分配团队奖
+                                DataSet ds_AssignedTeamBonus = dms_salaryService.GetListAssignedTeamBonus(year, month, d_id);
+                                if (ds_AssignedTeamBonus.Tables[0].Rows[0][0].ToString() != "")
+                                {
+                                    dt = dt.TrimEnd('}') + ",\"yfp_team_bonus\":" + ds_AssignedTeamBonus.Tables[0].Rows[0][0].ToString() + "}";
+                                }
+                                else
+                                {
+                                    dt = dt.TrimEnd('}') + ",\"yfp_team_bonus\":0}";
+                                }
+                            }
+                            else
+                            {
+                                dt = "{\"Total\":\"0\"}";
+                            }
+
+                        }
+                    }
+
+                }
+                context.Response.Write(dt);
+            }
+            #endregion
+
+            #region 获取部门人员，分配团队奖的内部人员
+            else if (request["Action"] == "team_emps")
+            {
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                month = month.Length < 2 ? "0" + month : month;
+                string dt = "";
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    DataSet ds_dms_salary;//个人薪资
+                    //获取当前时间的月份，如果小于当前月份，直接从历史汇总表内取值。如果大于当前月份，不操作
+                    DateTime dtNow = DateTime.Now;
+                    if (int.Parse(month) <= dtNow.Month)
+                    {
+                        //直接从历史汇总表内取值
+                        ds_dms_salary = dms_salaryService.GetList(" year=" + year + " and month=" + month + " and d_pid =" + d_id);
+                        if (ds_dms_salary != null && ds_dms_salary.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds_dms_salary.Tables[0]);//历史汇总表
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+                context.Response.Write(dt);
+            }
+            #endregion
+
+
+            #region 分配团队奖
+            else if (request["Action"] == "updateSalary")
+            {
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                month = month.Length < 2 ? "0" + month : month;
+
+                string[] team_carve_bonuss = request.Params.GetValues("T_team_carve_bonus");//团队分配奖励
+                string[] good_bonuss = request.Params.GetValues("T_good_bonus");//单品奖励
+                string[] phone_bonuss = request.Params.GetValues("T_phone_bonus");//电话量奖励
+                string[] point_bonuss = request.Params.GetValues("T_point_bonus");//积分奖励
+
+                if (!string.IsNullOrEmpty(year) && !string.IsNullOrEmpty(month))
+                {
+                    DataSet ds_dms_salary;//个人薪资
+                    //获取当前时间的月份，如果小于当前月份，直接从历史汇总表内取值。如果大于当前月份，不操作
+                    DateTime dtNow = DateTime.Now;
+                    if (int.Parse(month) <= dtNow.Month)
+                    {
+                        //直接从历史汇总表内取值
+                        ds_dms_salary = dms_salaryService.GetList(" year=" + year + " and month=" + month + " and d_pid =" + d_id);
+                        if (ds_dms_salary != null && ds_dms_salary.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < ds_dms_salary.Tables[0].Rows.Count; i++)
+                            {
+                                decimal team_carve_bonus = Convert.ToDecimal(team_carve_bonuss[i]);
+                                decimal good_bonus = Convert.ToDecimal(good_bonuss[i]);
+                                decimal phone_bonus = Convert.ToDecimal(phone_bonuss[i]);
+                                decimal point_bonus = Convert.ToDecimal(point_bonuss[i]);
+                                int sid = Convert.ToInt32(ds_dms_salary.Tables[0].Rows[i]["id"]);
+                                bool updateTeamBonusOrNot = dms_salaryService.UpdateTeamBonus(team_carve_bonus, good_bonus, phone_bonus, point_bonus, name, sid);
+                                if (!updateTeamBonusOrNot)
+                                {
+                                    context.Response.Write("update:failure,更新团队奖励失败！" + ds_dms_salary.Tables[0].Rows[i]["name"]);
+                                    return;
+                                }
+                                //bool updateSumOrNot = dms_salaryService.Update_Salary_Sum(sid);
+                                //if (!updateSumOrNot)
+                                //{
+                                //    context.Response.Write("update:failure,更新工资合计失败！" + ds_dms_salary.Tables[0].Rows[i]["name"]);
+                                //    return;
+                                //}
+
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+                context.Response.Write("update:success");
+
+
+            }
+            #endregion
+
+            #region 保存文件 出勤和工龄数据.xlsx
+            else if (request["Action"] == "excel_upload")
+            {
+                if (emp_code != "1010")
+                {
+                    context.Response.Write("Unauthorized");
+                }
+                else
+                {
+                    string year = context.Request["syear"];
+                    string month = context.Request["smonth"];
+                    DataSet dsUndistributed = dms_salaryService.GetListTeamBonusUndistributed(year, month);
+                    if (dsUndistributed != null && dsUndistributed.Tables[0].Rows.Count > 0)
+                    {
+                        string d_pnames = "";
+                        for (int i = 0; i < dsUndistributed.Tables[0].Rows.Count; i++)
+                        {
+                            d_pnames += dsUndistributed.Tables[0].Rows[i][0].ToString() + ",";
+                        }
+                        d_pnames = d_pnames.TrimEnd(',');
+                        context.Response.Write("还有团队奖未分配:</br>" + d_pnames);
+                    }
+                    else
+                    {
+                        string fileName = request["filename"];    //文件路径
+                        //360浏览器，ie ，chrome存在C:\\fakepath\\7月份出勤和工龄数据.xlsx
+                        if (fileName.LastIndexOf("\\") > 0)
+                        {
+                            int xx = fileName.LastIndexOf("\\") + 1;
+                            fileName = fileName.Substring(xx, fileName.Length - xx);
+                        }
+                        if (request.Files.Count > 0)
+                        {
+                            HttpPostedFile uploadFile = request.Files[0];
+                            string filepath = @"~/file/" + fileName.Replace("=", "");
+                            uploadFile.SaveAs(context.Server.MapPath(filepath));
+                            FileInfo file = new FileInfo(context.Server.MapPath(filepath));
+                            if (!file.Exists)
+                            {
+                                context.Response.Write("false");
+                            }
+                            else
+                            {
+                                context.Response.Write(context.Server.MapPath(filepath));
+                            }
+                        }
+                    }
+                }
+
+            }
+            #endregion
+
+            #region 导入考勤工龄
+            else if (request["Action"] == "input_AbsenceDays_SeniorityBonus")
+            {
+                string empCode;
+                decimal absence_days;
+                decimal leave_days;
+                decimal seniority_bonus;
+                decimal meals_deductions;
+                decimal social_deductions;
+                decimal late_deductions;
+                decimal shipping_deductions;
+                decimal other_deductions;
+
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                string filepath = request["file"];
+                if (!string.IsNullOrEmpty(filepath))
+                {
+                    DataTable dtb = ExcelToDataTable(filepath);
+                    if (dtb != null && dtb.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dtb.Rows.Count; i++)
+                        {
+                            empCode = dtb.Rows[i][0].ToString();
+                            absence_days = dtb.Rows[i][2].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][2].ToString());//缺勤天数
+                            leave_days = dtb.Rows[i][3].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][3].ToString());//工作日请假天数
+                            seniority_bonus = dtb.Rows[i][4].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][4].ToString());//工龄工资
+                            meals_deductions = dtb.Rows[i][5].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][5].ToString());//餐费扣款
+                            social_deductions = dtb.Rows[i][6].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][6].ToString());//社保扣款
+                            late_deductions = dtb.Rows[i][7].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][7].ToString());//迟到扣款
+                            shipping_deductions = dtb.Rows[i][8].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][8].ToString());//退货运费扣款
+                            other_deductions = dtb.Rows[i][9].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][9].ToString());//其他扣款
+                            dms_salaryService.Update_Attendance_SeniorityBonus(absence_days, leave_days, seniority_bonus, meals_deductions, social_deductions, late_deductions, shipping_deductions, other_deductions, empCode, year, month);
+                        }
+                        context.Response.Write("true");
+                    }
+                    else
+                    {
+                        context.Response.Write("0");
+                    }
+
+                }
+
+
+            }
+            #endregion
+
+            #region 导出薪资表
+            else if (request["Action"] == "export_Salary")
+            {
+                if (emp_code != "1010")
+                {
+                    context.Response.Write("你的权限不足！无法导出薪资数据");
+                }
+                else
+                {
+
+                    string year = context.Request["syear"];
+                    string month = context.Request["smonth"];
+
+                    string d_ids = DataAuth(emp_id.ToString(), factory_Id);
+                    d_ids = d_ids.Replace("emp.d_id", "d_pid");
+
+                    DataSet ds = dms_salaryService.GetList("year=" + year + " and month=" + month + d_ids + " ORDER BY CONVERT(d_pid,SIGNED) ");
+                    DataTable dt0 = ds.Tables[0];
+                    HttpResponse respon = context.Response;
+                    respon.Charset = "utf-8";
+                    respon.Clear();
+                    string filename = month + "月份薪资表" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
+                    respon.AppendHeader("Content-Disposition", "attachment;filename=" + HttpUtility.UrlEncode(filename) + ".xls");
+                    respon.ContentEncoding = Encoding.UTF8;
+                    respon.ContentType = "application/octet-stream";
+
+                    string style = "<meta http-equiv=\"content-type\" content=\"application/ms-excel; charset=utf-8\"/>"
+                        + "<style> .table{ font: 9pt Tahoma, Verdana; color: #000000;   }"
+                        + ".table td{text-align:center;border:1px solid #000;}"
+                        + ".table th{ font: 9pt Tahoma, Verdana; color: #000000; font-weight: bold; background-color: #8ECBEA;  text-align:center; padding-left:10px;}</style>";
+
+                    respon.Write(style);
+
+                    ColumnNameEnum cne = new ColumnNameEnum();
+                    string tb_header = "<table class='table'><tr>";
+                    for (int i = 0; i < dt0.Columns.Count; i++)
+                    {
+                        tb_header += "<th>" + cne.getColumnName(dt0.Columns[i].ColumnName) + "</th>";
+                    }
+                    tb_header += "</tr>";
+                    respon.Write(tb_header);
+
+
+                    DataTable dt = new DataTable();
+                    dt.TableName = "dmsSalary";
+
+                    for (int i = 0; i < dt0.Columns.Count; i++)
+                    {
+                        dt.Columns.Add(cne.getColumnName(dt0.Columns[i].ColumnName));
+                    }
+
+                    DataRow dr0 = null, dr1 = null;
+
+                    for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                    {
+                        dr1 = ds.Tables[0].Rows[i];
+                        dr0 = dt.NewRow();
+                        for (int j = 0; j < dt0.Columns.Count; j++)
+                        {
+                            dr0[j] = dr1[j];
+                        }
+                        dt.Rows.Add(dr0);
+                    }
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        respon.Write("<tr>");
+                        for (int i = 0; i < dt.Columns.Count; i++)
+                            respon.Write("<td>" + row[i] + "</td>");
+                        respon.Write("</tr>");
+                    }
+                    respon.Write("</table>");
+
+                    respon.Flush();
+                    respon.End();
+                }
+
+                //DataToExcel dte=new Common.DataToExcel ();
+                ////string Desktop=Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                ////dte.OutputExcel(ds.Tables[0],month+"月份薪资表",Desktop+"/");
+                //WriteExcel(ds.Tables[0], month + "月份薪资表", "d:/" + month + "月份薪资表" + DateTime.Now.ToString("yyyyMMddHHmmssff") + ".xls");
+
+                //context.Response.Write("true");
+            }
+            #endregion
+
+            #region 清理薪资缓存数据
+            else if (request["Action"] == "clear_Salary")
+            {
+                if (emp_code != "1010")
+                {
+                    context.Response.Write("Unauthorized");
+                }
+                else
+                {
+                    string year = context.Request["syear"];
+                    string month = context.Request["smonth"];
+                    month = month.Length < 2 ? "0" + month : month;
+
+                    //1.清理考核品牌提成表
+                    dms_brand_percentageService.DeleteBySql("year=" + year + " and month=" + month);
+                    //2.清理销售客户数销售金额表
+                    dms_customer_saleService.DeleteBySql("year=" + year + " and month=" + month);
+                    //3.清理个人月节点排行表
+                    dms_monthnode_saleService.DeleteBySql("year=" + year + " and monthnode like '%" + month + "%'");
+                    //4.清理团队月节点排名表
+                    dms_team_bonusService.DeleteBySql("year=" + year + " and monthnode like '%" + month + "%'");
+                    //5.清理薪资总结表
+                    dms_salaryService.DeleteBySql("year=" + year + " and month=" + month);
+
+                    context.Response.Write("1");
+                }
+            }
+            #endregion
+
+
+            #region 保存文件 分配团队奖数据.xlsx
+            else if (request["Action"] == "excel_upload2")
+            {
+                if (emp_code != "1010")
+                {
+                    context.Response.Write("Unauthorized");
+                }
+                else
+                {
+                    string fileName = request["filename"];    //文件路径
+                    //360浏览器，ie ，chrome存在C:\\fakepath\\7月份出勤和工龄数据.xlsx
+                    if (fileName.LastIndexOf("\\") > 0)
+                    {
+                        int xx = fileName.LastIndexOf("\\") + 1;
+                        fileName = fileName.Substring(xx, fileName.Length - xx);
+                    }
+                    if (request.Files.Count > 0)
+                    {
+                        HttpPostedFile uploadFile = request.Files[0];
+                        string filepath = @"~/file/" + fileName.Replace("=", "");
+                        uploadFile.SaveAs(context.Server.MapPath(filepath));
+                        FileInfo file = new FileInfo(context.Server.MapPath(filepath));
+                        if (!file.Exists)
+                        {
+                            context.Response.Write("false");
+                        }
+                        else
+                        {
+                            context.Response.Write(context.Server.MapPath(filepath));
+                        }
+                    }
+                }
+
+            }
+            #endregion
+
+            #region 导入已分配团队奖
+            else if (request["Action"] == "input_Team_Carvebonus")
+            {
+                string empCode;
+                decimal team_carve_bonus;
+                decimal good_bonus;
+                decimal phone_bonus;
+                decimal point_bonus;
+
+                string year = context.Request["syear"];
+                string month = context.Request["smonth"];
+                string filepath = request["file"];
+                if (!string.IsNullOrEmpty(filepath))
+                {
+                    DataTable dtb = ExcelToDataTable(filepath);
+                    if (dtb != null && dtb.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dtb.Rows.Count; i++)
+                        {
+                            empCode = dtb.Rows[i][0].ToString();
+                            team_carve_bonus = dtb.Rows[i][2].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][2].ToString());
+                            good_bonus = dtb.Rows[i][3].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][3].ToString());
+                            phone_bonus = dtb.Rows[i][4].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][4].ToString());
+                            point_bonus = dtb.Rows[i][5].ToString() == "" ? 0 : Convert.ToDecimal(dtb.Rows[i][5].ToString());
+                            dms_salaryService.Update_Team_Carvebonus_FromExcel(team_carve_bonus, good_bonus, phone_bonus, point_bonus, empCode, year, month);
+                        }
+                        context.Response.Write("true");
+                    }
+                    else
+                    {
+                        context.Response.Write("0");
+                    }
+
+                }
+
+
+            }
+            #endregion
+
+            #region 获取当前登录empcode
+            else if (request["Action"] == "getEmpCode")
+            {
+                context.Response.Write(emp_code);
+            }
+            #endregion
+
+
+            #endregion
+//--------------------------------------------------------------------------------------------------------------------------------------------
+            #region 客户销售数据
+
+            #region 个人客户年报
+            else if (request["Action"] == "getCustomerYearSaleBackData")
+            {
+                string admin_user_name = context.Request["admin_user_name"];
+                if (admin_user_name != "null")
+                {
+                    emp_code = admin_user_name;
+                }
+
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0  and emp.emp_code in(" + emp_code + ")";
+                string customerIdList = PageValidate.InputText(request["customerIdList"], int.MaxValue);//客户
+                if (customerIdList != "")
+                {
+                    strSqlOne += " and user_id in(" + customerIdList.Replace(";", ",") + ")";
+                }
+                string yearMonth = context.Request["yearMonth"];
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    //客户销量
+                    DataSet ds = order_info.GetCustomerYearSaleBackData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+
+                    }
+                    context.Response.Write(dt);
+                }
+
+            }
+            #endregion
+
+            #region 个人客户月报
+            else if (request["Action"] == "getCustomerMonthSaleBackData")
+            {
+                string admin_user_name = context.Request["admin_user_name"];
+                if (admin_user_name != "null")
+                {
+                    emp_code = admin_user_name;
+                }
+
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0  and emp.emp_code in(" + emp_code + ")";
+                string customerIdList = PageValidate.InputText(request["customerIdList"], int.MaxValue);//客户
+                if (customerIdList != "")
+                {
+                    strSqlOne += " and user_id in(" + customerIdList.Replace(";", ",") + ")";
+                }
+                string yearMonth = context.Request["yearMonth"];
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    //客户销量
+                    DataSet ds = order_info.GetCustomerMonthSaleBackData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+
+                    }
+                    context.Response.Write(dt);
+                }
+
+            }
+            #endregion
+
+            #region 部门客户年报
+            else if (request["Action"] == "getCustomerYearSaleBackData_Manager")
+            {
+                string idlist = PageValidate.InputText(request["idlist"], int.MaxValue);
+
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+
+                string yearMonth = context.Request["yearMonth"];
+
+                string ordertime = string.Empty; //订单时间段
+                string djtime = string.Empty;//出库单据时间段
+                string dt = "";
+
+                string empCodes = "";
+                DataSet empCodeDS;
+                //姓名栏位为空，取全部门d_pids
+                if (idlist == "")
+                {
+                    string returntxt = " and 1=1";
+                    if (dsemp.Tables[0].Rows.Count > 0)
+                    {
+                        returntxt = DataAuth(emp_id.ToString(), factory_Id);
+                    }
+                    strSqlOne += returntxt;
+                    DataSet ds = order_info.GetCustomerYearManagerDepData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp);
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+
+                    }
+                }
+                //姓名栏位为个人p1277,选择的客服
+                else if (idlist.IndexOf('p') >= 0)
+                {
+                    BLL.hr_post post = new BLL.hr_post();
+                    empCodeDS = post.GetEmpCode("post_id in (" + idlist.Replace(";", ",").Replace("-", "").Replace("p", "") + ")");
+                    if (empCodeDS != null && empCodeDS.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < empCodeDS.Tables[0].Rows.Count; i++)
+                        {
+                            empCodes += "'" + empCodeDS.Tables[0].Rows[i]["emp_code"].ToString() + "',";//取得部门下的所有员工号
+                        }
+                        empCodes = empCodes.Trim(',');//去掉最后一个逗号
+                        if (empCodes == "")
+                        {
+                            context.Response.Write("{\"Total\":\"0\"}");
+                            return;
+                        }
+                        strSqlOne += " and emp.emp_code in(" + empCodes + ")";
+                        DataSet ds = order_info.GetCustomerYearManagerDepData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp);
+
+                        if (ds != null && ds.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+
+                        }
+                    }
+
+                }
+
+                context.Response.Write(dt);
+
+            }
+            #endregion
+
+            #region 部门客户月报
+            else if (request["Action"] == "getCustomerMonthSaleBackData_Manager")
+            {
+                string idlist = PageValidate.InputText(request["idlist"], int.MaxValue);
+
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+
+                string yearMonth = context.Request["yearMonth"];
+
+                string ordertime = string.Empty; //订单时间段
+                string djtime = string.Empty;//出库单据时间段
+                string dt = "";
+
+                string empCodes = "";
+                DataSet empCodeDS;
+                //姓名栏位为空，取全部门d_pids
+                if (idlist == "")
+                {
+                    string returntxt = " and 1=1";
+                    if (dsemp.Tables[0].Rows.Count > 0)
+                    {
+                        returntxt = DataAuth(emp_id.ToString(), factory_Id);
+                    }
+                    strSqlOne += returntxt;
+                    DataSet ds = order_info.GetCustomerMonthManagerDepData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp);
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+
+                    }
+                }
+                //姓名栏位为个人p1277,选择的客服
+                else if (idlist.IndexOf('p') >= 0)
+                {
+                    BLL.hr_post post = new BLL.hr_post();
+                    empCodeDS = post.GetEmpCode("post_id in (" + idlist.Replace(";", ",").Replace("-", "").Replace("p", "") + ")");
+                    if (empCodeDS != null && empCodeDS.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < empCodeDS.Tables[0].Rows.Count; i++)
+                        {
+                            empCodes += "'" + empCodeDS.Tables[0].Rows[i]["emp_code"].ToString() + "',";//取得部门下的所有员工号
+                        }
+                        empCodes = empCodes.Trim(',');//去掉最后一个逗号
+                        if (empCodes == "")
+                        {
+                            context.Response.Write("{\"Total\":\"0\"}");
+                            return;
+                        }
+                        strSqlOne += " and emp.emp_code in(" + empCodes + ")";
+                        DataSet ds = order_info.GetCustomerMonthManagerDepData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp);
+
+                        if (ds != null && ds.Tables[0].Rows.Count > 0)
+                        {
+                            dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+
+                        }
+                    }
+
+                }
+
+                context.Response.Write(dt);
+
+            }
+            #endregion
+
+            #region 个人客户品牌月报（传入指定的客户id，点击一个客户，查看一个客户的品牌销售情况）
+            else if (request["Action"] == "getCustomerMonthBrandSaleBackData")
+            {
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0";
+
+                //string admin_user_name = context.Request["admin_user_name"];
+                //if (admin_user_name != "null")
+                //{
+                //    emp_code = admin_user_name;
+                //}
+                //string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0  and emp.emp_code in(" + emp_code + ")";
+                string userId = context.Request["user_id"];//客户id
+                if (userId != "")
+                {
+                    strSqlOne += " and user_id =" + userId;
+                }
+                string yearMonth = context.Request["yearMonth"];
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    //客户品牌销量
+                    DataSet ds = order_info.GetCustomerMonthBrandGoodsData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+
+                    }
+                    context.Response.Write(dt);
+                }
+
+            }
+            #endregion
+
+            #region 个人客户品牌单品月报（分每一天）（传入指定的客户id，点击一个客户，查看一个客户的品牌销售情况）
+            else if (request["Action"] == "getCustomerMonthBrandGoodsSaleBackData")
+            {
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0 ";
+                //string admin_user_name = context.Request["admin_user_name"];
+                //if (admin_user_name != "null")
+                //{
+                //    emp_code = admin_user_name;
+                //}
+                //string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0  and emp.emp_code in(" + emp_code + ")";
+                string userId = context.Request["user_id"];//客户id
+                if (userId != "")
+                {
+                    strSqlOne += " and user_id =" + userId;
+                }
+                string brand_id = context.Request["brand_id"];//客户id
+                if (userId != "")
+                {
+                    strSqlOne += " and brand_id =" + brand_id;
+                }
+
+                string yearMonth = context.Request["yearMonth"];
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    //客户品牌销量
+                    DataSet ds = order_info.GetCustomerMonthBrandGoodsData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+
+                    }
+                    context.Response.Write(dt);
+                }
+
+            }
+            #endregion
+
+
+            #region 个人客户品牌年报（传入指定的客户id，点击一个客户，查看一个客户的品牌销售情况）
+            else if (request["Action"] == "getCustomerYearBrandSaleBackData")
+            {
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0  ";
+                //string admin_user_name = context.Request["admin_user_name"];
+                //if (admin_user_name != "null")
+                //{
+                //    emp_code = admin_user_name;
+                //}
+                //string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0  and emp.emp_code in(" + emp_code + ")";
+                string userId = context.Request["user_id"];//客户id
+                if (userId != "")
+                {
+                    strSqlOne += " and user_id =" + userId;
+                }
+                string yearMonth = context.Request["yearMonth"];
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    //客户品牌销量
+                    DataSet ds = order_info.GetCustomerYearBrandGoodsData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+
+                    }
+                    context.Response.Write(dt);
+                }
+
+            }
+            #endregion
+
+            #region 个人客户品牌单品年报（分每一天）（传入指定的客户id，点击一个客户，查看一个客户的品牌销售情况）
+            else if (request["Action"] == "getCustomerYearBrandGoodsSaleBackData")
+            {
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0  ";
+                //string admin_user_name = context.Request["admin_user_name"];
+                //if (admin_user_name != "null")
+                //{
+                //    emp_code = admin_user_name;
+                //}
+                //string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0  and emp.emp_code in(" + emp_code + ")";
+                string userId = context.Request["user_id"];//客户id
+                if (userId != "")
+                {
+                    strSqlOne += " and user_id =" + userId;
+                }
+                string brand_id = context.Request["brand_id"];//客户id
+                if (userId != "")
+                {
+                    strSqlOne += " and brand_id =" + brand_id;
+                }
+
+                string yearMonth = context.Request["yearMonth"];
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    //客户品牌销量
+                    DataSet ds = order_info.GetCustomerYearBrandGoodsData(strSqlOne, yearMonth, returnDateTime, returnTimeStamp);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+
+                    }
+                    context.Response.Write(dt);
+                }
+
+            }
+            #endregion
+
+            #region 个人客户品牌单品月报（分每一天）（传入指定的客户id，点击一个客户，查看一个客户的品牌销售情况）
+            else if (request["Action"] == "getCustomerYearGood")
+            {
+                string strSqlOne = "emp.factory_id='" + factory_Id + "' and emp.isdelete=0 ";
+                string userId = context.Request["user_id"];//客户id
+                if (userId != "")
+                {
+                    strSqlOne += " and user_id =" + userId;
+                }
+                string goods_id = context.Request["goods_id"];//客户id
+                if (goods_id != "")
+                {
+                    strSqlOne += " and goods_id =" + goods_id;
+                }
+
+                string yearMonth = context.Request["yearMonth"];
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    //客户品牌销量
+                    DataSet ds = order_info.GetCustomerYearGood(strSqlOne, yearMonth, returnDateTime, returnTimeStamp);
+                    string dt = "";
+                    if (ds != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dt = Common.GetGridJSON.DataTableToJSON(ds.Tables[0]);
+                    }
+                    context.Response.Write(dt);
+                }
+
+            }
+            #endregion
+
+
+
+
+            #endregion
+
+        }
+
+
+        #region 查询全部部门的所有人客服编号
+
+        public string getDeps(string factory_Id)
+        {
+
+            BLL.hr_employee emp = new BLL.hr_employee();
+            BLL.hr_department dep = new BLL.hr_department();
+
+            DataSet depds = dep.GetAllList("Factory_Id='" + factory_Id + "'");
+            string deptaskAll = GetDepTask(1, depds.Tables[0]);
+            string d_ids = " and ( emp.d_id in(" + deptaskAll.TrimEnd(',') + "))";
+            DataSet empCodeAllDS = emp.GetList(" d_id in(" + deptaskAll.TrimEnd(',') + ")");
+            string empCodesAll = "";
+            if (empCodeAllDS != null && empCodeAllDS.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < empCodeAllDS.Tables[0].Rows.Count; i++)
+                {
+                    empCodesAll += "'" + empCodeAllDS.Tables[0].Rows[i]["emp_code"].ToString() + "',";//取得部门下的所有员工号
+                }
+                empCodesAll = empCodesAll.Trim(',');//去掉最后一个逗号
+            }
+            return empCodesAll;
+        }
+        #endregion
+
+        #region 根据登录者权限查看可查看客服编号
+        public string getEmpCodes(string idlist, int emp_id, string factory_Id)
+        {
+            string empCodes = "";
+            BLL.hr_employee emp = new BLL.hr_employee();
+            DataSet empCodeDS;
+            //姓名栏位为空，取全部门人员的数据64,1343
+            if (idlist == "")
+            {
+                string emp_codes = DataAuth(emp_id.ToString(), factory_Id);
+                empCodeDS = emp.GetList(" 1=1 " + emp_codes.Replace("emp.", ""));
+            }
+            //姓名栏位为个人p1277
+            else if (idlist.IndexOf('p') >= 0)
+            {
+                BLL.hr_post post = new BLL.hr_post();
+                empCodeDS = post.GetEmpCode("post_id in (" + idlist.Replace(";", ",").Replace("-", "").Replace("p", "") + ")");
+
+            }
+            //姓名栏位为小组，取部门id为小组id的所有小组人员1343
+            else
+            {
+                empCodeDS = emp.GetList("d_id=" + idlist);
+            }
+
+            if (empCodeDS != null && empCodeDS.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < empCodeDS.Tables[0].Rows.Count; i++)
+                {
+                    empCodes += "'" + empCodeDS.Tables[0].Rows[i]["emp_code"].ToString() + "',";//取得部门下的所有员工号
+                }
+                empCodes = empCodes.Trim(',');//去掉最后一个逗号
+            }
+            return empCodes;
+        }
+        #endregion
+
+        public string getNodeList(string year,string month)
+        {
+            //节点
+            ecs_set_nodeService ecs_set_nodeService = new ecs_set_nodeService();
+            ecs_set_node ecs_set_node = new ecs_set_node();
+            string nodeList = "";
+            //品牌主管  
+            string whereStr = "node_year=" + year + " and node_month =" + month;//int 06=6 mysql
+            DataSet ds_node = ecs_set_nodeService.GetList(whereStr);
+            if (ds_node != null && ds_node.Tables[0].Rows.Count > 0)
+            {
+                string node_two1 = ds_node.Tables[0].Rows[0]["node_two1"].ToString();
+                string node_three1 = ds_node.Tables[0].Rows[0]["node_three1"].ToString();
+                string node_four1 = ds_node.Tables[0].Rows[0]["node_four1"].ToString();
+                nodeList = ",\"nodes\":[" + node_two1 + "," + node_three1 + "," + node_four1 + "]}";
+            }
+            return nodeList;
+        }
+
+        public string getManagerBrandIdList(string emp_code)
+        {
+            string brandIdList = "";
+            //品牌主管  
+            dms_brand_managerService dms_brand_managerService = new dms_brand_managerService();
+            dms_brand_manager dms_brand_manager = new dms_brand_manager();
+            DataSet dbm = dms_brand_managerService.GetList("emp_code=" + emp_code);
+            if (dbm != null && dbm.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < dbm.Tables[0].Rows.Count; i++)
+                {
+                    brandIdList += dbm.Tables[0].Rows[i]["bc_brand_id"].ToString() + ',';
+                }
+                brandIdList = brandIdList.Substring(0, brandIdList.Length - 1);
+            }
+            return brandIdList;
+        }
+
+        #region 添加提成
+        public void AddBrandPercentage(DataSet ds_brandPercentage, string year, string month)
+        {
+            dms_brand_percentage dms_brand_percentage = new Model.dms_brand_percentage();
+            dms_brand_percentageService dms_brand_percentageService = new dms_brand_percentageService();
+            if (ds_brandPercentage != null && ds_brandPercentage.Tables[0].Rows.Count > 0)
+            {
+                //第一次奖查询结果插入个人品牌提成明细表，以便此后提高查询效率
+                //id,year,month,bc_user_name,bc_real_name,bc_brand_id,bc_brand_name,basepersonal,planpersonal,bp_percentage,salemoney,backmoney,realmoney,cha,wcl,percentage
+                for (int i = 0; i < ds_brandPercentage.Tables[0].Rows.Count; i++)
+                {
+                    dms_brand_percentage.year = year;
+                    dms_brand_percentage.month = month;
+                    dms_brand_percentage.bc_user_name = ds_brandPercentage.Tables[0].Rows[i]["bc_user_name"].ToString();
+                    dms_brand_percentage.bc_real_name = ds_brandPercentage.Tables[0].Rows[i]["bc_real_name"].ToString();
+                    dms_brand_percentage.bc_brand_id = ds_brandPercentage.Tables[0].Rows[i]["bc_brand_id"].ToString();
+                    dms_brand_percentage.bc_brand_name = ds_brandPercentage.Tables[0].Rows[i]["bc_brand_name"].ToString();
+                    dms_brand_percentage.base_brand = Convert.ToDecimal(ds_brandPercentage.Tables[0].Rows[i]["base_brand"]);
+                    dms_brand_percentage.plan_brand = Convert.ToDecimal(ds_brandPercentage.Tables[0].Rows[i]["plan_brand"]);
+                    dms_brand_percentage.bp_percentage = Convert.ToDecimal(ds_brandPercentage.Tables[0].Rows[i]["bp_percentage"]);
+                    dms_brand_percentage.salemoney_brand = Convert.ToDecimal(ds_brandPercentage.Tables[0].Rows[i]["salemoney_brand"]);
+                    dms_brand_percentage.backmoney_brand = Convert.ToDecimal(ds_brandPercentage.Tables[0].Rows[i]["backmoney_brand"]);
+                    dms_brand_percentage.realmoney_brand = Convert.ToDecimal(ds_brandPercentage.Tables[0].Rows[i]["realmoney_brand"]);
+                    dms_brand_percentage.cha_brand = Convert.ToDecimal(ds_brandPercentage.Tables[0].Rows[i]["cha_brand"]);
+                    dms_brand_percentage.wcl_brand = Convert.ToDecimal(ds_brandPercentage.Tables[0].Rows[i]["wcl_brand"]);
+                    dms_brand_percentage.percentage_brand = Convert.ToDecimal(ds_brandPercentage.Tables[0].Rows[i]["percentage_brand"]);
+                    dms_brand_percentage.create_time = DateTime.Now;
+
+                    dms_brand_percentageService.Add(dms_brand_percentage);//存入品牌提成明细表
+                }
+
+            }
+        }
+        #endregion
+
+        #region 添加薪资流 1.月销售额和客户数量dms_customer_sale 2.节点，冠军奖励 3.基本工资dms_salary，合计
+        public string salaryLiu(string factory_Id, string year, string month, string name, string empCode, DateTime returnDateTime, string returnTimeStamp)
+        {
+            BLL.ecs_order_info order_info = new BLL.ecs_order_info();
+            BLL.hr_department dep = new BLL.hr_department();
+            ecs_set_bonusService ecs_set_bonusService = new BLL.ecs_set_bonusService();
+            ecs_set_nodeService ecs_set_nodeService = new BLL.ecs_set_nodeService();
+            dms_salaryService dms_salaryService = new BLL.dms_salaryService();
+            dms_monthnode_saleService dms_monthnode_saleService = new dms_monthnode_saleService();
+            dms_team_bonusService dms_team_bonusService = new dms_team_bonusService();
+
+            string dt = "";
+            string monthColumns = MonthService.getMonthColumn(month);
+            string a_ = "a_" + month;
+            string b_ = "b_" + month;
+            month = month.Length < 2 ? "0" + month : month;
+
+            //--------------------------奖励规则参数-------------------------------------//
+            DataSet ds_bonus = ecs_set_bonusService.GetList("");
+            //string wcl90 = ds_bonus.Tables[0].Rows[0]["team_dabiao2"].ToString();//a:7:{i:18;s:4:"1750";i:20;s:4:"2125";i:64;s:4:"1750";i:82;s:4:"1750";i:96;s:4:"1500";i:114;s:4:"2000";i:115;s:4:"1125";}
+            //string wcl100 = ds_bonus.Tables[0].Rows[0]["team_dabiao"].ToString();//a:7:{i:18;s:4:"1000";i:20;s:4:"1000";i:64;s:4:"1000";i:82;s:4:"1000";i:96;s:4:"1000";i:114;s:4:"1000";i:115;s:3:"750";}
+            decimal team_month_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["team_month_bonus"]);//团队月冠军1000
+
+            decimal team_one_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["team_one_bonus"]);//团队节点1冠军500
+            decimal team_two_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["team_two_bonus"]);//团队节点2冠军
+            decimal team_three_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["team_three_bonus"]);//团队节点3冠军
+            decimal team_four_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["team_four_bonus"]);//团队节点4冠军
+
+            decimal month_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["month_bonus"]);//个人月冠军500
+            decimal week_one_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["week_one_bonus"]);//个人节点1冠军200
+            decimal week_two_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["week_two_bonus"]);//个人节点2冠军
+            decimal week_three_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["week_three_bonus"]);//个人节点3冠军
+            decimal week_four_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["week_four_bonus"]);//个人节点4冠军
+
+            decimal one_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["one_bonus"]);//个人节点1达标150
+            decimal two_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["two_bonus"]);//个人节点2达标
+            decimal three_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["three_bonus"]);//个人节点3达标
+            decimal four_bonus = Convert.ToDecimal(ds_bonus.Tables[0].Rows[0]["four_bonus"]);//个人节点4达标
+
+            //所有部门所有人的数据
+            DataSet depds = dep.GetAllList("Factory_Id='" + factory_Id + "'");
+            string deptaskAll = GetDepTask(1, depds.Tables[0]);
+            string d_ids = " and ( emp.d_id in(" + deptaskAll.TrimEnd(',') + "))";
+
+            DateTime dtnow = DateTime.Now;
+            //月
+            //string ordertime = "and erp_order_sn like '%" + year + "-" + month + "%'";//订单时间段
+            //string djtime = " d.rq like '%" + year + "-" + month + "%'";//出库单据时间段
+            string yearMonth = year + "-" + month;
+
+
+            string whereStr = "";
+            whereStr = "node_year=" + year + " and node_month =" + month;//int 06=6 mysql
+            DataSet ds_node = ecs_set_nodeService.GetList(whereStr);
+            //节点1
+            string month01 = month + "01";//节点1
+            string node_one1 = year + "-" + month + "-01";//第一节起点
+            string node_one2 = ds_node.Tables[0].Rows[0]["node_one2"].ToString();//第一节终点
+            node_one2 = node_one2.Length < 2 ? "0" + node_one2 : node_one2;
+            node_one2 = year + "-" + month + "-" + node_one2;
+            DateTime dt_node_one2 = Convert.ToDateTime(node_one2);
+            //string ordertime1 = "and oi.erp_time  between  " + Common.TimeParser.GenerateTimeStamp(DateTime.Parse(node_one1)) + " and " + Common.TimeParser.GenerateTimeStamp(DateTime.Parse(node_one2).AddHours(23).AddMinutes(59).AddSeconds(59));
+            //string djtime1 = "date(d.RQ) >='" + DateTime.Parse(node_one1) + "' and date(d.RQ)<='" + DateTime.Parse(node_one2).AddHours(23).AddMinutes(59).AddSeconds(59) + "'";
+            //节点2
+            string month02 = month + "02";//节点2
+            string node_two1 = ds_node.Tables[0].Rows[0]["node_two1"].ToString();//第二节起点
+            node_two1 = node_two1.Length < 2 ? "0" + node_two1 : node_two1;
+            node_two1 = year + "-" + month + "-" + node_two1;
+            string node_two2 = ds_node.Tables[0].Rows[0]["node_two2"].ToString();//第二节终点
+            node_two2 = node_two2.Length < 2 ? "0" + node_two2 : node_two2;
+            node_two2 = year + "-" + month + "-" + node_two2;
+            DateTime dt_node_two2 = Convert.ToDateTime(node_two2);
+            //string ordertime2 = "and oi.erp_time  between  " + Common.TimeParser.GenerateTimeStamp(DateTime.Parse(node_two1)) + " and " + Common.TimeParser.GenerateTimeStamp(DateTime.Parse(node_two2).AddHours(23).AddMinutes(59).AddSeconds(59));
+            //string djtime2 = "date(d.RQ) >='" + DateTime.Parse(node_two1) + "' and date(d.RQ)<='" + DateTime.Parse(node_two2).AddHours(23).AddMinutes(59).AddSeconds(59) + "'";
+            //节点3
+            string month03 = month + "03";//节点3
+            string node_three1 = ds_node.Tables[0].Rows[0]["node_three1"].ToString();//第三节点起点
+            node_three1 = node_three1.Length < 2 ? "0" + node_three1 : node_three1;
+            node_three1 = year + "-" + month + "-" + node_three1;
+            string node_three2 = ds_node.Tables[0].Rows[0]["node_three2"].ToString();//第三节点终点
+            node_three2 = node_three2.Length < 2 ? "0" + node_three2 : node_three2;
+            node_three2 = year + "-" + month + "-" + node_three2;
+            DateTime dt_node_three2 = Convert.ToDateTime(node_three2);
+            //string ordertime3 = "and oi.erp_time  between  " + Common.TimeParser.GenerateTimeStamp(DateTime.Parse(node_three1)) + " and " + Common.TimeParser.GenerateTimeStamp(DateTime.Parse(node_three2).AddHours(23).AddMinutes(59).AddSeconds(59));
+            //string djtime3 = "date(d.RQ) >='" + DateTime.Parse(node_three1) + "' and date(d.RQ)<='" + DateTime.Parse(node_three2).AddHours(23).AddMinutes(59).AddSeconds(59) + "'";
+            //节点4
+            string month04 = month + "04";//节点4
+            string node_four1 = ds_node.Tables[0].Rows[0]["node_four1"].ToString();//第四节点
+            node_four1 = node_four1.Length < 2 ? "0" + node_four1 : node_four1;
+            node_four1 = year + "-" + month + "-" + node_four1;
+            string node_four2 = ds_node.Tables[0].Rows[0]["node_four2"].ToString();//第四节点
+            node_four2 = node_four2.Length < 2 ? "0" + node_four2 : node_four2;
+            node_four2 = year + "-" + month + "-" + node_four2;
+            //string ordertime4 = "and oi.erp_time  between  " + Common.TimeParser.GenerateTimeStamp(DateTime.Parse(node_four1)) + " and " + Common.TimeParser.GenerateTimeStamp(DateTime.Parse(node_four2).AddHours(23).AddMinutes(59).AddSeconds(59));
+            //string djtime4 = "date(d.RQ) >='" + DateTime.Parse(node_four1) + "' and date(d.RQ)<='" + DateTime.Parse(node_four2).AddHours(23).AddMinutes(59).AddSeconds(59) + "'";
+
+
+            //对应本月与上月的数据，因为在下个月底才发工资，所以会存在删单，改单的情况，所有会有变化
+            string strSqlTwo = " where emp.factory_id='" + factory_Id + "' and emp.isdelete=0  and user_id is not null ";
+            //月销售额和客户数量dms_customer_sale
+            DataSet ds_dms_customer_sale = order_info.GetMonthCustomerSaleData(strSqlTwo, d_ids, yearMonth, returnDateTime, returnTimeStamp);
+            AddCustomerSale(ds_dms_customer_sale, year, month);
+
+            //如果为空，说明还没插入上月数据，进行首次插入全部数据
+
+            //先删除老数据,个人和团队的销售数据
+            dms_monthnode_saleService.DeleteBySql(" year=" + year + " and monthnode like '%" + month + "%'");
+            dms_team_bonusService.DeleteBySql(" year=" + year + " and monthnode like '%" + month + "%'");
+
+            string strSqlOne = " where emp.factory_id='" + factory_Id + "' and emp.isdelete=0 ";
+            //----------------------1.插入月数据---------------------------------//
+
+            //----------------------1.1个人月冠军---------------------------------//
+            DataSet ds_month_no1 = order_info.GetPersonalMonthRankData(monthColumns, "1", strSqlOne, d_ids, yearMonth, returnDateTime, returnTimeStamp);
+            AddMonthNodeSale(ds_month_no1, year, month, month_bonus, 0);
+            //----------------------1.2团队月冠军---------------------------------//
+            DataSet ds_monthTeam_no1 = order_info.GetTeamMonthRankData(monthColumns, "1", strSqlOne, d_ids, yearMonth, returnDateTime, returnTimeStamp);//团队月
+            AddMonthNodeTeamBonus(ds_monthTeam_no1, year, month, team_month_bonus);
+
+
+            //----------------------2.插入节点1数据---------------------------------//
+            //----------------------2.1个人节点1冠军奖,达标奖---------------------------------//
+            //排名必须查部门所有人的did，不能以当选择的empcodes查询，一次性查询所有人的,4个
+            DataSet ds_node1_no1 = order_info.GetPersonalNodeRankData(monthColumns, "4", strSqlOne, d_ids, node_one1, node_one2, returnDateTime, returnTimeStamp);
+            AddMonthNodeSale(ds_node1_no1, year, month01, week_one_bonus, one_bonus);
+            //----------------------2.2团队节点1冠军奖，达标奖---------------------------------//
+            DataSet ds_node1Team_no1 = order_info.GetTeamNodeRankData(monthColumns, "4", strSqlOne, d_ids, node_one1, node_one2, returnDateTime, returnTimeStamp);//月除以4，等于节点计划基数
+            AddMonthNodeTeamBonus(ds_node1Team_no1, year, month01, team_one_bonus);
+
+
+            //----------------------3.插入节点2数据---------------------------------//
+
+
+            //如果当前时间大于第一节点结束点，就可以查询第二节点数据，避免查询都是0，浪费时间
+            if (dtnow > dt_node_one2)
+            {
+                //----------------------3.1个人节点2冠军奖,达标奖---------------------------------//
+                DataSet ds_node2_no1 = order_info.GetPersonalNodeRankData(monthColumns, "4", strSqlOne, d_ids, node_two1, node_two2, returnDateTime, returnTimeStamp);
+                AddMonthNodeSale(ds_node2_no1, year, month02, week_one_bonus, one_bonus);
+
+                //----------------------3.2团队节点2冠军奖，达标奖---------------------------------//
+                DataSet ds_node2Team_no1 = order_info.GetTeamNodeRankData(monthColumns, "4", strSqlOne, d_ids, node_two1, node_two2, returnDateTime, returnTimeStamp);//月除以4，等于节点计划基数
+                AddMonthNodeTeamBonus(ds_node2Team_no1, year, month02, team_one_bonus);
+            }
+
+            //----------------------4.插入节点3数据---------------------------------//
+            if (dtnow > dt_node_two2)
+            {
+                //----------------------4.1 个人节点3冠军奖,达标奖---------------------------------//
+                DataSet ds_node3_no1 = order_info.GetPersonalNodeRankData(monthColumns, "4", strSqlOne, d_ids, node_three1, node_three2, returnDateTime, returnTimeStamp);
+                AddMonthNodeSale(ds_node3_no1, year, month03, week_one_bonus, one_bonus);
+                //----------------------4.2 团队节点3冠军和节点达标奖---------------------------------//
+                DataSet ds_node3Team_no1 = order_info.GetTeamNodeRankData(monthColumns, "4", strSqlOne, d_ids, node_three1, node_three2, returnDateTime, returnTimeStamp);//月除以4，等于节点计划基数
+                AddMonthNodeTeamBonus(ds_node3Team_no1, year, month03, team_one_bonus);
+            }
+
+            //----------------------5.插入节点4数据---------------------------------//
+            if (dtnow > dt_node_three2)
+            {
+                //----------------------5.1 个人节点4冠军奖,达标奖---------------------------------//
+                DataSet ds_node4_no1 = order_info.GetPersonalNodeRankData(monthColumns, "4", strSqlOne, d_ids, node_four1, node_four2, returnDateTime, returnTimeStamp);
+                AddMonthNodeSale(ds_node4_no1, year, month04, week_one_bonus, one_bonus);
+                //----------------------5.2 团队节点4冠军和节点达标奖---------------------------------//
+                DataSet ds_node4Team_no1 = order_info.GetTeamNodeRankData(monthColumns, "4", strSqlOne, d_ids, node_four1, node_four2, returnDateTime, returnTimeStamp);//月除以4，等于节点计划基数
+                AddMonthNodeTeamBonus(ds_node4Team_no1, year, month04, team_one_bonus);
+            }
+
+            //6.通过客户数销售额计算基本工资
+            DataSet ds_dms_salary_New = order_info.GetPersonalMonthSalaryData(year, month);
+            AddSaraly(ds_dms_salary_New, year, month, name, factory_Id);
+
+            //7.通过以上插入的表数据，查询汇总出个人薪资表数据
+            ds_dms_salary_New = dms_salaryService.GetList(" year=" + year + " and month=" + month + " and admin_user_name in(" + empCode + ")");
+            if (ds_dms_salary_New != null && ds_dms_salary_New.Tables[0].Rows.Count > 0)
+            {
+                dt = Common.GetGridJSON.DataTableToJSON(ds_dms_salary_New.Tables[0]);//历史汇总表
+            }
+            return dt;
+        }
+        #endregion
+
+        #region 插入个人月节点销售数据
+        /// <summary>
+        /// 插入月，节点销售数据
+        /// </summary>
+        /// <param name="ds_node"></param>
+        /// <param name="year"></param>
+        /// <param name="node"></param>
+        /// <param name="week_bonus"></param>
+        /// <param name="bonus"></param>
+        public void AddMonthNodeSale(DataSet ds_dms_monthnode_sale, string year, string nodeOrMonth, decimal champion, decimal bonus)
+        {
+            dms_monthnode_sale dms_monthnode_sale = new dms_monthnode_sale();
+            dms_monthnode_saleService dms_monthnode_saleService = new dms_monthnode_saleService();
+
+            if (ds_dms_monthnode_sale != null && ds_dms_monthnode_sale.Tables[0].Rows.Count > 0)
+            {
+                //先删除老数据
+                //dms_monthnode_saleService.DeleteBySql(" year=" + year + " and monthnode=" + nodeOrMonth);
+
+                for (int i = 0; i < ds_dms_monthnode_sale.Tables[0].Rows.Count; i++)
+                {
+                    dms_monthnode_sale.year = year;
+                    dms_monthnode_sale.monthnode = nodeOrMonth;
+                    dms_monthnode_sale.admin_user_name = ds_dms_monthnode_sale.Tables[0].Rows[i]["admin_user_name"].ToString();
+                    dms_monthnode_sale.name = ds_dms_monthnode_sale.Tables[0].Rows[i]["name"].ToString();
+                    dms_monthnode_sale.d_pid = ds_dms_monthnode_sale.Tables[0].Rows[i]["d_pid"].ToString();
+                    dms_monthnode_sale.d_pname = ds_dms_monthnode_sale.Tables[0].Rows[i]["d_pname"].ToString();
+                    dms_monthnode_sale.salemoney_personal = Convert.ToDecimal(ds_dms_monthnode_sale.Tables[0].Rows[i]["salemoney_personal"]);
+                    dms_monthnode_sale.backmoney_personal = Convert.ToDecimal(ds_dms_monthnode_sale.Tables[0].Rows[i]["backmoney_personal"]);
+                    dms_monthnode_sale.realmoney_personal = Convert.ToDecimal(ds_dms_monthnode_sale.Tables[0].Rows[i]["realmoney_personal"]);
+                    dms_monthnode_sale.plan_personal = Convert.ToDecimal(ds_dms_monthnode_sale.Tables[0].Rows[i]["plan_personal"]);
+                    dms_monthnode_sale.base_personal = Convert.ToDecimal(ds_dms_monthnode_sale.Tables[0].Rows[i]["base_personal"]);
+                    dms_monthnode_sale.cha_personal = Convert.ToDecimal(ds_dms_monthnode_sale.Tables[0].Rows[i]["cha_personal"]);
+                    dms_monthnode_sale.wcl_personal = Convert.ToDecimal(ds_dms_monthnode_sale.Tables[0].Rows[i]["wcl_personal"]);
+                    if (nodeOrMonth.Length > 2)//节点1001，月10
+                    {
+                        //个人节点冠军
+                        if (i == 0)
+                        {
+                            dms_monthnode_sale.personal_champion = champion;//冠军奖金200
+                        }
+                        else
+                        {
+                            dms_monthnode_sale.personal_champion = 0;
+                        }
+
+                        if (dms_monthnode_sale.wcl_personal >= 100)
+                        {
+                            dms_monthnode_sale.personal_bonus = bonus;
+                        }
+                        else
+                        {
+                            dms_monthnode_sale.personal_bonus = 0;
+                        }
+                    }
+                    else
+                    {
+                        if (i == 0)//个人月冠军
+                        {
+                            dms_monthnode_sale.personal_champion = champion;//个人月冠军奖金500
+                        }
+                        else
+                        {
+                            dms_monthnode_sale.personal_champion = 0;
+                        }
+
+                        dms_monthnode_sale.personal_bonus = 0;
+                    }
+
+                    dms_monthnode_sale.create_time = DateTime.Now;
+                    dms_monthnode_saleService.Add(dms_monthnode_sale);//个人节点情况存入个人薪资表
+                }
+            }
+        }
+        #endregion
+
+        #region 插入团队月节点销售数据
+        /// <summary>
+        /// 插入团队奖部分
+        /// </summary>
+        /// <param name="ds_NodeTeam"></param>
+        /// <param name="year"></param>
+        /// <param name="node"></param>
+        /// <param name="champion"></param>
+        public void AddMonthNodeTeamBonus(DataSet ds_NodeTeam, string year, string nodeOrMonth, decimal champion)
+        {
+            dms_team_bonus dms_team_bonus = new Model.dms_team_bonus();
+            dms_team_bonusService dms_team_bonusService = new dms_team_bonusService();
+
+            //团队达标奖励表
+            dms_set_bonus_team dms_set_bonus_team = new Model.dms_set_bonus_team();
+            dms_set_bonus_teamService dms_set_bonus_teamService = new BLL.dms_set_bonus_teamService();
+
+            if (ds_NodeTeam != null && ds_NodeTeam.Tables[0].Rows.Count > 0)
+            {
+                //先删除老数据
+                //dms_team_bonusService.DeleteBySql(" year=" + year + " and monthnode=" + nodeOrMonth);
+
+                for (int i = 0; i < ds_NodeTeam.Tables[0].Rows.Count; i++)
+                {
+                    dms_team_bonus.year = year;
+                    dms_team_bonus.monthnode = nodeOrMonth;
+                    dms_team_bonus.d_pid = ds_NodeTeam.Tables[0].Rows[i]["d_pid"].ToString();
+                    dms_team_bonus.d_pname = ds_NodeTeam.Tables[0].Rows[i]["d_pname"].ToString();
+                    dms_team_bonus.salemoney_team = Convert.ToDecimal(ds_NodeTeam.Tables[0].Rows[i]["salemoney_team"]);
+                    dms_team_bonus.backmoney_team = Convert.ToDecimal(ds_NodeTeam.Tables[0].Rows[i]["backmoney_team"]);
+                    dms_team_bonus.realmoney_team = Convert.ToDecimal(ds_NodeTeam.Tables[0].Rows[i]["realmoney_team"]);
+                    dms_team_bonus.plan_team = Convert.ToDecimal(ds_NodeTeam.Tables[0].Rows[i]["plan_team"]);
+                    dms_team_bonus.base_team = Convert.ToDecimal(ds_NodeTeam.Tables[0].Rows[i]["base_team"]);
+                    dms_team_bonus.cha_team = Convert.ToDecimal(ds_NodeTeam.Tables[0].Rows[i]["cha_team"]);
+                    dms_team_bonus.wcl_team = Convert.ToDecimal(ds_NodeTeam.Tables[0].Rows[i]["wcl_team"]);
+
+                    //0501比如长度为4位时就是节点
+                    if (nodeOrMonth.Length > 2)
+                    {
+                        //团队节点1冠军奖金1000
+                        if (i == 0)
+                        {
+                            dms_team_bonus.team_champion = champion;
+                        }
+                        else
+                        {
+                            dms_team_bonus.team_champion = 0;
+                        }
+                        //团队节点1完成率达标奖励
+                        DataSet ds = dms_set_bonus_teamService.GetList("d_id=" + dms_team_bonus.d_pid);
+                        decimal db_100 = Convert.ToDecimal(ds.Tables[0].Rows[0]["db_100"]);
+                        decimal db_90 = Convert.ToDecimal(ds.Tables[0].Rows[0]["db_90"]);
+
+                        if (dms_team_bonus.wcl_team >= 100)//完成率>=100
+                        {
+                            dms_team_bonus.team_bonus = db_100;
+
+                            //int w = wcl100.IndexOf(dms_team_bonus.d_pid);
+                            //if (w > 0)
+                            //{
+                            //    dms_team_bonus.team_bonus = Convert.ToDecimal(wcl100.Substring(w + dms_team_bonus.d_pid.Length + 6, 4).TrimEnd('"'));//节点1达标奖励,null=0
+                            //}
+                        }
+                        else if (dms_team_bonus.wcl_team >= 90)//完成率>=90
+                        {
+                            dms_team_bonus.team_bonus = db_90;
+                            //int w = wcl90.IndexOf(dms_team_bonus.d_pid);
+                            //if (w > 0)
+                            //{
+                            //    dms_team_bonus.team_bonus = Convert.ToDecimal(wcl90.Substring(w + dms_team_bonus.d_pid.Length + 6, 4).TrimEnd('"'));//节点1达标奖励,null=0
+                            //}
+                        }
+                        else
+                        {
+                            dms_team_bonus.team_bonus = 0;//节点1达标奖励
+                        }
+                    }//月份
+                    else
+                    {
+                        //月达完成率标奖励不考核，只考核节点的完成率
+                        dms_team_bonus.team_bonus = 0;
+                        if (i == 0)
+                        {
+                            dms_team_bonus.team_champion = champion;//团队月冠军奖金1000
+                        }
+                        else
+                        {
+                            dms_team_bonus.team_champion = 0;
+                        }
+                    }
+
+                    dms_team_bonus.create_time = DateTime.Now;
+                    dms_team_bonusService.Add(dms_team_bonus);
+                }
+            }
+        }
+        #endregion
+
+        #region 存入月订单客户数和销售额，用于计算基本工资
+        /// <summary>
+        /// 存入月订单客户数和销售额，用于计算基本工资
+        /// </summary>
+        /// <param name="ds_dms_customer_sale"></param>
+        /// <param name="year"></param>
+        /// <param name="month"></param>
+        public void AddCustomerSale(DataSet ds_dms_customer_sale, string year, string month)
+        {
+            dms_customer_sale dms_customer_sale = new Model.dms_customer_sale();
+            dms_customer_saleService dms_customer_saleService = new dms_customer_saleService();
+
+            if (ds_dms_customer_sale != null && ds_dms_customer_sale.Tables[0].Rows.Count > 0)
+            {
+                //先删除当前查询的月份
+                dms_customer_saleService.DeleteBySql(" year=" + year + " and month=" + month);
+                for (int i = 0; i < ds_dms_customer_sale.Tables[0].Rows.Count; i++)
+                {
+                    dms_customer_sale.year = year;
+                    dms_customer_sale.month = month;
+                    dms_customer_sale.admin_user_name = ds_dms_customer_sale.Tables[0].Rows[i]["admin_user_name"].ToString();
+                    dms_customer_sale.name = ds_dms_customer_sale.Tables[0].Rows[i]["name"].ToString();
+                    dms_customer_sale.d_pid = ds_dms_customer_sale.Tables[0].Rows[i]["d_pid"].ToString();
+                    dms_customer_sale.d_pname = ds_dms_customer_sale.Tables[0].Rows[i]["d_pname"].ToString();
+                    dms_customer_sale.user_id = ds_dms_customer_sale.Tables[0].Rows[i]["user_id"].ToString();
+                    dms_customer_sale.user_name = ds_dms_customer_sale.Tables[0].Rows[i]["user_name"].ToString();
+                    dms_customer_sale.u_company = ds_dms_customer_sale.Tables[0].Rows[i]["u_company"].ToString();
+                    dms_customer_sale.salemoney_customer = Convert.ToDecimal(ds_dms_customer_sale.Tables[0].Rows[i]["salemoney_customer"]);
+                    dms_customer_sale.backmoney_customer = Convert.ToDecimal(ds_dms_customer_sale.Tables[0].Rows[i]["backmoney_customer"]);
+                    dms_customer_sale.realmoney_customer = Convert.ToDecimal(ds_dms_customer_sale.Tables[0].Rows[i]["realmoney_customer"]);
+                    dms_customer_sale.create_time = DateTime.Now;
+
+                    dms_customer_saleService.Add(dms_customer_sale);
+                }
+            }
+        }
+        #endregion
+
+        #region 插入薪资数据
+        public void AddSaraly(DataSet ds_dms_salary, string year, string month, string name, string factory_Id)
+        {
+            ecs_sale_parametersService ecs_sale_parametersService = new ecs_sale_parametersService();
+
+            dms_salary dms_salary = new dms_salary();
+            dms_salaryService dms_salaryService = new dms_salaryService();
+
+            if (ds_dms_salary != null && ds_dms_salary.Tables[0].Rows.Count > 0)
+            {
+
+                DataSet ds_sale_parameters = ecs_sale_parametersService.GetList("");//基本工资参数表
+
+                int c1 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["c1"]);//1800
+                int cus_numc1 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_numc1"]);//
+                int sale_numc1 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_numc1"]);//
+
+                int c2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["c2"]);//2000
+                int cus_numc2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_numc2"]);//
+                int sale_numc2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_numc2"]);//
+
+                int szone = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["szone"]);//2200
+                int cus_num0 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num0"]);//
+                int sale_num0 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num0"]);//
+                int cus_num0_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num0_2"]);//
+                int sale_num0_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num0_2"]);//
+
+                int sone = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sone"]);//2500
+                int cus_num1 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num1"]);//
+                int sale_num1 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num1"]);//
+                int cus_num1_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num1_2"]);//
+                int sale_num1_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num1_2"]);//
+
+                int stwo = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["stwo"]);//3500
+                int cus_num2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num2"]);//
+                int sale_num2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num2"]);//
+                int cus_num2_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num2_2"]);//
+                int sale_num2_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num2_2"]);//
+
+                int sthree = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sthree"]);//3700
+                int cus_num3 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num3"]);//
+                int sale_num3 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num3"]);//
+                int cus_num3_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num3_2"]);//
+                int sale_num3_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num3_2"]);//	
+
+                int sfour = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sfour"]);//3900
+                int cus_num4 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num4"]);//
+                int sale_num4 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num4"]);//
+                int cus_num4_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num4_2"]);//
+                int sale_num4_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num4_2"]);//
+
+                int sfive = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sfive"]);//4100
+                int cus_num5 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num5"]);//
+                int sale_num5 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num5"]);//
+                int cus_num5_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num5_2"]);//
+                int sale_num5_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num5_2"]);//
+
+                int ssix = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["ssix"]);//4300
+                int sale_num6 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num6"]);//
+                int cus_num6 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num6"]);//
+                int sale_num6_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num6_2"]);//
+                int cus_num6_2 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num6_2"]);//
+
+                int zdy = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["zdy"]);//0
+                int cus_num7 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["cus_num7"]);//
+                int sale_num7 = Convert.ToInt32(ds_sale_parameters.Tables[0].Rows[0]["sale_num7"]);//	
+
+                //先删除老数据
+                dms_salaryService.DeleteBySql(" year=" + year + " and month=" + month);
+
+                for (int i = 0; i < ds_dms_salary.Tables[0].Rows.Count; i++)
+                {
+                    dms_salary.year = ds_dms_salary.Tables[0].Rows[i]["year"].ToString(); ;
+                    dms_salary.month = ds_dms_salary.Tables[0].Rows[i]["month"].ToString(); ;
+                    dms_salary.admin_user_name = ds_dms_salary.Tables[0].Rows[i]["admin_user_name"].ToString();
+                    dms_salary.name = ds_dms_salary.Tables[0].Rows[i]["name"].ToString();
+                    dms_salary.d_pid = ds_dms_salary.Tables[0].Rows[i]["d_pid"].ToString();
+                    dms_salary.d_pname = ds_dms_salary.Tables[0].Rows[i]["d_pname"].ToString();
+
+                    dms_salary.xy_1000 = Convert.ToInt32(ds_dms_salary.Tables[0].Rows[i]["xy_1000"]);
+                    dms_salary.dy_1000 = Convert.ToInt32(ds_dms_salary.Tables[0].Rows[i]["dy_1000"]);
+                    dms_salary.dy_5000 = Convert.ToInt32(ds_dms_salary.Tables[0].Rows[i]["dy_5000"]);
+                    dms_salary.dy_10000 = Convert.ToInt32(ds_dms_salary.Tables[0].Rows[i]["dy_10000"]);
+                    dms_salary.dy_20000 = Convert.ToInt32(ds_dms_salary.Tables[0].Rows[i]["dy_20000"]);
+                    //判断工资等级从高到低
+                    //如果超过2万的客户数>40 或者超过1万的客户数>80
+                    if (dms_salary.dy_20000 >= cus_num6 || dms_salary.dy_10000 >= cus_num6_2)
+                    {
+                        dms_salary.basic = ssix;
+                        dms_salary.grade = "S6";
+                    }
+                    else if (dms_salary.dy_20000 >= cus_num5 || dms_salary.dy_10000 >= cus_num5_2)
+                    {
+                        dms_salary.basic = sfive;
+                        dms_salary.grade = "S5";
+                    }
+                    else if (dms_salary.dy_20000 >= cus_num4 || dms_salary.dy_10000 >= cus_num4_2)
+                    {
+                        dms_salary.basic = sfour;
+                        dms_salary.grade = "S4";
+                    }
+                    else if (dms_salary.dy_20000 >= cus_num3 || dms_salary.dy_10000 >= cus_num3_2)
+                    {
+                        dms_salary.basic = sthree;
+                        dms_salary.grade = "S3";
+                    }
+                    else if (dms_salary.dy_20000 >= cus_num2 || dms_salary.dy_10000 >= cus_num2_2)
+                    {
+                        dms_salary.basic = stwo;
+                        dms_salary.grade = "S2";
+                    }
+                    else if (dms_salary.dy_10000 >= cus_num1 || dms_salary.dy_5000 >= cus_num1_2)
+                    {
+                        dms_salary.basic = sone;
+                        dms_salary.grade = "S1";
+                    }
+                    else if (dms_salary.dy_10000 >= cus_num0 || dms_salary.dy_5000 >= cus_num0_2)
+                    {
+                        dms_salary.basic = szone;
+                        dms_salary.grade = "S";
+                    }
+                    else if (dms_salary.dy_1000 >= cus_numc2)
+                    {
+                        dms_salary.basic = c2;
+                        dms_salary.grade = "C2";
+                    }
+                    else if (dms_salary.dy_1000 >= cus_numc1)
+                    {
+                        dms_salary.basic = c1;
+                        dms_salary.grade = "C1";
+                    }
+                    else
+                    {
+                        dms_salary.basic = 0;
+                        dms_salary.grade = "0";
+                    }
+
+                    dms_salary.personal_champion = Convert.ToDecimal(ds_dms_salary.Tables[0].Rows[i]["personal_champion"]);//月冠军
+                    dms_salary.personal_champion1 = Convert.ToDecimal(ds_dms_salary.Tables[0].Rows[i]["personal_champion1"]);//节点1冠军
+                    dms_salary.personal_bonus1 = Convert.ToDecimal(ds_dms_salary.Tables[0].Rows[i]["personal_bonus1"]);
+                    dms_salary.personal_champion2 = Convert.ToDecimal(ds_dms_salary.Tables[0].Rows[i]["personal_champion2"]);
+                    dms_salary.personal_bonus2 = Convert.ToDecimal(ds_dms_salary.Tables[0].Rows[i]["personal_bonus2"]);
+                    dms_salary.personal_champion3 = Convert.ToDecimal(ds_dms_salary.Tables[0].Rows[i]["personal_champion3"]);
+                    dms_salary.personal_bonus3 = Convert.ToDecimal(ds_dms_salary.Tables[0].Rows[i]["personal_bonus3"]);
+                    dms_salary.personal_champion4 = Convert.ToDecimal(ds_dms_salary.Tables[0].Rows[i]["personal_champion4"]);
+                    dms_salary.personal_bonus4 = Convert.ToDecimal(ds_dms_salary.Tables[0].Rows[i]["personal_bonus4"]);
+                    dms_salary.percentage_sum = Convert.ToDecimal(ds_dms_salary.Tables[0].Rows[i]["percentage_sum"]);
+
+                    //奖励合计=月冠军，节点奖励，节点达标
+                    dms_salary.bonus_sum = dms_salary.personal_champion + dms_salary.personal_champion1 + dms_salary.personal_bonus1 + dms_salary.personal_champion2 + dms_salary.personal_bonus2 +
+                        dms_salary.personal_champion3 + dms_salary.personal_bonus3 + dms_salary.personal_champion4 + dms_salary.personal_bonus4;
+                    //未分配团队奖之前的工资，分配团队奖之后再更新，防止无团队奖的情况，无法插入工资合计的情况
+                    //基本工资+奖励+提成
+                    dms_salary.salary_sum = dms_salary.basic + dms_salary.bonus_sum + dms_salary.percentage_sum;
+
+                    dms_salary.create_time = DateTime.Now;
+                    dms_salary.create_name = name;
+                    dms_salary.factory_id = factory_Id;
+                    dms_salaryService.Add(dms_salary);//个人节点情况存入个人薪资表
+                }
+                //context.Response.Write(dt);
+            }
+        }
+
+        #endregion
+
+        #region 把数据从Excel装载到DataTable
+        /// <summary>    
+        /// 把数据从Excel装载到DataTable    
+        /// </summary>    
+        /// <param name="pathName">带路径的Excel文件名</param>    
+        /// <param name="sheetName">工作表名</param>
+        /// <param name="tbContainer">将数据存入的DataTable</param>
+        /// <returns></returns> 
+        public DataTable ExcelToDataTable(string pathName)
+        {
+            DataTable tbContainer = new DataTable();
+            string strConn = string.Empty;
+            FileInfo file = new FileInfo(pathName);
+            if (!file.Exists)
+            {
+                throw new Exception("文件不存在");
+            }
+            string extension = file.Extension;
+            switch (extension)
+            {
+                case ".xls":
+                    strConn = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + pathName + ";Extended Properties='Excel 8.0;HDR=Yes;IMEX=1;'";
+                    break;
+                case ".xlsx":
+                    strConn = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + pathName + ";Extended Properties='Excel 12.0;HDR=Yes;IMEX=1;'";
+                    break;
+                default:
+                    strConn = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + pathName + ";Extended Properties='Excel 8.0;HDR=Yes;IMEX=1;'";
+                    break;
+            }
+            //链接Excel
+            OleDbConnection cnnxls = new OleDbConnection(strConn);
+            //cnnxls.Open();
+            //DataTable dt = cnnxls.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+            //string tableName = dt.Rows[0][2].ToString().Trim();
+            //读取Excel里面有 表Sheet1
+            OleDbDataAdapter oda = new OleDbDataAdapter(string.Format("select * from [{0}$]", "Sheet1"), cnnxls);
+            DataSet ds = new DataSet();
+            //将Excel里面有表内容装载到内存表中！
+            oda.Fill(tbContainer);//未在本地计算机上注册“Microsoft.ACE.OLEDB.12.0”提供程序    解决办法：去http://download.microsoft.com/download/7/0/3/703ffbcb-dc0c-4e19-b0da-1463960fdcdb/AccessDatabaseEngine.exe下载。
+            return tbContainer;
+        }
+        #endregion
+
+        private static string GetTreeStringX(int Id, DataTable table, int todo, int curId, string returntxt)
+        {
+            BLL.hr_post hp = new BLL.hr_post();
+            BLL.Sys_online sol = new BLL.Sys_online();
+            DataRow[] rows = table.Select(string.Format("parentid={0}", Id));
+
+            if (rows.Length == 0) return string.Empty; ;
+            StringBuilder str = new StringBuilder();
+
+            foreach (DataRow row in rows)
+            {
+                if ((int)row["id"] != curId)
+                    continue;
+                str.Append("{id:" + (int)row["id"] + ",text:'" + (string)row["d_name"] + "',d_icon:'../" + (string)row["d_icon"] + "'");
+                if (GetTreeString((int)row["id"], table, 0, returntxt).Length > 0)
+                {
+                    str.Append(",children:[");
+                    if (todo == 1)
+                    {
+                        DataSet dsp = hp.GetList("dep_id=" + (int)row["id"] + " and " + returntxt);
+                        if (dsp != null && dsp.Tables[0].Rows.Count > 0)
+                        {
+                            for (int j = 0; j < dsp.Tables[0].Rows.Count; j++)
+                            {
+                                if (!string.IsNullOrEmpty(dsp.Tables[0].Rows[j]["emp_name"].ToString()))
+                                {
+                                    DataSet dso = sol.GetList("UserID=" + dsp.Tables[0].Rows[j]["emp_id"]);
+                                    string posticon = "images/icon/93.png";
+                                    if (dso.Tables[0].Rows.Count > 0)
+                                        posticon = "images/icon/38.png";//95
+
+                                    str.Append("{id:'p" + dsp.Tables[0].Rows[j]["post_id"].ToString() + "',text:'" + dsp.Tables[0].Rows[j]["emp_name"] + "',d_icon:'" + posticon + "'}");
+                                    str.Append(",");
+                                }
+                            }
+                        }
+                    }
+                    if (returntxt == "1=1")
+                    {
+                        str.Append(GetTreeString((int)row["id"], table, 1, returntxt));
+                    }
+                    str.Append("]},");
+                }
+                else
+                {
+                    if (todo == 1)
+                    {
+                        DataSet dsp = hp.GetList("dep_id=" + (int)row["id"] + " and " + returntxt);
+                        if (dsp.Tables[0].Rows.Count > 0)
+                        {
+                            str.Append(",children:[");
+                            for (int j = 0; j < dsp.Tables[0].Rows.Count; j++)
+                            {
+                                if (!string.IsNullOrEmpty(dsp.Tables[0].Rows[j]["emp_name"].ToString()))
+                                {
+                                    DataSet dso = sol.GetList("UserID=" + dsp.Tables[0].Rows[j]["emp_id"]);
+                                    string posticon = "images/icon/93.png";
+                                    if (dso.Tables[0].Rows.Count > 0)
+                                        posticon = "images/icon/38.png";//95
+
+                                    str.Append("{id:'p" + dsp.Tables[0].Rows[j]["post_id"].ToString() + "',text:'" + dsp.Tables[0].Rows[j]["emp_name"] + "',d_icon:'" + posticon + "'},");
+                                    //if (j < dsp.Tables[0].Rows.Count - 1)
+                                    //    str.Append(",");
+                                }
+                            }
+                            if (str[str.Length - 1] == ',')
+                                str.Remove(str.Length - 1, 1);
+                            str.Append("]");
+                        }
+                    }
+                    str.Append("},");
+                }
+            }
+            return str[str.Length - 1] == ',' ? str.ToString(0, str.Length - 1) : str.ToString();
+        }
+        private static string GetTreeString(int Id, DataTable table, int todo, string returntxt)
+        {
+            BLL.hr_post hp = new BLL.hr_post();
+            BLL.Sys_online sol = new BLL.Sys_online();
+            DataRow[] rows = table.Select(string.Format("parentid={0}", Id));
+
+            if (rows.Length == 0) return string.Empty; ;
+            StringBuilder str = new StringBuilder();
+
+            foreach (DataRow row in rows)
+            {
+                str.Append("{id:" + (int)row["id"] + ",text:'" + (string)row["d_name"] + "',d_icon:'../" + (string)row["d_icon"] + "'");
+
+                if (GetTreeString((int)row["id"], table, 0, returntxt).Length > 0)
+                {
+                    str.Append(",children:[");
+                    if (todo == 1)
+                    {
+                        DataSet dsp = hp.GetList("dep_id=" + (int)row["id"]);
+                        if (dsp != null && dsp.Tables[0].Rows.Count > 0)
+                        {
+                            for (int j = 0; j < dsp.Tables[0].Rows.Count; j++)
+                            {
+                                if (!string.IsNullOrEmpty(dsp.Tables[0].Rows[j]["emp_name"].ToString()))
+                                {
+                                    DataSet dso = sol.GetList("UserID=" + dsp.Tables[0].Rows[j]["emp_id"]);
+                                    string posticon = "images/icon/93.png";
+                                    if (dso.Tables[0].Rows.Count > 0)
+                                        posticon = "images/icon/38.png";//95
+
+                                    str.Append("{id:'p" + dsp.Tables[0].Rows[j]["post_id"].ToString() + "',text:'" + dsp.Tables[0].Rows[j]["emp_name"] + "',d_icon:'" + posticon + "'}");
+                                    str.Append(",");
+                                }
+                            }
+                        }
+                    }
+                    str.Append(GetTreeString((int)row["id"], table, 1, returntxt));
+                    str.Append("]},");
+                }
+                else
+                {
+                    if (todo == 1)
+                    {
+                        DataSet dsp = hp.GetList("dep_id=" + (int)row["id"] + " and " + returntxt);
+                        if (dsp.Tables[0].Rows.Count > 0)
+                        {
+                            str.Append(",children:[");
+                            for (int j = 0; j < dsp.Tables[0].Rows.Count; j++)
+                            {
+                                if (!string.IsNullOrEmpty(dsp.Tables[0].Rows[j]["emp_name"].ToString()))
+                                {
+                                    DataSet dso = sol.GetList("UserID=" + dsp.Tables[0].Rows[j]["emp_id"]);
+                                    string posticon = "images/icon/93.png";
+                                    if (dso.Tables[0].Rows.Count > 0)
+                                        posticon = "images/icon/38.png";//95
+
+                                    str.Append("{id:'p" + dsp.Tables[0].Rows[j]["post_id"].ToString() + "',text:'" + dsp.Tables[0].Rows[j]["emp_name"] + "',d_icon:'" + posticon + "'},");
+                                    //if (j < dsp.Tables[0].Rows.Count - 1)
+                                    //    str.Append(",");
+                                }
+                            }
+                            if (str[str.Length - 1] == ',')
+                                str.Remove(str.Length - 1, 1);
+                            str.Append("]");
+                        }
+                    }
+                    str.Append("},");
+                }
+            }
+            return str[str.Length - 1] == ',' ? str.ToString(0, str.Length - 1) : str.ToString();
+        }
+        private string DataAuth(string uid, string factory_Id)
+        {
+            //权限
+            BLL.hr_employee emp = new BLL.hr_employee();
+            DataSet dsemp = emp.GetList(" Factory_Id='" + factory_Id + "' and ID=" + int.Parse(uid));
+
+            string returntxt = " and 1=1";
+            if (dsemp.Tables[0].Rows.Count > 0)
+            {
+                if (dsemp.Tables[0].Rows[0]["uid"].ToString() != "admin")
+                {
+                    XHD.DMS.Data.GetDataAuth dataauth = new XHD.DMS.Data.GetDataAuth();
+                    string txt = dataauth.GetDataAuthByid("1", "Sys_view", uid, factory_Id);
+                    BLL.hr_department dep = new BLL.hr_department();
+                    DataSet ds = dep.GetAllList("Factory_Id='" + factory_Id + "'");
+
+                    string[] arr = txt.Split(':');
+
+                    switch (arr[0])
+                    {
+                        case "none": returntxt = " and 1=2 ";
+                            break;
+                        case "my":
+                            returntxt = " and (emp.id=" + int.Parse(arr[1]) + ")";
+                            break;
+                        case "dep":
+                            if (string.IsNullOrEmpty(arr[1]))
+                            {
+                                returntxt = " and (emp.d_id=" + int.Parse(uid) + ")";
+                            }
+                            else
+                            {
+                                returntxt = " and (1=2)";
+                            }
+                            break;
+                        case "depall":
+                            string deptask = GetDepTask(int.Parse(arr[1]), ds.Tables[0]);
+                            string intext = arr[1] + "," + deptask;
+                            returntxt = " and ( emp.d_id in (" + intext.TrimEnd(',') + "))";
+                            break;
+                        case "all":
+                            string deptaskAll = GetDepTask(1, ds.Tables[0]);
+                            string intextAll = deptaskAll;
+                            returntxt = " and ( emp.d_id in (" + intextAll.TrimEnd(',') + "))";
+                            break;
+                    }
+                }
+            }
+            return returntxt;
+        }
+        private static string GetDepTask(int Id, DataTable table)
+        {
+            DataRow[] rows = table.Select("parentid=" + Id.ToString());
+
+            if (rows.Length == 0) return string.Empty; ;
+            StringBuilder str = new StringBuilder();
+
+            foreach (DataRow row in rows)
+            {
+                str.Append(row["id"] + ",");
+                if (GetDepTask((int)row["id"], table).Length > 0)
+                    str.Append(GetDepTask((int)row["id"], table));
+            }
+            return str.ToString();
+        }
+
+
+        public bool IsReusable
+        {
+            get
+            {
+                return false;
+            }
+        }
+    }
+}

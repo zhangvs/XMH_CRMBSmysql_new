@@ -1,0 +1,202 @@
+﻿using System;
+using System.Data;
+using System.Collections.Generic;
+using XHD.Common;
+using XHD.Model;
+namespace XHD.BLL
+{
+    /// <summary>
+    /// shop_cart
+    /// </summary>
+    public partial class shop_cart
+    {
+        private readonly XHD.DAL.shop_cart dal = new XHD.DAL.shop_cart();
+        public shop_cart()
+        { }
+        #region  BasicMethod
+
+        /// <summary>
+        /// 得到最大ID
+        /// </summary>
+        public int GetMaxId()
+        {
+            return dal.GetMaxId();
+        }
+
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int cart_id)
+        {
+            return dal.Exists(cart_id);
+        }
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public bool Add(XHD.Model.shop_cart model)
+        {
+            return dal.Add(model);
+        }
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(XHD.Model.shop_cart model)
+        {
+            return dal.Update(model);
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int cart_id)
+        {
+
+            return dal.Delete(cart_id);
+        }
+        /// <summary>
+        /// 删除多条数据
+        /// </summary>
+        public int Delete(string where)
+        {
+
+            return dal.Delete(where);
+        }
+        /// <summary>
+        /// 更新一列数据
+        /// </summary>
+        public bool UpdateColumn(int cart_id, string sertxt)
+        {
+            return dal.UpdateColumn(cart_id, sertxt);
+        }
+
+        /// <summary>
+        /// 获取购物车产品重量
+        /// </summary>
+        public DataSet GetCartweight(string strWhere)
+        {
+            return dal.GetCartweight(strWhere);
+        }
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool DeleteList(string cart_idlist)
+        {
+            return dal.DeleteList(cart_idlist);
+        }
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.shop_cart GetModel(int cart_id)
+        {
+
+            return dal.GetModel(cart_id);
+        }
+
+        /// <summary>
+        /// 得到一个对象实体，从缓存中
+        /// </summary>
+        public XHD.Model.shop_cart GetModelByCache(int cart_id)
+        {
+
+            string CacheKey = "shop_cartModel-" + cart_id;
+            object objModel = XHD.Common.DataCache.GetCache(CacheKey);
+            if (objModel == null)
+            {
+                try
+                {
+                    objModel = dal.GetModel(cart_id);
+                    if (objModel != null)
+                    {
+                        int ModelCache = XHD.Common.ConfigHelper.GetConfigInt("ModelCache");
+                        XHD.Common.DataCache.SetCache(CacheKey, objModel, DateTime.Now.AddMinutes(ModelCache), TimeSpan.Zero);
+                    }
+                }
+                catch { }
+            }
+            return (XHD.Model.shop_cart)objModel;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            return dal.GetList(strWhere);
+        }
+        /// <summary>
+        /// 获得数据列表和总金额
+        /// </summary>
+        public DataSet GetListAndSummeony(string strWhere, out string sumMoney)
+        {
+            return dal.GetListAndSummeony(strWhere, out sumMoney);
+        }
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public List<XHD.Model.shop_cart> GetModelList(string strWhere)
+        {
+            DataSet ds = dal.GetList(strWhere);
+            return DataTableToList(ds.Tables[0]);
+        }
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public List<XHD.Model.shop_cart> DataTableToList(DataTable dt)
+        {
+            List<XHD.Model.shop_cart> modelList = new List<XHD.Model.shop_cart>();
+            int rowsCount = dt.Rows.Count;
+            if (rowsCount > 0)
+            {
+                XHD.Model.shop_cart model;
+                for (int n = 0; n < rowsCount; n++)
+                {
+                    model = dal.DataRowToModel(dt.Rows[n]);
+                    if (model != null)
+                    {
+                        modelList.Add(model);
+                    }
+                }
+            }
+            return modelList;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetAllList()
+        {
+            return GetList("");
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public int GetRecordCount(string strWhere)
+        {
+            return dal.GetRecordCount(strWhere);
+        }
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetListByPage(string strWhere, string orderby, int startIndex, int endIndex)
+        {
+            return dal.GetListByPage(strWhere, orderby, startIndex, endIndex);
+        }
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        //public DataSet GetList(int PageSize,int PageIndex,string strWhere)
+        //{
+        //return dal.GetList(PageSize,PageIndex,strWhere);
+        //}
+
+        #endregion  BasicMethod
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}
+

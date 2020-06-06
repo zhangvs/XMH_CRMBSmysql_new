@@ -1,0 +1,550 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" %>
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>【省份】年报</title>
+    
+    <link href="../../CSS/core.css" rel="stylesheet" type="text/css" />
+    <link href="../../lib/ligerUI/skins/ext/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <link href="../../CSS/Toolbar.css" rel="stylesheet" type="text/css" />
+    <link href="../../CSS/input.css" rel="stylesheet" />
+    
+    <link href="../../JS/jquery-ui.css" rel="stylesheet" />
+    
+    <script src="../../lib/jquery/jquery-1.3.2.min.js" type="text/javascript"></script>
+    <script src="../../JS/jquery-ui.js"  type="text/javascript"></script>
+
+    <script src="../../lib/ligerUI/js/plugins/ligerGrid.js" type="text/javascript"></script>
+    <script src="../../lib/ligerUI/js/plugins/ligerForm.js" type="text/javascript"></script>
+    <script src="../../lib/ligerUI/js/plugins/ligerCheckBox.js" type="text/javascript"></script>
+    <script src="../../lib/ligerUI/js/plugins/ligerComboBox.js" type="text/javascript"></script>
+    <script src="../../lib/ligerUI/js/plugins/ligerDateEditor.js" type="text/javascript"></script>
+    <script src="../../lib/ligerUI/js/plugins/ligerRadio.js" type="text/javascript"></script>
+    <script src="../../lib/ligerUI/js/plugins/ligerTextBox.js" type="text/javascript"></script>
+    <script src="../../lib/ligerUI/js/plugins/ligerSpinner.js" type="text/javascript"></script>
+    <script src="../../lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+    <script src="../../lib/ligerUI/js/plugins/ligerTree.js" type="text/javascript"></script>
+
+    <script src="../../lib/jquery.form.js" type="text/javascript"></script>
+    <script src="../../lib/ligerUI/js/plugins/ligerToolBar.js" type="text/javascript"></script>
+    <script src="../../lib/json.js" type="text/javascript"></script>
+    <script src="../../JS/XHD.js" type="text/javascript"></script>
+
+    <script src="../../lib/echarts/echarts.min.js" type="text/javascript"></script>
+
+    <script src="../../lib/echarts/map/china.js"></script>
+    <script src="../../lib/echarts/map/geoCoordMap.js"></script>
+    <script src="../../JS/My97DatePicker/WdatePicker.js"></script>
+
+    <style type="text/css">
+        table.dataView {
+            border-collapse: collapse;
+            }
+
+            table.dataView th, table.dataView td {
+                border: 1px solid #000;
+                padding: 0;
+            }
+            .ui-autocomplete {
+                max-height: 750px;
+                overflow-y: auto;
+                /* prevent horizontal scrollbar */
+                overflow-x: hidden;
+            }
+            * html .ui-autocomplete {
+                height: 750px;
+            }
+    </style>
+    <script type="text/javascript">
+        var myChart;
+        var eCharts;
+        var series_data = [];
+        var provinceIds = [];
+        var provinceNames = [];
+        var provinceValues = [];
+        var brandId='';
+        var brandText = '';
+        var provinceBrandValues = [];
+        var provinceBrandInZb = [];
+        
+        var goodId = '';
+        var goodTextBox = '';
+
+        var syear ;
+        var sumValue;
+        var sumBrandValue;
+        var provinceZb = [];
+        var provinceBrandOutZb = [];
+
+        $(function () {
+            $("#toolbar").ligerToolBar({
+                items: [
+                    { type: 'textbox', id: "syear", text: "年度：" },
+                    { type: 'textbox', id: 'tree1', text: '品牌：' },
+                    { type: 'textbox', id: 'goodTxt', text: ' 单品关键词：' },
+                    { type: 'button', text: '统计', icon: '../../images/search.gif', disable: true, click: function () { doserch(); } }
+                ]
+                //激活哪个
+            });
+            initSelect();
+            doserch();
+            DrawEChart();
+        });
+
+        function initSelect() {
+            var d = new Date();
+            var nowYear = +d.getFullYear();
+            var syearData = [];
+
+            for (var i = nowYear; i >= nowYear - 10; i--) {
+                syearData.push({ 'text': i, 'id': i });
+            }
+            $("#syear").ligerComboBox({
+                width: 100, selectBoxHeight: 300,
+                data: syearData,
+                initValue: nowYear,
+                onSelected: function (id, text) {
+                    syear = text;
+                }
+
+            });
+
+            $('#tree1').ligerComboBox({
+                width: 250,
+                selectBoxWidth: 250,
+                selectBoxHeight: 710,
+                valueField: 'id',
+                textField: 'text',
+                treeLeafOnly: true,
+                tree: {
+                    url: '../Reports_DMS.ashx?Action=getCheckBrandTree&rnd=' + Math.random(),
+                    idFieldName: 'id',
+                    checkbox: true
+                    
+                },
+                onSelected:function (id,text)
+                {
+                    brandId = id;
+                    brandText = text;
+                }
+            });
+            $('#goodTxt').ligerTextBox({
+                width: 250
+            });
+
+            $("#goodTxt").autocomplete({
+                    minLength: 1, // 设置搜索的关键字最小长度
+                    // 设置自动完成列表的函数，函数包括两个参数，requset和response
+                    source: function (request, response) {
+                        $.ajax({
+                            type: "POST",
+                            url: "../Reports_DMS.ashx",
+                            data: { Action: "getYearGoodTxt", brandIdList: brandId, syear: syear, keyWord: request.term, rnd: Math.random() },
+                            dataType: "json",
+                            success: function (data) {
+                                // jQuery.map(array, callback) :将一个数组中的元素转换到另一个数组中。
+                                //  下面就是把数组["value1", "value2",...]转换为[{value:"value1"}, {value:"value2"},...]
+                                response($.map(data.Rows, function (item) {
+                                    return { id: item.goods_id,value: item.goods_name };
+                                }));
+                            },
+                            error: function () {
+                                alert("ajax请求失败");
+                            }
+                        });
+                    },
+                    change: function (event, ui) {
+                        // event 是当前事件对象
+
+                        // ui对象仅有一个item属性，它表示当前选择的菜单项对应的数据源对象
+                        // 该对象具有label和value属性，以及其它自定义(如果有的话)的属性
+                        // 如果当前没有选择的菜单项，这item属性为null
+                        goodId = '';
+
+                    },
+                    select: function( event, ui ) {
+                        // event 是当前事件对象
+                        
+                        // ui对象仅有一个item属性，它表示当前被选中的菜单项对应的数据源对象
+                        // 该对象具有label和value属性，以及其它自定义(如果有的话)的属性
+                        goodId=ui.item.id;
+                    }
+                });
+        }
+
+
+        function doserch() {
+            $.ligerDialog.waitting('数据加载中,请稍候...');
+            syear = $("#syear").val();
+            goodTextBox = $("#goodTxt").val();
+
+            if (true) {
+
+            }
+                $.ajax({
+                    type: "post",
+                    url: "../Reports_DMS.ashx",
+                    data: { Action: "getYearProvinceAmt", brandIdList: brandId, goodId: goodId,goodTextBox:goodTextBox, syear: syear,  rnd: Math.random() },
+                    dataType: "json", //返回数据形式为json  
+                    success: function (data) {
+                        if (data) {
+                            var options = myChart.getOption();
+                            series_data = [];
+                            provinceIds = [];
+                            provinceNames = [];
+                            provinceValues = [];
+                            provinceBrandValues = [];
+                            provinceBrandInZb = [];
+                            sumAllValue = 0;
+                            sumBrandValue = 0;
+                            provinceZb = [];
+                            provinceBrandOutZb = [];
+
+                            if (series_data.length != data.Rows.length) {
+                                for (var j = 0; j < data.Rows.length; j++) {
+                                    var allId = data.Rows[j].allId;
+                                    var allName =  data.Rows[j].allName;
+                                    var allValue = parseFloat((data.Rows[j].allValue).toFixed());
+
+                                    provinceIds.push(allId);
+                                    provinceNames.push(j + 1 + '.' +allName);
+                                    provinceValues.push(allValue);
+                                    sumAllValue += allValue;
+
+                                    if (brandId == '' && goodTextBox == '') {
+                                        series_data.push({
+                                            id: allId,
+                                            name: allName,
+                                            value: allValue
+                                        });
+                                    }
+                                    else {
+                                        var brandValue = parseFloat((data.Rows[j].brandValue).toFixed());
+                                        var zb = parseFloat((data.Rows[j].zb).toFixed(2));
+
+                                        provinceBrandValues.push(brandValue);
+                                        provinceBrandInZb.push(zb);
+                                        series_data.push({
+                                            id: allId,
+                                            name: allName,
+                                            value: brandValue
+                                        });
+                                        sumBrandValue += brandValue;
+                                        
+                                    }
+                                }
+                                for (var s = 0; s < data.Rows.length; s++) {
+                                    if (brandId == '' && goodTextBox == '') {
+                                        var allValue = parseFloat((data.Rows[s].allValue).toFixed());
+                                        provinceZb.push(parseFloat((allValue / sumAllValue * 100).toFixed(2)));
+                                    }
+                                    else {
+                                        var brandValue = parseFloat((data.Rows[s].brandValue).toFixed());
+                                        provinceBrandOutZb.push(parseFloat((brandValue / sumBrandValue * 100).toFixed(2)));
+                                    }
+                                }
+                            }
+                            
+                            if (brandId == '' && goodTextBox == '') {
+                                options.title[0].subtext = '所有品牌 \n总销量合计：' + sumAllValue;
+                                options.legend[0].selected = { '总销量': true, '省份销量全国占比': false, '选择项销量': false, '选择项全国占比': false, '选择项省内占比': false };
+                            }
+                            else {
+                                options.legend[0].selected = { '总销量': false, '省份销量全国占比': false, '选择项销量': true, '选择项全国占比': false, '选择项省内占比': false };
+
+                                if (brandId != '' && goodTextBox != '') {
+                                    options.title[0].subtext = '品牌：' + brandText + '\n单品关键词：' + goodTextBox + '\n总销量合计：' + sumAllValue + ' 选择项合计：' + sumBrandValue + ' 选择项占比：' + parseFloat((sumBrandValue / sumAllValue*100).toFixed(2))+'%';
+                                }
+                                else if (goodTextBox != '') {
+                                    options.title[0].subtext = '单品关键词：' + goodTextBox + '\n总销量合计：' + sumAllValue + ' 选择项合计：' + sumBrandValue + ' 选择项占比：' + parseFloat((sumBrandValue / sumAllValue * 100).toFixed(2)) + '%';
+                                }
+                                else if (brandId != '') {
+                                    options.title[0].subtext = '品牌：' + brandText + '\n总销量合计：' + sumAllValue + ' 选择项合计：' + sumBrandValue + ' 选择项占比：' + parseFloat((sumBrandValue / sumAllValue * 100).toFixed(2)) + '%';
+                                }
+
+                            }
+                            options.series[0].data = series_data;
+                            options.yAxis[0].data = provinceNames.reverse();
+                            options.series[1].data = provinceValues.reverse();
+                            options.series[2].data = provinceZb.reverse();
+                            options.series[3].data = provinceBrandValues.reverse();
+                            options.series[4].data = provinceBrandOutZb.reverse();
+                            options.series[5].data = provinceBrandInZb.reverse();
+                            myChart.hideLoading();
+                            myChart.setOption(options);
+                        }
+                        $.ligerDialog.closeWaitting();
+                    },
+                    error: function (errorMsg) {
+                        alert("图表请求数据失败啦!");
+                        myChart.hideLoading();
+                    }
+                });
+
+        }
+
+
+        //创建ECharts图表方法  
+        function DrawEChart(ec) {
+            var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight; //height
+            $("#main").css("height", h - 30);
+            eCharts = ec;
+            myChart = echarts.init(document.getElementById('main'));
+            myChart.showLoading({
+                text: "图表数据正在努力加载..."
+            });
+            //定义图表options  
+            var options = {
+                backgroundColor: '#404a59',
+                animation: true,
+                animationDuration: 1000,
+                animationEasing: 'cubicInOut',
+                animationDurationUpdate: 1000,
+                animationEasingUpdate: 'cubicInOut',
+                title: {
+                    text: '新明辉' + $("#syear").val() + '年份各城市销售分布',
+                    left: 'center',
+                    textStyle: {
+                        color: '#fff'
+                    },
+                    subtextStyle: {
+                        fontSize: 13
+                    }
+                },
+                legend: {
+                    orient: 'horizontal',
+                    y: 20,
+                    x2: '5%',
+                    data: ['总销量', '省份销量全国占比', '选择项销量','选择项全国占比', '选择项省内占比'],
+                    selected: {
+                        '总销量': true, '省份销量全国占比': false, '选择项销量': false, '选择项全国占比': false, '选择项省内占比': false
+                    },
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },
+                tooltip: {
+                    show: true,
+                    trigger: 'item',  // 坐标轴触发 也可以item数据点触发
+                    formatter: function (params) { // tip的样式
+                        if (typeof (params.value) == "object") {
+                            var res = params.name + ' : ' + params.value[2];//value为数组
+                        }
+                        else {
+                            var res = params.name + ' : ' + params.value;//value为字符串
+                        }
+                        return res;
+                    }
+                },
+                visualMap: {
+                    bottom: 20,
+                    left: 40,
+                    min: 0,
+                    max: 10000000,
+                    text: ['1千万', ''],
+                    calculable: true,
+                    inRange: {
+                        color: ['#50a3ba', '#eac736', '#d94e5d']
+                    },
+                    textStyle: {
+                        color: '#fff'
+                    },
+                    itemHeight: 200
+                },
+                geo: {
+                    map: 'china',
+                    zoom: '0.85',
+                    left: '10',
+                    right: '35%',
+                    label: {
+                        emphasis: {
+                            show: false
+                        }
+                    },
+                    roam: true,
+                    itemStyle: {
+                        normal: {
+                            areaColor: '#323c48',
+                            borderColor: '#111'
+                        },
+                        emphasis: {
+                            areaColor: '#2a333d'
+                        }
+                    }
+                },
+                grid: {
+                    right: 40,
+                    top: 100,
+                    bottom: 40,
+                    width: '30%'
+                },
+                xAxis: {
+                    type: 'value',
+                    scale: true,
+                    position: 'top',
+                    boundaryGap: false,
+                    splitLine: { show: false },
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { margin: 2, textStyle: { color: '#aaa' } },
+                },
+                yAxis: {
+                    type: 'category',
+                    name: '省份总销量排名',
+                    nameGap: 16,
+                    axisLine: { show: false, lineStyle: { color: '#ddd' } },
+                    axisTick: { show: false, lineStyle: { color: '#ddd' } },
+                    axisLabel: { interval: 0, textStyle: { color: '#ddd' } },
+                    data: []
+                },
+                series: [
+                    {
+                        name: '销量',
+                        type: 'map',
+                        mapType: 'china',
+                        zoom: '0.85',
+                        left: '10',
+                        right: '35%',
+                        roam: false,
+                        label: {
+                            emphasis: {
+                                show: false
+                            }
+                        },
+                        roam: true,
+                        itemStyle: {
+                            normal: {
+                                areaColor: '#323c48',
+                                borderColor: '#111'
+                            },
+                            emphasis: {
+                                areaColor: '#2a333d'
+                            }
+                        },
+                        label: {
+                            normal: {
+                                show: true
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        data: []
+                    },
+                    {
+                        name: '总销量',
+                        type: 'bar',
+                        symbol: 'none',
+                        itemStyle: {
+                            normal: {
+                                color: '#D7504B',
+                                label: {
+                                    show: true,
+                                    position: 'right'
+                                }
+                            }
+                        },
+                        data: []
+                    },
+                    {
+                        name: '省份销量全国占比',
+                        type: 'bar',
+                        symbol: 'none',
+                        itemStyle: {
+                            normal: {
+                                color: '#F4E001',
+                                label: {
+                                    show: true,
+                                    position: 'right',
+                                    formatter: function (params, ticket, callback) {
+                                        return params.value + '%'
+                                    }
+                                }
+                            }
+                        },
+                        data: []
+                    },
+                    {
+                        name: '选择项销量',
+                        type: 'bar',
+                        symbol: 'none',
+                        itemStyle: {
+                            normal: {
+                                color: '#C6E579',
+                                label: {
+                                    show: true,
+                                    position: 'right'
+                                }
+                            }
+                        },
+                        data: []
+                    },
+                    {
+                        name: '选择项全国占比',
+                        type: 'bar',
+                        symbol: 'none',
+                        itemStyle: {
+                            normal: {
+                                color: '#C6E579',
+                                label: {
+                                    show: true,
+                                    position: 'right'
+                                }
+                            }
+                        },
+                        data: []
+                    },
+                    {
+                        name: '选择项省内占比',
+                        type: 'bar',
+                        symbol: 'none',
+                        itemStyle: {
+                            normal: {
+                                color: '#F4E001',
+                                label: {
+                                    show: true,
+                                    position: 'right',
+                                    formatter: function (params, ticket, callback) {
+                                        return params.value + '%'
+                                    }
+                                }
+                            }
+                        },
+                        data: []
+                    }
+                ]
+            };
+            myChart.hideLoading();
+            myChart.setOption(options);
+            myChart.on('click', function (params) {
+                window.open('/DMS/ReportForm/dms_map_province_year_details.aspx?syear=' + $("#syear").val() + '&provinceId=' + params.data.id + '&provinceName=' + params.data.name + '&provinceValue=' + params.data.value + '&brandIdList=' + brandId + '&brandText=' + brandText + '&goodTextBox=' + goodTextBox + '&rnd=' + Math.random());
+                
+                //f_openWindow('/DMS/ReportForm/dms_map_province_year_Brandprovince.aspx?syear=' + $("#syear").val() + '&syear=' + $("#syear").val() + '&provinceId=' + params.data.id + '&provinceName=' + params.data.name + '&provinceValue=' + params.data.value + '&rnd=' + Math.random(), "省份详情", 1800, 1000);//宽度，高度
+
+             });
+        }
+
+        var activeDialog = null;
+        function f_openWindow(url, title, width, height) {
+            var dialogOptions = {
+                width: width, height: height, title: title, url: url, isResize: true, showToggle: true, timeParmName: 'a'
+            };
+            activeDialog = $.ligerDialog.open(dialogOptions);
+        }
+
+    </script>
+</head>
+<body>
+    <div style="position: relative; z-index: 9999">
+        <form id="serchform">
+            <div id="toolbar" style="width:100%"></div>
+        </form>
+    </div>
+
+    <form id="form1" onsubmit="return false">
+            <div id="main" ></div>
+    </form>
+</body>
+</html>

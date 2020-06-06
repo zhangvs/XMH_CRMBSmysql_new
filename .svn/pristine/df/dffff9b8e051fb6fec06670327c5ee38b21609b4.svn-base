@@ -1,0 +1,55 @@
+select  *  FROM sys_log order by EventDate desc
+limit 10
+--top 10 语法改 limit 10
+========================================================
+XR：
+
+1.计算时间差： SQL中datedif, mysql中timestampdiff
+
+2.模糊查询时： SQL中N'%%' ,mysql中要把N去掉
+
+3.sql中有DATEPART，mysql中用DATE_FORMAT,如： DATE_FORMAT(date,format)  format 为 '%Y-%m-%d', 显示了 年-月-日
+
+4.
+
+========================================================
+
+注销掉的：
+
+1. public DataSet Reports_year(string items, int year, string where)
+
+2.public DataSet Reports_year(string items, int year, string where)
+
+3. public DataSet Phone_year(string items, int year, string where)
+
+4.  public DataSet Phone_year(string items, int year, string where, bool temp)
+
+5. public bool ColumnExists(string tableName, string columnName)
+
+6.  public bool TabExists(string TableName)
+
+
+分页修改
+=============================================================
+        public DataSet GetList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append("select ");
+            strSql.Append(" ID,factory_Id,uid,name,idcard,birthday,d_id,dname,postid,post,email,sex,tel,status,zhiwuid,zhiwu,sort,EntryDate,address,remarks,education,level,professional,schools,title,isDelete,Delete_time,portal,theme,canlogin,roletype FROM hr_employee ");
+            //注销子查询
+			//strSql.Append(" WHERE id not in ( SELECT id FROM hr_employee ");
+            //strSql.Append(" where " + strWhere + " order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + ") ");
+            strSql1.Append(" select count(id) FROM hr_employee ");
+            if (strWhere.Trim() != "")
+            {
+				//and改为where
+				//strSql.Append(" and " + strWhere);
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+			//
+            strSql.Append(" order by " + filedOrder + " limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }

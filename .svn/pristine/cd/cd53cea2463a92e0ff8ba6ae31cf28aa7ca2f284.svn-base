@@ -1,0 +1,610 @@
+﻿using System;
+using System.Data;
+using System.Text;
+using MySql.Data.MySqlClient;
+using XHD.DBUtility;//Please add references
+namespace XHD.DAL
+{
+    /// <summary>
+    /// 数据访问类:ecs_suppliers
+    /// </summary>
+    public partial class ecs_suppliers
+    {
+        public ecs_suppliers()
+        { }
+
+        #region  BasicMethod
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int suppliers_id)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from ecs_suppliers");
+            strSql.Append(" where suppliers_id=@suppliers_id");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@suppliers_id", MySqlDbType.Int16)
+			};
+            parameters[0].Value = suppliers_id;
+
+            return DbHelperMySQL.Exists(strSql.ToString(), parameters);
+        }
+
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public int Add(XHD.Model.ecs_suppliers model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("insert into ecs_suppliers(");
+            strSql.Append("scm_factoryId,suppliers_code,suppliers_erp_code,suppliers_name,suppliers_desc,suppliers_tel,dealer_id,is_check,add_time,add_empId,add_empName,update_time,update_empId,update_empName,type_grade,Provinces_id,Provinces,City_id,City,District_id,District,factory_UserNum,wms_suppliers_id)");
+            strSql.Append(" values (");
+            strSql.Append("@scm_factoryId,@suppliers_code,@suppliers_erp_code,@suppliers_name,@suppliers_desc,@suppliers_tel,@dealer_id,@is_check,@add_time,@add_empId,@add_empName,@update_time,@update_empId,@update_empName,@type_grade,@Provinces_id,@Provinces,@City_id,@City,@District_id,@District,@factory_UserNum,@wms_suppliers_id)");
+            strSql.Append(";select @@IDENTITY");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@scm_factoryId", MySqlDbType.VarChar,60),
+					new MySqlParameter("@suppliers_code", MySqlDbType.VarChar,60),
+					new MySqlParameter("@suppliers_erp_code", MySqlDbType.VarChar,30),
+					new MySqlParameter("@suppliers_name", MySqlDbType.VarChar,200),
+					new MySqlParameter("@suppliers_desc", MySqlDbType.String),
+					new MySqlParameter("@suppliers_tel", MySqlDbType.VarChar,30),
+					new MySqlParameter("@dealer_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@is_check", MySqlDbType.Int32,1),
+					new MySqlParameter("@add_time", MySqlDbType.VarChar,32),
+					new MySqlParameter("@add_empId", MySqlDbType.Int32,11),
+					new MySqlParameter("@add_empName", MySqlDbType.VarChar,60),
+					new MySqlParameter("@update_time", MySqlDbType.VarChar,32),
+					new MySqlParameter("@update_empId", MySqlDbType.Int32,11),
+					new MySqlParameter("@update_empName", MySqlDbType.VarChar,60),
+					new MySqlParameter("@type_grade", MySqlDbType.VarChar,1),
+					new MySqlParameter("@Provinces_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@Provinces", MySqlDbType.VarChar,100),
+					new MySqlParameter("@City_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@City", MySqlDbType.VarChar,100),
+					new MySqlParameter("@District_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@District", MySqlDbType.VarChar,100),
+					new MySqlParameter("@factory_UserNum", MySqlDbType.Int32,11),
+                    new MySqlParameter("@wms_suppliers_id", MySqlDbType.VarChar,50)};
+            parameters[0].Value = model.scm_factoryId;
+            parameters[1].Value = model.suppliers_code;
+            parameters[2].Value = model.suppliers_erp_code;
+            parameters[3].Value = model.suppliers_name;
+            parameters[4].Value = model.suppliers_desc;
+            parameters[5].Value = model.suppliers_tel;
+            parameters[6].Value = model.dealer_id;
+            parameters[7].Value = model.is_check;
+            parameters[8].Value = model.add_time;
+            parameters[9].Value = model.add_empId;
+            parameters[10].Value = model.add_empName;
+            parameters[11].Value = model.update_time;
+            parameters[12].Value = model.update_empId;
+            parameters[13].Value = model.update_empName;
+            parameters[14].Value = model.type_grade;
+            parameters[15].Value = model.Provinces_id;
+            parameters[16].Value = model.Provinces;
+            parameters[17].Value = model.City_id;
+            parameters[18].Value = model.City;
+            parameters[19].Value = model.District_id;
+            parameters[20].Value = model.District;
+            parameters[21].Value = model.factory_UserNum;
+            parameters[22].Value = model.wms_suppliers_id;
+
+            object obj = DbHelperMySQL.GetSingle(strSql.ToString(), parameters);
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return Convert.ToInt32(obj);
+            }
+        }
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(XHD.Model.ecs_suppliers model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update ecs_suppliers set ");
+            strSql.Append("suppliers_name=@suppliers_name,");
+            strSql.Append("suppliers_tel=@suppliers_tel,");
+            strSql.Append("is_enable=@is_enable,");
+            strSql.Append("factory_UserNum=@factory_UserNum,");
+            strSql.Append("Provinces_id=@Provinces_id,");
+            strSql.Append("Provinces=@Provinces,");
+            strSql.Append("City_id=@City_id,");
+            strSql.Append("City=@City,");
+            strSql.Append("District_id=@District_id,");
+            strSql.Append("District=@District,");
+            strSql.Append("suppliers_desc=@suppliers_desc,");
+            strSql.Append("update_empId=@update_empId,");
+            strSql.Append("update_empName=@update_empName,");
+            strSql.Append("update_time=@update_time,");
+            strSql.Append("suppliers_erp_code=@suppliers_erp_code,");
+            strSql.Append("wms_suppliers_id=@wms_suppliers_id");
+            strSql.Append(" where suppliers_id=@suppliers_id");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@suppliers_name", MySqlDbType.VarChar,200),
+					new MySqlParameter("@suppliers_tel", MySqlDbType.VarChar,30),
+					new MySqlParameter("@factory_UserNum", MySqlDbType.Int32,11),
+                    new MySqlParameter("@is_enable", MySqlDbType.Int32,1),
+                    new MySqlParameter("@Provinces_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@Provinces", MySqlDbType.VarChar,100),
+					new MySqlParameter("@City_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@City", MySqlDbType.VarChar,100),
+					new MySqlParameter("@District_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@District", MySqlDbType.VarChar,100),
+                    new MySqlParameter("@suppliers_desc", MySqlDbType.String),
+                    new MySqlParameter("@update_empId", MySqlDbType.Int32,11),
+                    new MySqlParameter("@update_empName", MySqlDbType.VarChar,60),
+                    new MySqlParameter("@update_time", MySqlDbType.VarChar,32),
+                    new MySqlParameter("@suppliers_erp_code", MySqlDbType.VarChar,30),
+                    new MySqlParameter("@wms_suppliers_id", MySqlDbType.VarChar,50),
+					new MySqlParameter("@suppliers_id", MySqlDbType.Int32,5)};
+            parameters[0].Value = model.suppliers_name;
+            parameters[1].Value = model.suppliers_tel;
+            parameters[2].Value = model.factory_UserNum;
+            parameters[3].Value = model.is_enable;
+            parameters[4].Value = model.Provinces_id;
+            parameters[5].Value = model.Provinces;
+            parameters[6].Value = model.City_id;
+            parameters[7].Value = model.City;
+            parameters[8].Value = model.District_id;
+            parameters[9].Value = model.District;
+            parameters[10].Value = model.suppliers_desc;
+            parameters[11].Value = model.update_empId;
+            parameters[12].Value = model.update_empName;
+            parameters[13].Value = model.update_time;
+            parameters[14].Value = model.suppliers_erp_code;
+            parameters[15].Value = model.wms_suppliers_id;
+            parameters[16].Value = model.suppliers_id;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int suppliers_id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from ecs_suppliers ");
+            strSql.Append(" where suppliers_id=@suppliers_id");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@suppliers_id", MySqlDbType.Int32)
+			};
+            parameters[0].Value = suppliers_id;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 批量删除数据
+        /// </summary>
+        public bool DeleteList(string suppliers_idlist)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from ecs_suppliers ");
+            strSql.Append(" where suppliers_id in (" + suppliers_idlist + ")  ");
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.ecs_suppliers GetModel(int suppliers_id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select suppliers_id,scm_factoryId,suppliers_code,suppliers_erp_code,suppliers_name,suppliers_desc,suppliers_tel,dealer_id,is_check,add_time,add_empId,add_empName,update_time,update_empId,update_empName,type_grade,Provinces_id,Provinces,City_id,City,District_id,District,factory_UserNum from ecs_suppliers ");
+            strSql.Append(" where suppliers_id=@suppliers_id");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@suppliers_id", MySqlDbType.Int32)
+			};
+            parameters[0].Value = suppliers_id;
+
+            XHD.Model.ecs_suppliers model = new XHD.Model.ecs_suppliers();
+            DataSet ds = DbHelperMySQL.Query(strSql.ToString(), parameters);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                return DataRowToModel(ds.Tables[0].Rows[0]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.ecs_suppliers DataRowToModel(DataRow row)
+        {
+            XHD.Model.ecs_suppliers model = new XHD.Model.ecs_suppliers();
+            if (row != null)
+            {
+                if (row["suppliers_id"] != null && row["suppliers_id"].ToString() != "")
+                {
+                    model.suppliers_id = int.Parse(row["suppliers_id"].ToString());
+                }
+                if (row["scm_factoryId"] != null)
+                {
+                    model.scm_factoryId = row["scm_factoryId"].ToString();
+                }
+                if (row["suppliers_code"] != null)
+                {
+                    model.suppliers_code = row["suppliers_code"].ToString();
+                }
+                if (row["suppliers_erp_code"] != null)
+                {
+                    model.suppliers_erp_code = row["suppliers_erp_code"].ToString();
+                }
+                if (row["suppliers_name"] != null)
+                {
+                    model.suppliers_name = row["suppliers_name"].ToString();
+                }
+                //model.suppliers_desc=row["suppliers_desc"].ToString();
+                if (row["suppliers_tel"] != null)
+                {
+                    model.suppliers_tel = row["suppliers_tel"].ToString();
+                }
+                if (row["dealer_id"] != null && row["dealer_id"].ToString() != "")
+                {
+                    model.dealer_id = int.Parse(row["dealer_id"].ToString());
+                }
+                if (row["is_check"] != null && row["is_check"].ToString() != "")
+                {
+                    model.is_check = int.Parse(row["is_check"].ToString());
+                }
+                if (row["add_time"] != null)
+                {
+                    model.add_time = row["add_time"].ToString();
+                }
+                if (row["add_empId"] != null && row["add_empId"].ToString() != "")
+                {
+                    model.add_empId = int.Parse(row["add_empId"].ToString());
+                }
+                if (row["add_empName"] != null)
+                {
+                    model.add_empName = row["add_empName"].ToString();
+                }
+                if (row["update_time"] != null)
+                {
+                    model.update_time = row["update_time"].ToString();
+                }
+                if (row["update_empId"] != null && row["update_empId"].ToString() != "")
+                {
+                    model.update_empId = int.Parse(row["update_empId"].ToString());
+                }
+                if (row["update_empName"] != null)
+                {
+                    model.update_empName = row["update_empName"].ToString();
+                }
+                if (row["type_grade"] != null)
+                {
+                    model.type_grade = row["type_grade"].ToString();
+                }
+                if (row["Provinces_id"] != null && row["Provinces_id"].ToString() != "")
+                {
+                    model.Provinces_id = int.Parse(row["Provinces_id"].ToString());
+                }
+                if (row["Provinces"] != null)
+                {
+                    model.Provinces = row["Provinces"].ToString();
+                }
+                if (row["City_id"] != null && row["City_id"].ToString() != "")
+                {
+                    model.City_id = int.Parse(row["City_id"].ToString());
+                }
+                if (row["City"] != null)
+                {
+                    model.City = row["City"].ToString();
+                }
+                if (row["District_id"] != null && row["District_id"].ToString() != "")
+                {
+                    model.District_id = int.Parse(row["District_id"].ToString());
+                }
+                if (row["District"] != null)
+                {
+                    model.District = row["District"].ToString();
+                }
+                if (row["factory_UserNum"] != null && row["factory_UserNum"].ToString() != "")
+                {
+                    model.factory_UserNum = int.Parse(row["factory_UserNum"].ToString());
+                }
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(@"select s.suppliers_id,s.scm_factoryId,s.suppliers_erp_code,s.suppliers_name,s.suppliers_tel,s.add_time,s.add_empId,s.add_empName,s.is_enable,s.wms_suppliers_id,s.Provinces_id,s.Provinces,s.City_id,s.City,s.District,s.District_id,s.suppliers_desc,
+                            s.update_time,s.update_empId,s.update_empName,s.factory_UserNum,u.user_uid,u.Id,s.operate_brands
+                            from ecs_suppliers as s left join scm_supply_user as u on s.suppliers_id=u.supply_Id and u.canlogin = 2  ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetListByDJHM(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(@"select  s.suppliers_name,d.SL   from dhxlk  x inner join dhdjk  d  on d.djhm=x.djhm inner join ecs_suppliers s on s.wms_suppliers_id =x.DWMC ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+        /// <summary>
+        /// 获取记录总数
+        /// </summary>
+        public int GetRecordCount(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) FROM ecs_suppliers ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            object obj = DbHelperMySQL.GetSingle(strSql.ToString());
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return Convert.ToInt32(obj);
+            }
+        }
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetListByPage(string strWhere, string orderby, int startIndex, int endIndex)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("SELECT * FROM ( ");
+            strSql.Append(" SELECT ROW_NUMBER() OVER (");
+            if (!string.IsNullOrEmpty(orderby.Trim()))
+            {
+                strSql.Append("order by T." + orderby);
+            }
+            else
+            {
+                strSql.Append("order by T.suppliers_id desc");
+            }
+            strSql.Append(")AS Row, T.*  from ecs_suppliers T ");
+            if (!string.IsNullOrEmpty(strWhere.Trim()))
+            {
+                strSql.Append(" WHERE " + strWhere);
+            }
+            strSql.Append(" ) TT");
+            strSql.AppendFormat(" WHERE TT.Row between {0} and {1}", startIndex, endIndex);
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        public DataSet GetList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append(@"select s.suppliers_id,s.scm_factoryId,s.suppliers_name,s.suppliers_erp_code,s.suppliers_tel,s.add_time,s.add_empId,s.add_empName,s.Provinces_id,s.Provinces,s.City_id,s.City,s.District_id,s.District,s.is_enable,
+                            s.update_time,s.update_empId,s.update_empName,s.factory_UserNum,u.user_uid,u.Id
+                            from ecs_suppliers as s left join scm_supply_user as u on s.suppliers_id=u.supply_Id and u.canlogin = 2 ");
+            strSql1.Append(" select count(1) from ecs_suppliers as s left join scm_supply_user as u on s.suppliers_id=u.supply_Id and u.canlogin = 2 ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+        public DataSet GetLists(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append(@"select s.suppliers_id,s.scm_factoryId,s.suppliers_name,s.suppliers_erp_code,s.suppliers_tel,s.add_time,s.add_empId,s.add_empName,s.Provinces_id,s.Provinces,s.City_id,s.City,s.District_id,s.District,s.is_enable,
+                            s.update_time,s.update_empId,s.update_empName,s.factory_UserNum,u.user_uid,u.Id
+                            from ecs_suppliers as s left join scm_supply_user as u on s.suppliers_id=u.supply_Id and u.canlogin = 2 ");
+            strSql1.Append(" select count(1) from ecs_suppliers as s left join scm_supply_user as u on s.suppliers_id=u.supply_Id and u.canlogin = 2 ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+        /// <summary>
+        /// 获取经销商
+        /// </summary>
+        public DataSet GetDearList(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append("select user_id,aite_id,email,user_name,is_user_name_checked,u_company,u_real_name,erp_custom_code,password,question,answer,sex,user_money,frozen_money,pay_points,rank_points,address_id,last_login,last_ip,visit_count,user_rank,is_special,ec_salt,salt,parent_id,flag,alias,msn,qq,office_phone,home_phone,mobile_phone,is_validated,credit_line,credit_date,passwd_question,passwd_answer,mediaUID,mediaID,user_market_area,admin_user_name,admin_user_id,admin_u_real_name,is_daifa,send_user_name,send_user_tel,send_user_company,send_user_address,user_from,user_beizhu,is_erp_archives,yes_invoiced_money,no_invoiced_money,aite_user_name,dakuan,dealer_id,main_user_id,user_status ");
+            strSql.Append(" FROM ecs_users ");
+            strSql1.Append(" select count(1) from ecs_users ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Cancel(int ID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update ecs_suppliers set IsDelete = 1 ");
+            strSql.Append(" where suppliers_id=@ID");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@ID", MySqlDbType.Int32,4)
+			};
+            parameters[0].Value = ID;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 获取密码（uid）
+        /// </summary>
+        public bool changepwd(XHD.Model.scm_supply_user model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update scm_supply_user set ");
+            strSql.Append("user_pwd=@user_pwd");
+            strSql.Append(" where supply_Id=@supply_Id and canlogin=2 ");
+            MySqlParameter[] parameters = {					
+					new MySqlParameter("@user_pwd", MySqlDbType.VarChar,50),					
+					new MySqlParameter("@supply_Id", MySqlDbType.Int32)};
+
+            parameters[0].Value = model.user_pwd;
+            parameters[1].Value = model.supply_Id;
+
+            int rows = DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+
+        /// <summary>
+        /// 分页获得供应商所经营的品牌
+        /// </summary>
+        public DataSet GetOperateBrand(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append(" select  brand_id,brand_name from ecs_brand  where  FIND_IN_SET(brand_id,( select  operate_brands from  ecs_suppliers  where " + strWhere + ")) ");
+            strSql1.Append(" select  count(1) from ecs_brand  where  FIND_IN_SET(brand_id,( select  operate_brands from  ecs_suppliers  where " + strWhere + ")) ");
+            //if (strWhere.Trim() != "")
+            //{
+            //    strSql.Append(" where " + strWhere);
+            //    strSql1.Append(" where " + strWhere);
+            //}
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        // 关联供应商所经营的品牌
+        public bool OperateBrand(string brandIds, string supplyId, string factory_id)
+        {
+            string strSql = string.Format(@" update ecs_suppliers set operate_brands='{0}' where suppliers_id='{1}' and scm_factoryId='{2}'", brandIds, supplyId, factory_id);
+            int rows = DbHelperMySQL.ExecuteSql(strSql);
+            if (rows >= 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        // 解除关联供应商所经营的品牌
+        public bool UnOperateBrand(string brandIds, string supplyId, string factory_id)
+        {
+            string strSql = string.Format(@" update ecs_suppliers set operate_brands='{0}' where suppliers_id='{1}' and scm_factoryId='{2}'", brandIds, supplyId, factory_id);
+            int rows = DbHelperMySQL.ExecuteSql(strSql);
+            if (rows >= 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        //获取供应商的员工
+        public DataSet GetSupEmp(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append("select Id,factory_Id,supply_Id,suppliers_erp_code,supply_Name,user_uid,user_name,tel,user_level,user_pwd,email,sex,tel,remarks,canlogin,Create_id,Create_date,Create_name ");
+            strSql.Append(" FROM scm_supply_user ");
+            strSql1.Append(" select count(1) from scm_supply_user  ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        #endregion  BasicMethod
+
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}
+

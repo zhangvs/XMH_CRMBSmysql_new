@@ -1,0 +1,418 @@
+﻿using System;
+using System.Data;
+using System.Text;
+using MySql.Data.MySqlClient;
+using XHD.DBUtility;//Please add references
+
+namespace FMS_DAL
+{
+    /// <summary>
+    /// 数据访问类:fms_kuan_adjust
+    /// </summary>
+    public partial class fms_kuan_adjust
+    {
+        public fms_kuan_adjust()
+        { }
+
+        #region  BasicMethod
+
+        /// <summary>
+        /// 得到最大ID
+        /// </summary>
+        public int GetMaxId()
+        {
+            return FMS_DbHelperMySQL.GetMaxID("id", "fms_kuan_adjust");
+        }
+
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int id)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select count(1) from fms_kuan_adjust");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = id;
+
+            return FMS_DbHelperMySQL.Exists(strSql.ToString(), parameters);
+        }
+
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public int Add(FMS_Model.fms_kuan_adjust model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("insert into fms_kuan_adjust(");
+            strSql.Append("id,date_time,customer_id,user_id,change_total,change_type,change_desc,admin_id,erp_dakuanhao,erp_time,status)");
+            strSql.Append(" values (");
+            strSql.Append("@id,@date_time,@customer_id,@user_id,@change_total,@change_type,@change_desc,@admin_id,@erp_dakuanhao,@erp_time,@status)");
+            strSql.Append(";select @@IDENTITY");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11),
+					new MySqlParameter("@date_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@customer_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@user_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@change_total", MySqlDbType.Decimal,10),
+					new MySqlParameter("@change_type", MySqlDbType.Int16,2),
+					new MySqlParameter("@change_desc", MySqlDbType.VarChar,255),
+					new MySqlParameter("@admin_id", MySqlDbType.VarChar,10),
+					new MySqlParameter("@erp_dakuanhao", MySqlDbType.VarChar,32),
+					new MySqlParameter("@erp_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@status", MySqlDbType.Int16,2)};
+            parameters[0].Value = model.id;
+            parameters[1].Value = model.date_time;
+            parameters[2].Value = model.customer_id;
+            parameters[3].Value = model.user_id;
+            parameters[4].Value = model.change_total;
+            parameters[5].Value = model.change_type;
+            parameters[6].Value = model.change_desc;
+            parameters[7].Value = model.admin_id;
+            parameters[8].Value = model.erp_dakuanhao;
+            parameters[9].Value = model.erp_time;
+            parameters[10].Value = model.status;
+
+            object obj = FMS_DbHelperMySQL.GetSingle(strSql.ToString(), parameters);
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return Convert.ToInt32(obj);
+            }
+        }
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(FMS_Model.fms_kuan_adjust model)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("update fms_kuan_adjust set ");
+            strSql.Append("date_time=@date_time,");
+            strSql.Append("customer_id=@customer_id,");
+            strSql.Append("user_id=@user_id,");
+            strSql.Append("change_total=@change_total,");
+            strSql.Append("change_type=@change_type,");
+            strSql.Append("change_desc=@change_desc,");
+            strSql.Append("admin_id=@admin_id,");
+            strSql.Append("erp_dakuanhao=@erp_dakuanhao,");
+            strSql.Append("erp_time=@erp_time,");
+            strSql.Append("status=@status");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@date_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@customer_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@user_id", MySqlDbType.Int32,11),
+					new MySqlParameter("@change_total", MySqlDbType.Decimal,10),
+					new MySqlParameter("@change_type", MySqlDbType.Int16,2),
+					new MySqlParameter("@change_desc", MySqlDbType.VarChar,255),
+					new MySqlParameter("@admin_id", MySqlDbType.VarChar,10),
+					new MySqlParameter("@erp_dakuanhao", MySqlDbType.VarChar,32),
+					new MySqlParameter("@erp_time", MySqlDbType.Int32,11),
+					new MySqlParameter("@status", MySqlDbType.Int16,2),
+					new MySqlParameter("@id", MySqlDbType.Int32,11)};
+            parameters[0].Value = model.date_time;
+            parameters[1].Value = model.customer_id;
+            parameters[2].Value = model.user_id;
+            parameters[3].Value = model.change_total;
+            parameters[4].Value = model.change_type;
+            parameters[5].Value = model.change_desc;
+            parameters[6].Value = model.admin_id;
+            parameters[7].Value = model.erp_dakuanhao;
+            parameters[8].Value = model.erp_time;
+            parameters[9].Value = model.status;
+            parameters[10].Value = model.id;
+
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool updateHao(string hao, int id)
+        {
+            string strSql = string.Empty;
+            strSql=string.Format(@"update fms_kuan_adjust set erp_dakuanhao='{0}' where id='{1}'", hao, id);          
+
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from fms_kuan_adjust ");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = id;
+
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString(), parameters);
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// 批量删除数据
+        /// </summary>
+        public bool DeleteList(string idlist)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("delete from fms_kuan_adjust ");
+            strSql.Append(" where id in (" + idlist + ")  ");
+            int rows = FMS_DbHelperMySQL.ExecuteSql(strSql.ToString());
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public FMS_Model.fms_kuan_adjust GetModel(int id)
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select id,date_time,customer_id,user_id,change_total,change_type,change_desc,admin_id,erp_dakuanhao,erp_time,status from fms_kuan_adjust ");
+            strSql.Append(" where id=@id ");
+            MySqlParameter[] parameters = {
+					new MySqlParameter("@id", MySqlDbType.Int32,11)			};
+            parameters[0].Value = id;
+
+            FMS_Model.fms_kuan_adjust model = new FMS_Model.fms_kuan_adjust();
+            DataSet ds = FMS_DbHelperMySQL.Query(strSql.ToString(), parameters);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                return DataRowToModel(ds.Tables[0].Rows[0]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public FMS_Model.fms_kuan_adjust DataRowToModel(DataRow row)
+        {
+            FMS_Model.fms_kuan_adjust model = new FMS_Model.fms_kuan_adjust();
+            if (row != null)
+            {
+                if (row["id"] != null && row["id"].ToString() != "")
+                {
+                    model.id = int.Parse(row["id"].ToString());
+                }
+                if (row["date_time"] != null && row["date_time"].ToString() != "")
+                {
+                    model.date_time = int.Parse(row["date_time"].ToString());
+                }
+                if (row["customer_id"] != null && row["customer_id"].ToString() != "")
+                {
+                    model.customer_id = int.Parse(row["customer_id"].ToString());
+                }
+                if (row["user_id"] != null && row["user_id"].ToString() != "")
+                {
+                    model.user_id = int.Parse(row["user_id"].ToString());
+                }
+                if (row["change_total"] != null && row["change_total"].ToString() != "")
+                {
+                    model.change_total = decimal.Parse(row["change_total"].ToString());
+                }
+                if (row["change_type"] != null && row["change_type"].ToString() != "")
+                {
+                    model.change_type = int.Parse(row["change_type"].ToString());
+                }
+                if (row["change_desc"] != null)
+                {
+                    model.change_desc = row["change_desc"].ToString();
+                }
+                if (row["admin_id"] != null)
+                {
+                    model.admin_id = row["admin_id"].ToString();
+                }
+                if (row["erp_dakuanhao"] != null)
+                {
+                    model.erp_dakuanhao = row["erp_dakuanhao"].ToString();
+                }
+                if (row["erp_time"] != null && row["erp_time"].ToString() != "")
+                {
+                    model.erp_time = int.Parse(row["erp_time"].ToString());
+                }
+                if (row["status"] != null && row["status"].ToString() != "")
+                {
+                    model.status = int.Parse(row["status"].ToString());
+                }
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select id,date_time,customer_id,user_id,change_total,change_type,change_desc,admin_id,erp_dakuanhao,erp_time,status ");
+            strSql.Append(" FROM fms_kuan_adjust ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+            return FMS_DbHelperMySQL.Query(strSql.ToString());
+        }
+
+
+        //获得客户的调账金额
+        public string GetTransferAmoun(string strWhere)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("select  sum(change_total) as transfer_amount from fms_kuan_adjust ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+            }
+
+            object obj = FMS_DbHelperMySQL.GetSingle(strSql.ToString());
+            if (obj == null)
+            {
+                return "0";
+            }
+
+            else
+            {
+                return obj.ToString();
+            }
+        }
+
+
+        /// <summary>
+        /// 加载客户的调账信息
+        /// </summary>
+        public DataSet GetList(int PageSize, int PageIndex,int mark, string strWhere, DataTable dt, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            if (mark == 1)
+            {
+                strSql.Append(" select distinct * from ( ");
+                strSql1.Append(" select count(distinct id) from ( ");
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            strSql.Append(" select id,date_time,customer_id,user_id,change_total,change_type,change_desc,admin_id,erp_dakuanhao,erp_time,status  FROM fms_kuan_adjust  ");
+                            strSql.Append(" where  user_id  ='" + dt.Rows[i]["userId"].ToString() + "' and date_time>='" + dt.Rows[i]["datetime"].ToString() + "' ");
+                            strSql1.Append(" select id FROM fms_kuan_adjust ");
+                            strSql1.Append(" where user_id  ='" + dt.Rows[i]["userId"].ToString() + "' and date_time>='" + dt.Rows[i]["datetime"].ToString() + "' ");
+                        }
+                        else
+                        {
+                            strSql.Append( " union all  select id,date_time,customer_id,user_id,change_total,change_type,change_desc,admin_id,erp_dakuanhao,erp_time,status  FROM fms_kuan_adjust  ");
+                            strSql.Append(" where  user_id  ='" + dt.Rows[i]["userId"].ToString() + "' and date_time>='" + dt.Rows[i]["datetime"].ToString() + "' ");
+                            strSql1.Append(" union all  select id  FROM  fms_kuan_adjust ");
+                            strSql1.Append(" where user_id  ='" + dt.Rows[i]["userId"].ToString() + "' and date_time>='" + dt.Rows[i]["datetime"].ToString() + "' ");
+                        }
+                    }
+                }
+
+                strSql.Append(" ) as g ");
+                strSql1.Append(" ) as g ");
+
+            }
+            else if (mark == 2)
+            {
+                strSql.Append("select id,date_time,customer_id,user_id,change_total,change_type,change_desc,admin_id,erp_dakuanhao,erp_time,status  ");
+                strSql.Append(" FROM fms_kuan_adjust ");
+
+                strSql1.Append(" select count(id) FROM fms_kuan_adjust ");
+                if (strWhere.Trim() != "")
+                {
+                    strSql.Append(" where " + strWhere);
+                    strSql1.Append(" where " + strWhere);
+                }
+            }
+           
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = FMS_DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return FMS_DbHelperMySQL.Query(strSql.ToString());
+        }
+
+      
+        /// <summary>
+        /// 加载调账信息信息 
+        /// </summary>
+        public DataSet GetLists(int PageSize, int PageIndex, string strWhere, string filedOrder, out string Total)
+        {
+            StringBuilder strSql = new StringBuilder();
+            StringBuilder strSql1 = new StringBuilder();
+            strSql.Append(" select k.id,FROM_UNIXTIME(k.date_time) as date_time,k.customer_id,k.user_id,k.change_total,k.change_type,k.change_desc,k.admin_id,k.erp_dakuanhao,");
+            strSql.Append(" FROM_UNIXTIME(k.erp_time) as erp_time,k.status,c.C_name,c.C_tel,u.Customer,u.BeSeats_uid,u.BeSeats,concat(c.C_name,',',c.C_tel,',',u.Customer) as cus,");
+            strSql.Append(" e.emp_code,e.name,concat(e.emp_code,' ',e.name) as code_name from xmh_fms.fms_kuan_adjust k ");
+            strSql.Append(" inner join  crm_contact c on k.user_id=c.id  ");
+            strSql.Append(" inner join  crm_customer u on k.customer_id=u.id  ");
+            strSql.Append(" inner join  hr_employee e on e.ID=k.admin_id  ");
+
+            strSql1.Append(" select count(k.id) from xmh_fms.fms_kuan_adjust k");
+            strSql1.Append(" inner join  crm_contact c on k.user_id=c.id  ");
+            strSql1.Append(" inner join  crm_customer u on k.customer_id=u.id  ");
+            strSql1.Append(" inner join  hr_employee e on e.ID=k.admin_id  ");
+            if (strWhere.Trim() != "")
+            {
+                strSql.Append(" where " + strWhere);
+                strSql1.Append(" where " + strWhere);
+            }
+            strSql.Append(" order by " + filedOrder + "  limit " + (PageIndex - 1) * PageSize + "," + PageSize);
+            Total = DbHelperMySQL.Query(strSql1.ToString()).Tables[0].Rows[0][0].ToString();
+            return DbHelperMySQL.Query(strSql.ToString());
+        }
+
+        #endregion  BasicMethod
+
+
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}
+

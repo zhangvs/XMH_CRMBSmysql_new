@@ -1,0 +1,230 @@
+﻿using System;
+using System.Data;
+using System.Collections.Generic;
+using XHD.Common;
+using XHD.Model;
+namespace XHD.BLL
+{
+    /// <summary>
+    /// shop_goods
+    /// </summary>
+    public partial class shop_goods
+    {
+        private readonly XHD.DAL.shop_goods dal = new XHD.DAL.shop_goods();
+        public shop_goods()
+        { }
+
+        #region  BasicMethod
+        /// <summary>
+        /// 是否存在该记录
+        /// </summary>
+        public bool Exists(int goods_id)
+        {
+            return dal.Exists(goods_id);
+        }
+
+        /// <summary>
+        /// 增加一条数据
+        /// </summary>
+        public bool Add(XHD.Model.shop_goods model)
+        {
+            return dal.Add(model);
+        }
+
+        /// <summary>
+        /// 更新一条数据
+        /// </summary>
+        public bool Update(XHD.Model.shop_goods model)
+        {
+            return dal.Update(model);
+        }
+
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool Delete(int goods_id)
+        {
+
+            return dal.Delete(goods_id);
+        }
+        /// <summary>
+        /// 删除一条数据
+        /// </summary>
+        public bool DeleteList(string goods_idlist)
+        {
+            return dal.DeleteList(goods_idlist);
+        }
+
+        /// <summary>
+        /// 得到一个对象实体
+        /// </summary>
+        public XHD.Model.shop_goods GetModel(int goods_id)
+        {
+
+            return dal.GetModel(goods_id);
+        }
+
+        /// <summary>
+        /// 得到一个对象实体，从缓存中
+        /// </summary>
+        public XHD.Model.shop_goods GetModelByCache(int goods_id)
+        {
+
+            string CacheKey = "shop_goodsModel-" + goods_id;
+            object objModel = XHD.Common.DataCache.GetCache(CacheKey);
+            if (objModel == null)
+            {
+                try
+                {
+                    objModel = dal.GetModel(goods_id);
+                    if (objModel != null)
+                    {
+                        int ModelCache = XHD.Common.ConfigHelper.GetConfigInt("ModelCache");
+                        XHD.Common.DataCache.SetCache(CacheKey, objModel, DateTime.Now.AddMinutes(ModelCache), TimeSpan.Zero);
+                    }
+                }
+                catch { }
+            }
+            return (XHD.Model.shop_goods)objModel;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetList(string strWhere)
+        {
+            return dal.GetList(strWhere);
+        }
+
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        /// 
+        public DataSet GetShopGoods(string strWhere, int pageInt, int user_id)
+        {
+            return dal.GetShopGoods(strWhere, pageInt, user_id);
+        }
+
+        /// <summary>
+        /// 获取订单商品详细数据
+        /// </summary>
+        /// 
+        public DataSet GetOrderGoods(string strWhere, int user_id)
+        {
+            return dal.GetOrderGoods(strWhere, user_id);
+        }
+
+                /// <summary>
+        /// 获取商品总重金额数量
+        /// </summary>
+        public DataSet getSumParams(string strWhere)
+        {
+            return dal.getSumParams(strWhere);
+        }
+
+        /// <summary>
+        /// 获得当前库存
+        /// </summary>
+        public DataSet getCurStock(string strWhere,string sqltxt)
+        {
+            return dal.getCurStock(strWhere, sqltxt);
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public List<XHD.Model.shop_goods> GetModelList(string strWhere)
+        {
+            DataSet ds = dal.GetList(strWhere);
+            return DataTableToList(ds.Tables[0]);
+        }
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public List<XHD.Model.shop_goods> DataTableToList(DataTable dt)
+        {
+            List<XHD.Model.shop_goods> modelList = new List<XHD.Model.shop_goods>();
+            int rowsCount = dt.Rows.Count;
+            if (rowsCount > 0)
+            {
+                XHD.Model.shop_goods model;
+                for (int n = 0; n < rowsCount; n++)
+                {
+                    model = dal.DataRowToModel(dt.Rows[n]);
+                    if (model != null)
+                    {
+                        modelList.Add(model);
+                    }
+                }
+            }
+            return modelList;
+        }
+
+        /// <summary>
+        /// 获得数据列表
+        /// </summary>
+        public DataSet GetAllList()
+        {
+            return GetList("");
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public int GetRecordCount(string strWhere)
+        {
+            return dal.GetRecordCount(strWhere);
+        }
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public DataSet GetListByPage(string strWhere, string orderby, int startIndex, int endIndex)
+        {
+            return dal.GetListByPage(strWhere, orderby, startIndex, endIndex);
+        }
+
+        //分页获取商品及库存
+        public DataSet GetGoodsStock(int PageSize, int PageIndex, string strWhere, string strSqlOne, string filedOrder, out string Total)
+        {
+            return dal.GetGoodsStock(PageSize, PageIndex, strWhere,strSqlOne, filedOrder, out  Total);
+        }
+
+        //分页获取商品及库存SL排序
+        public DataSet GetOrderSL(int PageSize, int PageIndex, string strWhere, string strSqlOne, string filedOrder, out string Total)
+        {
+            return dal.GetOrderSL(PageSize, PageIndex, strWhere, strSqlOne, filedOrder, out  Total);
+        }
+
+
+        //获取商品及库存
+        public DataSet GetGoodsStockAll(string strWhere,string strSqlOne)
+        {
+            return dal.GetGoodsStockAll(strWhere, strSqlOne);
+        }
+
+
+        /// <summary>
+        /// 获得品牌数据列表
+        /// </summary>
+        public DataSet GetListBrand(string strWhere)
+        {
+            return dal.GetListBrand(strWhere);
+        }
+
+        /// <summary>
+        /// 获得分类数据列表
+        /// </summary>
+        public DataSet GetListClass(string strWhere)
+        {
+            return dal.GetListClass(strWhere);
+        }
+
+        #endregion  BasicMethod
+
+        #region  ExtensionMethod
+
+        #endregion  ExtensionMethod
+    }
+}
+

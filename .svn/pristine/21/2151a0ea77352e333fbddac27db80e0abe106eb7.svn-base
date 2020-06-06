@@ -1,0 +1,258 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="QA.master.cs" Inherits="SSN.SSN.QA" %>
+
+<%@ Register Assembly="AspNetPager" Namespace="Wuqi.Webdiyer" TagPrefix="webdiyer" %>
+<!DOCTYPE html>
+
+<html lang="zh-cn">
+
+<head>
+    <title>SSN</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="renderer" content="webkit">
+    <script src="../pintuer/jquery.js"></script>
+    <script src="../pintuer/pintuer.js"></script>
+    <link href="../pintuer/pintuer.css" rel="stylesheet" />
+    <link href="../pintuer/admin.css" rel="stylesheet" />
+    <script src="../e/js/jquery.min.js"></script>
+    <style type="text/css">
+        .tab .tab-body {
+            border-top: solid 1px #ddd;
+            margin-top: -1px;
+            padding-top: 0px;
+        }
+
+        .button {
+            padding: 4px 15px;
+        }
+
+        .input {
+            height: 30px;
+            border: solid 1px #989393;
+        }
+
+        .active {
+            background-color: #DAD7D7;
+        }
+
+        .linkButton li {
+            list-style-type: none;
+        }
+
+            .linkButton li a {
+                padding: 8px 20px 12px;
+                border: solid 1px #ddd;
+                float: left;
+            }
+
+        .input-help {
+            color: red;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+    </style>
+    <script type="text/javascript">
+    </script>
+</head>
+
+<body>
+    <!--顶部-->
+    <div class="layout bg-main bg-inverse fixed" style="z-index: 9;">
+        <div class="container-layout">
+            <div class="navbar">
+                <form method="post" id="form1">
+                    <div class="navbar-head">
+                        <button class="button icon-navicon" data-target="#navbar1">
+                        </button>
+                        <a href="javascript:void(0)">
+                            <strong class="text-big">SSN问答中心</strong></a>
+                    </div>
+
+                    <div class="navbar-body nav-navicon" id="navbar1">
+                        <ul class="nav nav-inline nav-menu">
+                            <%--    <li><a class="icon-cog" href="javascript:void(0)">设置<span class="arrow"></span></a>
+                                <ul class="drop-menu">
+                                    <li><a href="javascript:void(0)">皮肤设置<span class="arrow"></span></a>
+                                        <ul>
+                                            <li><a href="javascript:void(0)" onclick="changeColor('#525655')">墨绿</a></li>
+                                            <li><a href="javascript:void(0)" onclick="changeColor('#46C1DC')">天蓝</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>--%>
+                            <li><a class="icon-home" href="javascript:void(0)">导航<span class="arrow"></span></a>
+                                <ul class="drop-menu">
+                                    <li><a class="icon-question-circle" href="Question.aspx">我的提问</a></li>
+                                    <li><a class="icon-key" href="Answer.aspx">我的回答</a></li>
+                                    <%--<li><a class="icon-file-text" href="content.html">我的回答<span class="arrow"></span></a>
+                                   <ul>
+                                        <li><a href="content.html">新闻</a></li>
+                                        <li><a href="javascript:void(0)">留言</a></li>
+                                        <li><a href="javascript:void(0)">反馈</a></li>
+                                    </ul>
+                                </li>--%>
+                                    <li><a class="icon-flash (alias)" href="QuickQuestion.aspx">快速提问</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <!--
+                        	描述：右侧用户资料
+                        -->
+                        <ul class="nav nav-inline nav-menu navbar-right">
+                            <li>
+                                <a class="bg-main" href="javascript:;" style="display: none">
+                                    <%--<span><img src="http://www.pintuer.com/demo/pintuer2/images/face.jpg" width="28" class="radius-circle"></span>
+                                    管理员--%>
+                                    <span>
+                                        <asp:Image ID="Image1" runat="server" Width="28" class="radius-circle" /></span>
+                                    <asp:Label ID="lblNmae" runat="server" Text="Label"></asp:Label>
+                                    <%--<span class="downward"></span>--%>
+                                </a>
+                                <%--   <ul class="drop-menu">
+                                    <li><a class="icon-user" target="_blank" href="javascript:;">修改资料</a></li>
+                                    <li><a class="icon-key" target="_blank" href="javascript:;">修改密码</a></li>
+                                </ul>--%>
+                            </li>
+                            <!--<li><a class="bg-green" href="javascript:;"><span class="icon-envelope"></span>&nbsp;<span class="badge bg-blue">5+</span><span class="downward"></span></a>
+								<ul class="drop-menu">
+									<li><a class="text-yellow-light" target="_blank" href="javascript:;"><span class="icon-envelope"></span>您有16封邮件</a></li>
+									<li><a class="bg-gray" target="_blank" href="javascript:;"><span class="icon-envelope"></span>查阅更多...</a></li>
+								</ul>
+							</li>-->
+                            <%--        <li><a class="bg-blue" href="javascript:;"><span class="icon-bell-o"></span>&nbsp;<span class="badge bg-green"><asp:Label ID="lblSum" runat="server" Text="Label"></asp:Label></span><span class="downward"></span></a>
+                                <ul class="drop-menu">
+                                    <li><a class="text-yellow-light active" target="_blank" href="javascript:;"><span class="icon-comment"></span>
+                                        <asp:Label ID="lblUnread" runat="server" Text="Label"></asp:Label></a></li>
+                                    <li><a class="text-yellow-light active" target="_blank" href="javascript:;"><span class="icon-comments"></span>
+                                        <asp:Label ID="lblReply" runat="server" Text="Label"></asp:Label></a></li>
+                                </ul>
+                            </li>--%>
+                            <li><a class="bg-main" href="QuickQuestion.aspx"><span class="icon-flash (alias)"></span>快速提问</a></li>
+                            <li><a class="bg-yellow" target="_blank" href="javascript:void(0)" onclick="loginOut()"><span class="icon-sign-out"></span>注销</a></li>
+                        </ul>
+                        <!--
+                        	描述：左侧搜索
+                        -->
+                        <%-- <div class="navbar-form navbar-left">
+                            <input type="text" class="input input-auto" name="keywords" size="15" placeholder="功能名称">
+                            <input type="submit" name="search" value="搜索" class="button bg">
+                        </div>--%>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!--内容-->
+    <div class="layout" style="overflow: auto" id="divBody">
+        <form runat="server">
+            <asp:ScriptManager ID="ScriptManager1" runat="server">
+            </asp:ScriptManager>
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder2" runat="server">
+            </asp:ContentPlaceHolder>
+            <div class="admin">
+                <div class="xm3">
+                    <div class="panel border-back">
+                        <div class="panel-body text-center">
+                            <%-- <img src="../images/face.jpg" width="120" class="radius-circle" />
+                        <br>
+                        admin--%>
+                            <span>
+                                <asp:Image ID="Image2" runat="server" Width="120" class="radius-circle" /></span>
+                            <asp:Label ID="lblName1" runat="server" Text="Label"></asp:Label>
+
+                        </div>
+                        <div class="panel-foot bg-back border-back">
+                            <asp:Label ID="lblWelcome" runat="server" Text="Label"></asp:Label>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="panel">
+                        <div class="panel-head"><strong>站点统计</strong></div>
+                        <ul class="list-group">
+                            <li><span class="float-right badge bg-red">
+                                <asp:Label ID="lblScore" runat="server" Text="Label"></asp:Label></span><span class="icon-user"></span> 积分</li>
+                            <li><span class="float-right badge bg-red">
+                                <asp:Label ID="lblQuestion" runat="server" Text="Label"></asp:Label></span><span class="icon-question"></span> 提问数</li>
+                            <li><span class="float-right badge bg-main">
+                                <asp:Label ID="lblAnswer" runat="server" Text="Label"></asp:Label></span><span class="icon-file"></span> 回答数</li>
+                            <li><span class="float-right badge bg-main">
+                                <asp:Label ID="lblRate" runat="server" Text="Label"></asp:Label></span><span class="icon-thumbs-o-up"></span> 回答采纳率</li>
+                            <li><span class="float-right badge bg-main">
+                                <asp:Label ID="lblGood" runat="server" Text="Label"></asp:Label></span><span class="icon-thumbs-up"></span> 回答评优数</li>
+                        </ul>
+                    </div>
+                    <br>
+                </div>
+                <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+                </asp:ContentPlaceHolder>
+            </div>
+        </form>
+    </div>
+    <br>
+    <!--底部-->
+    <div class="layout fixed-bottom bg-white">
+        <div class="border-bottom padding-bottom">
+            <div class="text-center height-big text-small">
+                Copyright&nbsp; @&nbsp;  2013-2020&nbsp;  All&nbsp;  Rights&nbsp;  Reserved&nbsp; &nbsp;    版权所有:临沂新明辉安全科技有限公司&nbsp; &nbsp;    技术支持:山东易安捷科技股份有限公司
+            </div>
+        </div>
+    </div>
+    <hr>
+</body>
+
+</html>
+<script type="text/javascript">
+    function loginOut() {
+        //$.ligerDialog.confirm('您确认要退出系统？', function (yes) {
+        //    if (yes) {
+        $.ajax({
+            type: 'post', dataType: 'json',
+            url: '../DataSSN/SSN_Login.ashx',
+            data: [{ name: 'Action', value: 'logout' }],
+            success: function (result) {
+                javascript: location.replace("login.aspx");
+                location.reload([false]);
+            }
+        });
+        //}
+        //});
+    }
+
+    function changeColor(color) {
+        $(".bg-main").css("background-color:" + color);
+    }
+</script>
+<script type="text/javascript">
+    var winWidth = 0;
+    var winHeight = 0;
+    function findDimensions() { //函数：获取尺寸
+        //获取窗口宽度
+        if (window.innerWidth) {
+            winWidth = window.innerWidth;
+        }
+        else if ((document.body) && (document.body.clientWidth)) {
+            winWidth = document.body.clientWidth;
+        }
+        //获取窗口高度
+        if (window.innerHeight) {
+            winHeight = window.innerHeight;
+        }
+        else if ((document.body) && (document.body.clientHeight)) {
+            winHeight = document.body.clientHeight;
+        }
+        //通过深入Document内部对body进行检测，获取窗口大小
+        if (document.documentElement && document.documentElement.clientHeight && document.documentElement.clientWidth) {
+            winHeight = document.documentElement.clientHeight - 100;
+            winWidth = document.documentElement.clientWidth;
+        }
+        //设置div的具体宽度=窗口的宽度的%
+        if (document.getElementById("divBody")) {
+            document.getElementById("divBody").style.height = winHeight + "px";
+        }
+    }
+    findDimensions();
+    window.onresize = findDimensions;
+</script>

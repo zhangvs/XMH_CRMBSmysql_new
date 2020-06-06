@@ -1,0 +1,121 @@
+﻿using System;
+
+namespace FMS_Model
+{
+    /// <summary>
+    /// fms_kuan_adjust:实体类(属性说明自动提取数据库字段的描述信息)
+    /// </summary>
+    [Serializable]
+    public partial class fms_kuan_adjust
+    {
+        public fms_kuan_adjust()
+        { }
+        #region Model
+        private int _id;
+        private int _date_time;
+        private int? _customer_id;
+        private int _user_id;
+        private decimal _change_total;
+        private int _change_type;
+        private string _change_desc;
+        private string _admin_id;
+        private string _erp_dakuanhao;
+        private int? _erp_time;
+        private int? _status = 0;
+
+        public string debit_account_code { get; set; }  //借方科目代码
+        public string credit_account_code { get; set; } //贷方科目代码
+
+        /// <summary>
+        /// 增自ID
+        /// </summary>
+        public int id
+        {
+            set { _id = value; }
+            get { return _id; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int date_time
+        {
+            set { _date_time = value; }
+            get { return _date_time; }
+        }
+        /// <summary>
+        /// 客户所在公司自增编号Id
+        /// </summary>
+        public int? customer_id
+        {
+            set { _customer_id = value; }
+            get { return _customer_id; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int user_id
+        {
+            set { _user_id = value; }
+            get { return _user_id; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal change_total
+        {
+            set { _change_total = value; }
+            get { return _change_total; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int change_type
+        {
+            set { _change_type = value; }
+            get { return _change_type; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string change_desc
+        {
+            set { _change_desc = value; }
+            get { return _change_desc; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string admin_id
+        {
+            set { _admin_id = value; }
+            get { return _admin_id; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string erp_dakuanhao
+        {
+            set { _erp_dakuanhao = value; }
+            get { return _erp_dakuanhao; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int? erp_time
+        {
+            set { _erp_time = value; }
+            get { return _erp_time; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int? status
+        {
+            set { _status = value; }
+            get { return _status; }
+        }
+        #endregion Model
+
+    }
+}
+
